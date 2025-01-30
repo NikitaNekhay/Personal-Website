@@ -92,7 +92,7 @@ export async function getProducts() {
     }));
 
 
-    //console.log(blogPosts)
+    console.log(blogPosts)
 
     return blogPosts;
   } catch (error) {
