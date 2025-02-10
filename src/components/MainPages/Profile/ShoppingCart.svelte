@@ -603,7 +603,7 @@
           ? "Промокод: " + tempUserCart.discount + "\n"
           : ""
       }Предоплата: ${prepaymentPrice} BYN\nОбщая стоимость за заказ: ${totalСartPrice} BYN\n\n`;
-      checkText += `Вы получите электронное сообщение на почту от manager@nekhaynikita.shop с заголовком о продолжении заказа\nОжидайте дальнейших инструкций об оплате.\n\n`;
+      checkText += `Вы получите электронное сообщение на почту от manager@nekhaynikita.ru с заголовком о продолжении заказа\nОжидайте дальнейших инструкций об оплате.\n\n`;
 
       return checkText;
     } else {
@@ -619,7 +619,7 @@
           ? "Discount: " + tempUserCart.discount + "\n"
           : ""
       }Prepayment price: ${prepaymentPrice}\nTotal price of order: ${totalСartPrice}\n\n`;
-      checkText += `You will get an copy email from manager@nekhaynikita.shop with the subject of proceeding an order\nWait further instructions for the purchase.\n\n`;
+      checkText += `You will get an copy email from manager@nekhaynikita.ru with the subject of proceeding an order\nWait further instructions for the purchase.\n\n`;
 
       return checkText;
     }
