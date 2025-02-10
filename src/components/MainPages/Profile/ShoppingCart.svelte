@@ -268,7 +268,7 @@
             // create and handle user from form data
             ////console.log("create user");
             if (isCreateAccout) handleCreateNewUser();
-    
+
             // send credentials to admin
             ////console.log("send credentials to admin");
             handleSendCredentials();
@@ -277,7 +277,12 @@
             //downloadCheck();
 
             // Send check to user's email
-            sendEmail(tempUserCart.email, $t(EmailSubjects.ProceedOrder), generateCheck(),EmailSubjects.ProceedOrder)
+            sendEmail(
+              tempUserCart.email,
+              $t(EmailSubjects.ProceedOrder),
+              generateCheck(),
+              EmailSubjects.ProceedOrder,
+            );
             isChanged = true;
             isError = false;
             msg =
@@ -508,26 +513,14 @@
           tempUserCart.cart,
         );
 
-        setTimeout(async()=>{
+        setTimeout(async () => {
           await sendEmail(
-          tempUserCart.email,
-          $t(EmailSubjects.NewAccount),
-          $t(EmailText.NewAccount) + password,
-          EmailSubjects.NewAccount,
-        );
-        },3000)
-       
-        setTimeout(async()=>{
-          await sendEmail(
-          "manager@nekhaynikita.ru",
-          $t(EmailSubjects.NewAccount),
-          $t(EmailText.NewAccount) + password,
-          EmailSubjects.NewAccount,
-        );
-        },3000)
-
-        
-
+            tempUserCart.email,
+            $t(EmailSubjects.NewAccount),
+            $t(EmailText.NewAccount) + password,
+            EmailSubjects.NewAccount,
+          );
+        }, 3000);
 
         isChanged = true;
         isError = false;

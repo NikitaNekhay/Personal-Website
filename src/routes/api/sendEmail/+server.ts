@@ -77,6 +77,7 @@ const sendEmail = async (to, subject, text, type) => {
     };
 
     switch (type) {
+        // чисто для админа
         case EmailSubjects.OrderCredentials: {
             mailOptions.to = "manager@nekhaynikita.ru";
             mailOptions.text = text;
