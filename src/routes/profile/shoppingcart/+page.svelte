@@ -46,10 +46,10 @@
             }),
         });
 
-        //console.log(response);
+        console.log(response);
 
         if (response.ok) {
-            //console.log("Email sent");
+            console.log("Email sent");
         } else {
             console.error("Failed to send email");
         }
