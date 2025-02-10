@@ -46,7 +46,7 @@
             }),
         });
 
-        console.log(response);
+        //console.log(response);
 
         if (response.ok) {
             console.log("Email sent");

@@ -101,8 +101,8 @@ const sendEmail = async (to, subject, text, type) => {
     //console.log('Email data: '+mailOptions.to,mailOptions.from,mailOptions.subject,type);
     try {
         let info = await transporter.sendMail(mailOptions);
-        console.log('Email sent: ' + info.response, mailOptions);
+       // console.log('Email sent: ' + info.response, mailOptions);
     } catch (error) {
-        console.error('Error sending email: ' + mailOptions.to + "error: " + error);
+       // console.error('Error sending email: ' + mailOptions.to + "error: " + error);
     }
 };
