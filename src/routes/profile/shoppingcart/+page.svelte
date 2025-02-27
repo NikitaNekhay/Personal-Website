@@ -8,30 +8,55 @@
     import { authStore } from "../../../store/store";
     import { base } from "$app/paths";
 
-
     let userCountry = "Unknown";
     let userCity = "Unknown";
 
+    // onMount(async () => {
+    //     // Fetch the user's IP and location using a public IP API (consider using a more private/secure method in production)
+    //     const res = await fetch("https://ipapi.co/json/");
+    //     const locationData = await res.json();
+    //     //console.log(locationData);
+    //     if (locationData && locationData.country && locationData.city) {
+    //         userCountry = locationData.country;
+    //         userCity = locationData.city;
+
+    //         if (!$authStore.user) {
+    //             //console.log("cart in page.svelte cart",$cart)
+    //             $cart.country = userCountry;
+    //             $cart.city = userCity;
+    //         }
+    //     } else {
+    //         //console.log("bad luck on fetch");
+    //     }
+    // });
+
     onMount(async () => {
-        // Fetch the user's IP and location using a public IP API (consider using a more private/secure method in production)
-        const res = await fetch("https://ipapi.co/json/");
-        const locationData = await res.json();
-        //console.log(locationData);
-        if (locationData && locationData.country && locationData.city) {
-            userCountry = locationData.country;
-            userCity = locationData.city;
-            
-            if (!$authStore.user) {
-                //console.log("cart in page.svelte cart",$cart)
-                $cart.country = userCountry;
-                $cart.city = userCity;
+        try {
+            const res = await fetch(
+                "https://ipinfo.io/json?token=f795a8243455e9",
+            );
+            const locationData = await res.json();
+
+            if (locationData && locationData.country && locationData.city) {
+                userCountry = locationData.country;
+                userCity = locationData.city;
+
+                if (!$authStore.user) {
+                    $cart.country = userCountry;
+                    $cart.city = userCity;
+                }
             }
-        } else {
-            //console.log("bad luck on fetch");
+        } catch (error) {
+            console.error("Error fetching location data:", error);
         }
     });
 
-    const sendEmailPost = async (to: string, subject: string, text: string,type:string) => {
+    const sendEmailPost = async (
+        to: string,
+        subject: string,
+        text: string,
+        type: string,
+    ) => {
         //console.log("here");
         const response = await fetch(`${base}/api/sendEmail`, {
             method: "POST",
@@ -42,7 +67,7 @@
                 to: to,
                 subject: subject,
                 text: text,
-                type:type
+                type: type,
             }),
         });
 
