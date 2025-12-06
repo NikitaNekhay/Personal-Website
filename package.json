@@ -12,8 +12,8 @@
   },
   "devDependencies": {
     "@sveltech/routify": "^1.9.10",
-    "@sveltejs/adapter-auto": "^2.1.0",
-    "@sveltejs/adapter-vercel": "^3.0.3",
+    "@sveltejs/adapter-auto": "^2.5.0",
+    "@sveltejs/adapter-vercel": "^4.2.1",
     "@sveltejs/kit": "^1.5.0",
     "@tailwindcss/aspect-ratio": "^0.4.2",
     "@tailwindcss/forms": "^0.5.3",
