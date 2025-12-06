@@ -285,6 +285,7 @@
                         >
                             <li>
                                 <p>
+                                    
                                     {$t("technical portfolio aka CV")} ->
                                     <a
                                         class="p-link"
@@ -294,7 +295,7 @@
                                     > 
                                 </p>
                             </li>
-                            
+
                             <li>
                                 <p>
                                     {$t("group in the telegram")} ->
