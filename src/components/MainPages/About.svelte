@@ -285,6 +285,7 @@
                         >
                             <li>
                                 <p>
+                                    
                                     {$t("technical portfolio aka CV")} ->
                                     <a
                                         class="p-link"
@@ -292,6 +293,7 @@
                                         href="https://docs.google.com/document/d/1LHm3UsDoQ6WlPUhpZtmOm1Z8n7Fq2sXg_kZf821ZZO4/edit?tab=t.0"
                                         >{$t("here")}</a
                                     >
+                                    
                                 </p>
                             </li>
                             <li>
