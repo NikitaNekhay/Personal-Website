@@ -49,7 +49,7 @@
     "xmp-js": "^0.0.5"
   },
   "engines": {
-    "node": "18.x"
+    "node": "24.x"
   },
   "type": "module"
 }
