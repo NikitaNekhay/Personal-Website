@@ -15,7 +15,7 @@ const config = {
 		// See https://kit.svelte.dev/docs/adapters for more information about adapters.
 		//dsadsa
 		adapter: vercel({
-			runtime: "nodejs22.x"
+			runtime: "nodejs20.x"
 		}),
 		env:{
 			dir:'.',
