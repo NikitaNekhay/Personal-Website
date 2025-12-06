@@ -1,104 +1,55 @@
 {
-
-	"name": "svelte-kit-app",
-
-	"version": "0.0.1",
-
-	"private": true,
-
-	"scripts": {
-
-		"dev": "vite dev",
-
-		"build": "npx eslint && vite build",
-
-		"preview": "vite preview",
-
-		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
-
-		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
-
-		"lint": "eslint ."
-
-	},
-
-	"devDependencies": {
-
-		"@sveltech/routify": "^1.9.10",
-
-		"@sveltejs/adapter-auto": "^2.1.0",
-
-		"@sveltejs/adapter-vercel": "^3.0.3",
-
-		"@sveltejs/kit": "^1.5.0",
-
-		"@tailwindcss/aspect-ratio": "^0.4.2",
-
-		"@tailwindcss/forms": "^0.5.3",
-
-		"@types/gtag.js": "^0.0.18",
-
-		"@types/nodemailer": "^6.4.14",
-
-		"@types/scrollmagic": "^2.0.8",
-
-		"@vercel/speed-insights": "^1.0.2",
-
-		"autoprefixer": "^10.4.14",
-
-		"caniuse-lite": "^1.0.30001565",
-
-		"country-flag-icons": "^1.5.9",
-
-		"eslint": "^8.54.0",
-
-		"firebase": "^11.0.1",
-
-		"generate-robotstxt": "^8.0.3",
-
-		"gh-pages": "^3.0.0",
-
-		"nodemailer": "^6.9.8",
-
-		"piexifjs": "^1.0.6",
-
-		"postcss": "^8.4.23",
-
-		"prettier": "^3.1.0",
-
-		"prettier-plugin-svelte": "^3.1.2",
-
-		"routify": "^1.2.7",
-
-		"scrollmagic": "^2.0.8",
-
-		"svelte": "^4.2.8",
-
-		"svelte-i18n": "^4.0.0",
-
-		"svelte-routing": "^1.8.8",
-
-		"svelte-spa-router": "^3.3.0",
-
-		"svelte-virtual-scroll-list": "^1.3.0",
-
-		"tailwindcss": "^3.3.2",
-
-		"tailwindcss-hyphens": "^0.1.0",
-
-		"tslib": "^2.4.1",
-
-		"tw-elements": "^1.0.0-beta2",
-
-		"typescript": "^4.9.3",
-
-		"vite": "^4.3.9",
-
-		"xmp-js": "^0.0.5"
-
-	},
-
-	"type": "module"
-
+  "name": "svelte-kit-app",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "vite dev",
+    "build": "npx eslint && vite build",
+    "preview": "vite preview",
+    "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+    "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
+    "lint": "eslint ."
+  },
+  "devDependencies": {
+    "@sveltech/routify": "^1.9.10",
+    "@sveltejs/adapter-auto": "^2.1.0",
+    "@sveltejs/adapter-vercel": "^3.0.3",
+    "@sveltejs/kit": "^1.5.0",
+    "@tailwindcss/aspect-ratio": "^0.4.2",
+    "@tailwindcss/forms": "^0.5.3",
+    "@types/gtag.js": "^0.0.18",
+    "@types/nodemailer": "^6.4.14",
+    "@types/scrollmagic": "^2.0.8",
+    "@vercel/speed-insights": "^1.0.2",
+    "autoprefixer": "^10.4.14",
+    "caniuse-lite": "^1.0.30001565",
+    "country-flag-icons": "^1.5.9",
+    "eslint": "^8.54.0",
+    "firebase": "^11.0.1",
+    "generate-robotstxt": "^8.0.3",
+    "gh-pages": "^3.0.0",
+    "nodemailer": "^6.9.8",
+    "piexifjs": "^1.0.6",
+    "postcss": "^8.4.23",
+    "prettier": "^3.1.0",
+    "prettier-plugin-svelte": "^3.1.2",
+    "routify": "^1.2.7",
+    "scrollmagic": "^2.0.8",
+    "svelte": "^4.2.8",
+    "svelte-i18n": "^4.0.0",
+    "svelte-routing": "^1.8.8",
+    "svelte-spa-router": "^3.3.0",
+    "svelte-virtual-scroll-list": "^1.3.0",
+    "tailwindcss": "^3.3.2",
+    "tailwindcss-hyphens": "^0.1.0",
+    "tslib": "^2.4.1",
+    "tw-elements": "^1.0.0-beta2",
+    "typescript": "^4.9.3",
+    "vite": "^4.3.9",
+    "xmp-js": "^0.0.5"
+  },
+  "engines": {
+    "node": "18.x"
+  },
+  "type": "module"
 }
-
