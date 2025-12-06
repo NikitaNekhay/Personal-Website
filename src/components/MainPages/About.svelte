@@ -289,7 +289,7 @@
                                     <a
                                         class="p-link"
                                         target="_blank"
-                                        href="https://standardresume.co/r/OAYLFpwZFWOJpeyckiFpn"
+                                        href="https://docs.google.com/document/d/1LHm3UsDoQ6WlPUhpZtmOm1Z8n7Fq2sXg_kZf821ZZO4/edit?tab=t.0"
                                         >{$t("here")}</a
                                     >
                                 </p>
