@@ -48,8 +48,5 @@
     "vite": "^4.3.9",
     "xmp-js": "^0.0.5"
   },
-  "engines": {
-    "node": "20.x"
-  },
   "type": "module"
 }
