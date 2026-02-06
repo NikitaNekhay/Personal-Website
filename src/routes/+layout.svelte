@@ -19,7 +19,7 @@
 
 
     let isUser: boolean = false;
-    let isChanged: boolead = false;
+    let isChanged: boolean = false;
 
     const checkUserStatus = (user) => {
         isAdmin.set({ value: false });

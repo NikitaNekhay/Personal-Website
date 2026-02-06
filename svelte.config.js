@@ -1,5 +1,5 @@
 import adapter from '@sveltejs/adapter-vercel';
-import { vitePreprocess } from '@sveltejs/kit/vite';
+import sveltePreprocess from 'svelte-preprocess';
 
 const dev = process.argv.includes('dev');
 
@@ -7,7 +7,7 @@ const dev = process.argv.includes('dev');
 const config = {
 	// Consult https://kit.svelte.dev/docs/integrations#preprocessors
 	// for more information about preprocessors
-	preprocess: vitePreprocess(),
+	preprocess: sveltePreprocess(),
 
 	kit: {
 		// adapter-auto only supports some environments, see https://kit.svelte.dev/docs/adapter-auto for a list.
@@ -15,7 +15,7 @@ const config = {
 		// See https://kit.svelte.dev/docs/adapters for more information about adapters.
 		//dsadsa
 		adapter: adapter({
-		runtime: "nodejs20.x"
+		runtime: "nodejs22.x"
 		}),
 		env:{
 			dir:'.',

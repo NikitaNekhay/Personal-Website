@@ -86,27 +86,27 @@
 
   onMount(() => {
     //console.log("authstore - before unsub", $authStore);
-    const unsubscribe = authStore.subscribe((authStore) => {
-      //console.log("authstore - in unsub", authStore);
-      //console.log("$authstore - in cart", $authStore);
+    const unsubscribe = authStore.subscribe((authStoreValue) => {
+      //console.log("authstore - in unsub", authStoreValue);
+      //console.log("$authstore - in cart", authStoreValue);
 
-      //console.log("cart in cart", $cart);
-      tempUserCart = $authStore.user
+      //console.log("cart in cart", tempUserCart.cart);
+      tempUserCart = authStoreValue.user
         ? {
-            fullName: $authStore.data.name ?? "",
-            phoneNumber: $authStore.data.phone ?? "",
-            email: $authStore.data.email ?? "",
+            fullName: authStoreValue.data.name ?? "",
+            phoneNumber: authStoreValue.data.phone ?? "",
+            email: authStoreValue.data.email ?? "",
             contactOption: ContactOptions.Telegram,
             contactName: "",
             deliveryOption: DeliveryOptions.SelfDelivery,
-            country: $authStore.data.country ?? "",
-            city: $authStore.data.city ?? "",
+            country: authStoreValue.data.country ?? "",
+            city: authStoreValue.data.city ?? "",
             adress: "",
             paymentOption: PaymentOptions.CashLessTotal,
             discount: "",
-            cart: $authStore.data.cart ?? [],
+            cart: authStoreValue.data.cart ?? [],
           }
-        : $cart;
+        : tempUserCart;
 
       ////console.log(tempUserCart);
       cartItems = tempUserCart.cart;
