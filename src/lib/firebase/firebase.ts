@@ -9,13 +9,13 @@ import { env } from "$env/dynamic/public";
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey:   env.PUBLIC_FIREBASE_API_KEY,
-  authDomain:   env.PUBLIC_FIREBASE_AUTH_DOMAIN,
-  projectId:    env.PUBLIC_FIREBASE_PROJECT_ID,
-  messagingSenderId:   env.PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-  storageBucket:  env.PUBLIC_FIREBASE_STORAGE_BUCKET,
-  appId:   env.PUBLIC_FIREBASE_APP_ID,
-  measurementId:   env.PUBLIC_FIREBASE_MEASUREMENT_ID,
+  apiKey:   env.PUBLIC_FIREBASE_API_KEY || "dummy-api-key-for-build",
+  authDomain:   env.PUBLIC_FIREBASE_AUTH_DOMAIN || "dummy.firebaseapp.com",
+  projectId:    env.PUBLIC_FIREBASE_PROJECT_ID || "dummy-project",
+  messagingSenderId:   env.PUBLIC_FIREBASE_MESSAGING_SENDER_ID || "123456789",
+  storageBucket:  env.PUBLIC_FIREBASE_STORAGE_BUCKET || "dummy.appspot.com",
+  appId:   env.PUBLIC_FIREBASE_APP_ID || "1:123:web:abc",
+  measurementId:   env.PUBLIC_FIREBASE_MEASUREMENT_ID || "G-DUMMY",
 };
 
 
