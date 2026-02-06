@@ -95,45 +95,6 @@ Integrated analytics and performance tracking.<br>
 - npm or yarn package manager
 - Firebase project with Firestore, Auth, and Storage enabled
 
-### Installation & Commands
-
-```bash
-# Install dependencies
-npm install
-
-# Run development server
-npm run dev
-
-# Build for production
-npm run build
-
-# Preview production build
-npm run preview
-
-# Type-checking
-npm run check
-
-# Linting
-npm run lint
-```
-
-### Environment Variables
-
-Required in `.env` file:
-
-```env
-PUBLIC_FIREBASE_API_KEY=your_api_key
-PUBLIC_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
-PUBLIC_FIREBASE_PROJECT_ID=your_project_id
-PUBLIC_FIREBASE_STORAGE_BUCKET=your_project.appspot.com
-PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
-PUBLIC_FIREBASE_APP_ID=your_app_id
-PUBLIC_FIREBASE_MEASUREMENT_ID=your_measurement_id
-SECRET_DOMAIN_EMAIL=your_email@domain.com
-SECRET_DOMAIN_EMAIL_PASS=your_email_password
-```
-
----
 
 ## Project Architecture
 
@@ -179,9 +140,3 @@ SECRET_DOMAIN_EMAIL_PASS=your_email_password
 Private project - All rights reserved © Nikita Nekhay
 
 ---
-
-## Contact
-
-**Developer:** Nikita Nekhay
-**Email:** manager@nekhaynikita.ru
-**GitHub:** [@NikitaNekhay](https://github.com/NikitaNekhay)
