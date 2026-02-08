@@ -128,7 +128,7 @@
                                 <li>
                                     <p>
                                         {$t(
-                                            "graduate (programming and logistics) employed front-end programmer in React, Bitrix, PHP",
+                                            "master degree student (DevOps & Security Engineering), graduate (programming and logistics) seeking for a job as a front-end developer in React, Svelte, Bitrix1C",
                                         )}
                                     </p>
                                     
@@ -290,7 +290,7 @@
                                     <a
                                         class="p-link"
                                         target="_blank"
-                                        href="https://docs.google.com/document/d/1LHm3UsDoQ6WlPUhpZtmOm1Z8n7Fq2sXg_kZf821ZZO4/edit?tab=t.0"
+                                        href="{$t("cv-link")}"
                                         >{$t("here")}</a
                                     > 
                                 </p>
