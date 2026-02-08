@@ -128,6 +128,23 @@
                                 <li>
                                     <p>
                                         {$t(
+                                            "master degree student (DevOps & Security Engineering) seeking for a job as a front-end developer in React, Svelte, Bitrix1C",
+                                        )}
+                                    </p>
+                                    
+                                </li>
+                                  <li>
+                                    <p>
+                                        {$t(
+                                            "graduate (programming and logistics)",
+                                        )}
+                                    </p>
+                                    
+                                </li>
+                                
+                                <li>
+                                    <p>
+                                        {$t(
                                             "master degree student (DevOps & Security Engineering), graduate (programming and logistics) seeking for a job as a front-end developer in React, Svelte, Bitrix1C",
                                         )}
                                     </p>
