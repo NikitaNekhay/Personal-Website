@@ -69,7 +69,7 @@ export async function POST({ request }) {
 const sendEmail = async (to, subject, text, type) => {
     //console.log("in send",type);
     let mailOptions = {
-        from: 'manager@nekhaynikita.ru',
+        from: 'nekhaymikita@gmail.com',
         to: to,
         subject: subject,
         text: text+`\n\n\nС уважением и благосклонностью,\nВаш покорный слуга и надёжный помощник в искусстве моды,\nНиколай\nМенеджер по связям с общественностью, дома моды NEKHAY NIKITA \n\nТелеграм: @nikitanekhay\nИнстаграм: @nekhaynikita\nКонтактный номер телефона: +375 44 578-50-57\n\n-------------------------------------------------------\n\nWith utmost respect and benevolence,\nYour humble servant and steadfast aide in the art of fashion,\nNikolay\nPublic Relations Manager, House of NEKHAY NIKITA \n\nTelegram: @nikitanekhay\nInstagram: @nekhaynikita\nContact Phone Number: +375 44 578-50-57`,
@@ -79,7 +79,7 @@ const sendEmail = async (to, subject, text, type) => {
     switch (type) {
         // чисто для админа
         case EmailSubjects.OrderCredentials: {
-            mailOptions.to = "manager@nekhaynikita.ru";
+            mailOptions.to = "nekhaymikita@gmail.com";
             mailOptions.text = text;
             break;
         }
