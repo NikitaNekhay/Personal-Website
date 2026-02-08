@@ -34,7 +34,7 @@
                         {$t("email")}:
                         <a
                             class="p-link"
-                            href="mailto:manager@nekhaynikita.ru"
+                            href="mailto:nekhaymikita@gmail.com"
                             >{$t("SAY HELLO WITH EMAIL")}
                         </a><br />
                     </li>

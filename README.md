@@ -40,7 +40,7 @@ Full internationalization with English and Russian language support.<br>
 
 ### **Email Notifications**
 Automated email system for account creation, order confirmations, and updates.<br>
-*Implementation:* Nodemailer integration with custom domain email (manager@nekhaynikita.ru), server-side API endpoints, templated email content for various scenarios (account creation, order processing, payment confirmations).
+*Implementation:* Nodemailer integration with custom domain email (nekhaymikita@gmail.com), server-side API endpoints, templated email content for various scenarios (account creation, order processing, payment confirmations).
 
 ### **Responsive Design**
 Mobile-first responsive design with custom breakpoints.<br>
@@ -133,10 +133,3 @@ Integrated analytics and performance tracking.<br>
 - ✅ Enhanced TypeScript configuration
 - ✅ Modern ESLint flat config format
 
----
-
-## License
-
-Private project - All rights reserved © Nikita Nekhay
-
----
