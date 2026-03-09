@@ -5,7 +5,7 @@ import { t } from 'svelte-i18n';
 
 
 const transporter = nodemailer.createTransport({
-    host: "smtp.timeweb.ru", // Zoho SMTP server
+    host: "smtp.gmail.com", // Zoho SMTP server
     // service: 'Zoho',
     port: 465, // Port for TLS/STARTTLS
     secure: true, // true for 465, false for other ports
