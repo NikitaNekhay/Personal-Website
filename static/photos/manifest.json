@@ -502,5 +502,19 @@
     "objectPosition": "center center",
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T20:03:54.432Z"
+  },
+  {
+    "id": "065877d5",
+    "slug": "do-you-see-the-bunny",
+    "title": "do_you_see_the_bunny",
+    "order": 37,
+    "collectionNumber": 2026,
+    "original": "/photos/originals/do-you-see-the-bunny.webp",
+    "thumb": "/photos/thumbs/do-you-see-the-bunny.webp",
+    "width": 1920,
+    "height": 2560,
+    "objectPosition": "center center",
+    "revealFrom": "bottom",
+    "uploadedAt": "2026-05-26T20:04:06.085Z"
   }
 ]
