@@ -404,5 +404,19 @@
     "objectPosition": "center center",
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T20:02:36.202Z"
+  },
+  {
+    "id": "9f1f4308",
+    "slug": "cats-sky",
+    "title": "cats_sky",
+    "order": 30,
+    "collectionNumber": 2026,
+    "original": "/photos/originals/cats-sky.webp",
+    "thumb": "/photos/thumbs/cats-sky.webp",
+    "width": 1920,
+    "height": 2560,
+    "objectPosition": "center center",
+    "revealFrom": "bottom",
+    "uploadedAt": "2026-05-26T20:02:48.487Z"
   }
 ]
