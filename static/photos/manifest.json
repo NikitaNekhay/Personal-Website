@@ -838,5 +838,19 @@
     "objectPosition": "center center",
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T20:07:24.835Z"
+  },
+  {
+    "id": "65cf1bbc",
+    "slug": "nik-neswizh",
+    "title": "nik_neswizh",
+    "order": 61,
+    "collectionNumber": 2026,
+    "original": "/photos/originals/nik-neswizh.webp",
+    "thumb": "/photos/thumbs/nik-neswizh.webp",
+    "width": 1536,
+    "height": 2048,
+    "objectPosition": "center center",
+    "revealFrom": "bottom",
+    "uploadedAt": "2026-05-26T20:07:30.634Z"
   }
 ]
