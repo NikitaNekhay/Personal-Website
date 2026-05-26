@@ -5,6 +5,7 @@ node_modules
 /package
 .vercel
 .claude
+CLAUDE.md
 
 .env
 .env.*

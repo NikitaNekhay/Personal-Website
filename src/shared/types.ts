@@ -177,6 +177,7 @@ export const nonAuthRoutes = [
     `${base}/works`,
     `${base}/posts`,
     `${base}/profile/shoppingcart`,
+    `${base}/slider`,
 ];
 
 export const AdminRoutes = [
@@ -184,4 +185,13 @@ export const AdminRoutes = [
     `${base}/stat`,
     `${base}/create`,
     `${base}/posts`,
+    `${base}/slider-dashboard`,
 ];
+
+export interface SliderPhoto {
+    id: string;
+    name: string;
+    url: string;
+    order: number;
+    createdAt: string;
+}

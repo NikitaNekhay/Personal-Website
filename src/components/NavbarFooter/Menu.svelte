@@ -194,6 +194,18 @@
                     >
                         {$t("Stat")}
                     </a>
+                    <a
+                        class="
+            {currentPage.includes('/slider-dashboard')
+                            ? 'text-yellow-0 animate-pulse'
+                            : 'text-black'}
+            col-span-full grid-row-auto transition duration-300 delay-100
+            hover:text-yellow-0 hover:animate-pulse"
+                        target="_self"
+                        href="{base}/slider-dashboard"
+                    >
+                        {$t("Slider")}
+                    </a>
                 {/if}
                 <a
                     on:click={authHandlers.logout}
