@@ -12,5 +12,19 @@
     "objectPosition": "center center",
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T19:23:28.473Z"
+  },
+  {
+    "id": "a38b068a",
+    "slug": "photo-from-grot",
+    "title": "photo_from_grot",
+    "order": 2,
+    "collectionNumber": 2026,
+    "original": "/photos/originals/photo-from-grot.webp",
+    "thumb": "/photos/thumbs/photo-from-grot.webp",
+    "width": 1920,
+    "height": 2560,
+    "objectPosition": "center center",
+    "revealFrom": "bottom",
+    "uploadedAt": "2026-05-26T19:58:43.378Z"
   }
 ]
