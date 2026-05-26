@@ -180,5 +180,19 @@
     "objectPosition": "center center",
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T20:00:26.775Z"
+  },
+  {
+    "id": "ebcbc24c",
+    "slug": "wildness-by-the-city",
+    "title": "wildness_by_the_city",
+    "order": 14,
+    "collectionNumber": 2026,
+    "original": "/photos/originals/wildness-by-the-city.webp",
+    "thumb": "/photos/thumbs/wildness-by-the-city.webp",
+    "width": 1920,
+    "height": 1440,
+    "objectPosition": "center center",
+    "revealFrom": "bottom",
+    "uploadedAt": "2026-05-26T20:00:34.170Z"
   }
 ]
