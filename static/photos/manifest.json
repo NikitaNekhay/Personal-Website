@@ -334,5 +334,19 @@
     "objectPosition": "center center",
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T20:01:51.219Z"
+  },
+  {
+    "id": "74bfcf8f",
+    "slug": "black-white-swans",
+    "title": "black_white_swans",
+    "order": 25,
+    "collectionNumber": 2026,
+    "original": "/photos/originals/black-white-swans.webp",
+    "thumb": "/photos/thumbs/black-white-swans.webp",
+    "width": 1920,
+    "height": 3413,
+    "objectPosition": "center center",
+    "revealFrom": "bottom",
+    "uploadedAt": "2026-05-26T20:01:58.814Z"
   }
 ]
