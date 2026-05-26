@@ -446,5 +446,19 @@
     "objectPosition": "center center",
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T20:03:10.164Z"
+  },
+  {
+    "id": "9d1ebab8",
+    "slug": "colorite-cat",
+    "title": "colorite_cat",
+    "order": 33,
+    "collectionNumber": 2026,
+    "original": "/photos/originals/colorite-cat.webp",
+    "thumb": "/photos/thumbs/colorite-cat.webp",
+    "width": 1920,
+    "height": 1440,
+    "objectPosition": "center center",
+    "revealFrom": "bottom",
+    "uploadedAt": "2026-05-26T20:03:23.767Z"
   }
 ]
