@@ -250,5 +250,19 @@
     "objectPosition": "center center",
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T20:01:06.758Z"
+  },
+  {
+    "id": "28af5243",
+    "slug": "american-colorite",
+    "title": "american_colorite",
+    "order": 19,
+    "collectionNumber": 2026,
+    "original": "/photos/originals/american-colorite.webp",
+    "thumb": "/photos/thumbs/american-colorite.webp",
+    "width": 1920,
+    "height": 1440,
+    "objectPosition": "center center",
+    "revealFrom": "bottom",
+    "uploadedAt": "2026-05-26T20:01:16.275Z"
   }
 ]
