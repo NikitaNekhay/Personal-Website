@@ -978,5 +978,19 @@
     "objectPosition": "center center",
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T20:08:46.151Z"
+  },
+  {
+    "id": "a7c78655",
+    "slug": "kids-play-in-the-woods",
+    "title": "kids_play_in_the_woods",
+    "order": 71,
+    "collectionNumber": 2026,
+    "original": "/photos/originals/kids-play-in-the-woods.webp",
+    "thumb": "/photos/thumbs/kids-play-in-the-woods.webp",
+    "width": 1920,
+    "height": 2560,
+    "objectPosition": "center center",
+    "revealFrom": "bottom",
+    "uploadedAt": "2026-05-26T20:08:57.942Z"
   }
 ]
