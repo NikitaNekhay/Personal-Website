@@ -740,5 +740,19 @@
     "objectPosition": "center center",
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T20:06:26.601Z"
+  },
+  {
+    "id": "e3cf7fef",
+    "slug": "mirror-cafe",
+    "title": "mirror_cafe",
+    "order": 54,
+    "collectionNumber": 2026,
+    "original": "/photos/originals/mirror-cafe.webp",
+    "thumb": "/photos/thumbs/mirror-cafe.webp",
+    "width": 1920,
+    "height": 1440,
+    "objectPosition": "center center",
+    "revealFrom": "bottom",
+    "uploadedAt": "2026-05-26T20:06:35.541Z"
   }
 ]
