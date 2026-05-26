@@ -54,5 +54,19 @@
     "objectPosition": "center center",
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T19:59:05.036Z"
+  },
+  {
+    "id": "6382f1fa",
+    "slug": "spine-or-fish-bone",
+    "title": "spine_or_fish_bone",
+    "order": 5,
+    "collectionNumber": 2026,
+    "original": "/photos/originals/spine-or-fish-bone.webp",
+    "thumb": "/photos/thumbs/spine-or-fish-bone.webp",
+    "width": 1920,
+    "height": 2560,
+    "objectPosition": "center center",
+    "revealFrom": "bottom",
+    "uploadedAt": "2026-05-26T19:59:17.783Z"
   }
 ]
