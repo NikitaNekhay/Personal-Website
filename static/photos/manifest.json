@@ -390,5 +390,19 @@
     "objectPosition": "center center",
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T20:02:27.497Z"
+  },
+  {
+    "id": "3d77fd66",
+    "slug": "cars-cross-petersburg",
+    "title": "cars_cross_petersburg",
+    "order": 29,
+    "collectionNumber": 2026,
+    "original": "/photos/originals/cars-cross-petersburg.webp",
+    "thumb": "/photos/thumbs/cars-cross-petersburg.webp",
+    "width": 1920,
+    "height": 2877,
+    "objectPosition": "center center",
+    "revealFrom": "bottom",
+    "uploadedAt": "2026-05-26T20:02:36.202Z"
   }
 ]
