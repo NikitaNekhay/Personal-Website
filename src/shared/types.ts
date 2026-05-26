@@ -201,6 +201,22 @@ export interface SliderPhoto {
 export const PHOTO_COLLECTION_YEARS = [2023, 2024, 2025, 2026] as const;
 export type PhotoCollectionYear = (typeof PHOTO_COLLECTION_YEARS)[number];
 
+export const PHOTO_REVEAL_DIRECTIONS = ['left', 'right', 'top', 'bottom'] as const;
+export type PhotoRevealDirection = (typeof PHOTO_REVEAL_DIRECTIONS)[number];
+
+export const PHOTO_OBJECT_POSITIONS = [
+    'center center',
+    'center top',
+    'center bottom',
+    'left center',
+    'right center',
+    'left top',
+    'right top',
+    'left bottom',
+    'right bottom'
+] as const;
+export type PhotoObjectPosition = (typeof PHOTO_OBJECT_POSITIONS)[number];
+
 export interface PhotoManifestEntry {
     id: string;
     slug: string;
@@ -212,6 +228,10 @@ export interface PhotoManifestEntry {
     thumb: string;
     width: number;
     height: number;
+    /** CSS object-position value used to tune the visible crop on the home gallery */
+    objectPosition: PhotoObjectPosition;
+    /** Desktop/tablet scroll reveal direction. Mobile always reveals from bottom. */
+    revealFrom: PhotoRevealDirection;
     uploadedAt: string;
 }
 
@@ -241,10 +261,28 @@ export function normalizePhotoEntry(
         thumb: entry.thumb ?? `/photos/thumbs/${entry.slug}.webp`,
         width: entry.width ?? 0,
         height: entry.height ?? 0,
+        objectPosition: isPhotoObjectPosition(entry.objectPosition)
+            ? entry.objectPosition
+            : 'center center',
+        revealFrom: isPhotoRevealDirection(entry.revealFrom) ? entry.revealFrom : 'bottom',
         uploadedAt: entry.uploadedAt ?? new Date().toISOString()
     };
 }
 
 export function isPhotoCollectionYear(value: number): value is PhotoCollectionYear {
     return (PHOTO_COLLECTION_YEARS as readonly number[]).includes(value);
+}
+
+export function isPhotoRevealDirection(value: unknown): value is PhotoRevealDirection {
+    return (
+        typeof value === 'string' &&
+        (PHOTO_REVEAL_DIRECTIONS as readonly string[]).includes(value)
+    );
+}
+
+export function isPhotoObjectPosition(value: unknown): value is PhotoObjectPosition {
+    return (
+        typeof value === 'string' &&
+        (PHOTO_OBJECT_POSITIONS as readonly string[]).includes(value)
+    );
 }

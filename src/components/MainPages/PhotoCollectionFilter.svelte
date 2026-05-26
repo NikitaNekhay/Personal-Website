@@ -35,7 +35,7 @@
 <style>
 	.collection-header {
 		position: fixed;
-		top: calc(var(--site-header-height) + 0.35rem);
+		top: calc(var(--site-header-height) + 0.65rem);
 		left: 0;
 		right: 0;
 		z-index: 20;
@@ -49,50 +49,42 @@
 		display: flex;
 		flex-wrap: wrap;
 		justify-content: center;
-		gap: 0.35rem 0.5rem;
-		padding: 0.4rem 0.65rem;
-		background: rgba(0, 0, 0, 0.45);
-		backdrop-filter: blur(8px);
-		border-radius: 999px;
+		gap: 0.45rem 0.8rem;
+		padding: 0;
 		pointer-events: auto;
 	}
 
 	.collection-pill {
 		font-family: 'Anonymous Pro', monospace;
 		font-size: 0.75rem;
-		letter-spacing: 0.06em;
+		letter-spacing: 0;
 		text-transform: uppercase;
-		padding: 0.35rem 0.75rem;
-		border: 1px solid rgba(255, 255, 255, 0.35);
-		border-radius: 999px;
+		padding: 0;
+		border: 0;
 		background: transparent;
-		color: rgba(255, 255, 255, 0.85);
+		color: rgba(255, 255, 255, 0.88);
 		cursor: pointer;
 		transition:
-			background 0.2s ease,
 			color 0.2s ease,
-			border-color 0.2s ease;
+			opacity 0.2s ease;
+		text-shadow: 0 1px 18px rgba(0, 0, 0, 0.55);
 	}
 
 	.collection-pill:hover {
-		border-color: #f6ae2d;
 		color: #f6ae2d;
 	}
 
 	.collection-pill.active {
-		background: #f6ae2d;
-		border-color: #f6ae2d;
-		color: #1a1a1a;
+		color: #f6ae2d;
 	}
 
 	@media (max-width: 768px) {
 		.collection-header {
-			top: calc(var(--site-header-height) + 0.25rem);
+			top: calc(var(--site-header-height) + 0.5rem);
 		}
 
 		.collection-pill {
 			font-size: 0.65rem;
-			padding: 0.3rem 0.55rem;
 		}
 	}
 </style>

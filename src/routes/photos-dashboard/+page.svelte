@@ -3,7 +3,9 @@
 	import { base } from '$app/paths';
 	import { auth } from '$lib/firebase/firebase';
 	import {
+		PHOTO_OBJECT_POSITIONS,
 		PHOTO_COLLECTION_YEARS,
+		PHOTO_REVEAL_DIRECTIONS,
 		defaultCollectionNumber,
 		type PhotoManifestEntry
 	} from '../../shared/types';
@@ -20,6 +22,8 @@
 		slug: string;
 		title: string;
 		collectionNumber: number;
+		objectPosition: string;
+		revealFrom: string;
 		stripExif: boolean;
 		selected: boolean;
 		status: UploadStatus;
@@ -32,6 +36,10 @@
 	let stripAllExif = $state(true);
 	let defaultUploadYear = $state(defaultCollectionNumber());
 	let bulkCollectionYear = $state(defaultCollectionNumber());
+	let bulkObjectPosition = $state('center center');
+	let bulkRevealFrom = $state('bottom');
+	let showStagingBatch = $state(false);
+	let showExistingBatch = $state(false);
 	let isUploading = $state(false);
 	let orderDirty = $state(false);
 	let displayOrder = $state<PhotoManifestEntry[]>([]);
@@ -89,7 +97,9 @@
 			slug: toSlug(file.name),
 			title: file.name.replace(/\.[^.]+$/, ''),
 			collectionNumber: defaultUploadYear,
-			stripExif: stripAllExif,
+			objectPosition: 'center center',
+			revealFrom: 'bottom',
+			stripExif: true,
 			selected: true,
 			status: 'pending' as UploadStatus
 		}));
@@ -119,6 +129,11 @@
 		staged = staged.map((s) => ({ ...s, stripExif: value }));
 	}
 
+	function setStripSelected(value: boolean) {
+		stripAllExif = value;
+		staged = staged.map((s) => (s.selected ? { ...s, stripExif: value } : s));
+	}
+
 	const selectedStaged = $derived(staged.filter((s) => s.selected));
 
 	const allStagedSelected = $derived(staged.length > 0 && staged.every((s) => s.selected));
@@ -134,8 +149,14 @@
 		);
 	}
 
-	function applyDefaultYearToStaged() {
-		staged = staged.map((s) => ({ ...s, collectionNumber: defaultUploadYear }));
+	function applyBulkPositionToStaged() {
+		staged = staged.map((s) =>
+			s.selected ? { ...s, objectPosition: bulkObjectPosition } : s
+		);
+	}
+
+	function applyBulkRevealToStaged() {
+		staged = staged.map((s) => (s.selected ? { ...s, revealFrom: bulkRevealFrom } : s));
 	}
 
 	const slugValid = $derived.by(() => {
@@ -167,6 +188,8 @@
 				formData.append('title', item.title);
 				formData.append('stripExif', String(item.stripExif));
 				formData.append('collectionNumber', String(item.collectionNumber));
+				formData.append('objectPosition', item.objectPosition);
+				formData.append('revealFrom', item.revealFrom);
 
 				const res = await fetch(`${base}/api/photos/upload`, {
 					method: 'POST',
@@ -235,7 +258,12 @@
 
 	async function updatePhoto(
 		slug: string,
-		updates: { title?: string; collectionNumber?: number }
+		updates: {
+			title?: string;
+			collectionNumber?: number;
+			objectPosition?: string;
+			revealFrom?: string;
+		}
 	) {
 		const headers = {
 			...(await getAuthHeaders()),
@@ -275,6 +303,33 @@
 			selectedExistingSlugs = new Set();
 		} catch (e) {
 			alert(e instanceof Error ? e.message : 'Bulk update failed');
+		}
+	}
+
+	async function bulkUpdateExistingVisual(
+		updates: { objectPosition?: string; revealFrom?: string },
+		message = 'Bulk update failed'
+	) {
+		if (selectedExistingSlugs.size === 0) return;
+		try {
+			const headers = {
+				...(await getAuthHeaders()),
+				'Content-Type': 'application/json'
+			};
+			const res = await fetch(`${base}/api/photos/update`, {
+				method: 'PATCH',
+				headers,
+				body: JSON.stringify({
+					slugs: [...selectedExistingSlugs],
+					...updates
+				})
+			});
+			if (!res.ok) throw new Error(message);
+			manifest = await res.json();
+			displayOrder = [...manifest].sort((a, b) => a.order - b.order);
+			selectedExistingSlugs = new Set();
+		} catch (e) {
+			alert(e instanceof Error ? e.message : message);
 		}
 	}
 
@@ -347,28 +402,9 @@
 			/>
 		</div>
 
-		<div class="defaults-row">
-			<label>
-				Default collection year for new files
-				<select bind:value={defaultUploadYear}>
-					{#each PHOTO_COLLECTION_YEARS as year}
-						<option value={year}>{year}</option>
-					{/each}
-				</select>
-			</label>
-		</div>
-
 		{#if staged.length > 0}
 			<div class="staging">
 				<div class="staging-toolbar">
-					<label class="strip-all">
-						<input
-							type="checkbox"
-							checked={stripAllExif}
-							onchange={(e) => setStripAll(e.currentTarget.checked)}
-						/>
-						Strip all EXIF
-					</label>
 					<label class="select-all">
 						<input
 							type="checkbox"
@@ -377,25 +413,94 @@
 						/>
 						Select all ({selectedStaged.length}/{staged.length})
 					</label>
-					<div class="bulk-year">
-						<select bind:value={bulkCollectionYear}>
-							{#each PHOTO_COLLECTION_YEARS as year}
-								<option value={year}>{year}</option>
-							{/each}
-						</select>
-						<button
-							type="button"
-							class="secondary-btn"
-							disabled={selectedStaged.length === 0}
-							onclick={applyBulkYearToStaged}
-						>
-							Apply year to selected
-						</button>
-						<button type="button" class="secondary-btn" onclick={applyDefaultYearToStaged}>
-							Apply default to all
-						</button>
-					</div>
+					<button
+						type="button"
+						class="secondary-btn"
+						onclick={() => (showStagingBatch = !showStagingBatch)}
+					>
+						{showStagingBatch ? 'Hide batch edit' : 'Batch edit selected'}
+					</button>
 				</div>
+
+				{#if showStagingBatch}
+					<div class="batch-panel">
+						<div class="batch-control">
+							<label>
+								Collection year
+								<select bind:value={bulkCollectionYear}>
+									{#each PHOTO_COLLECTION_YEARS as year}
+										<option value={year}>{year}</option>
+									{/each}
+								</select>
+							</label>
+							<button
+								type="button"
+								class="secondary-btn"
+								disabled={selectedStaged.length === 0}
+								onclick={applyBulkYearToStaged}
+							>
+								Apply to selected
+							</button>
+						</div>
+						<div class="batch-control">
+							<label>
+								Image position
+								<select bind:value={bulkObjectPosition}>
+									{#each PHOTO_OBJECT_POSITIONS as position}
+										<option value={position}>{position}</option>
+									{/each}
+								</select>
+							</label>
+							<button
+								type="button"
+								class="secondary-btn"
+								disabled={selectedStaged.length === 0}
+								onclick={applyBulkPositionToStaged}
+							>
+								Apply to selected
+							</button>
+						</div>
+						<div class="batch-control">
+							<label>
+								Reveal side
+								<select bind:value={bulkRevealFrom}>
+									{#each PHOTO_REVEAL_DIRECTIONS as direction}
+										<option value={direction}>{direction}</option>
+									{/each}
+								</select>
+							</label>
+							<button
+								type="button"
+								class="secondary-btn"
+								disabled={selectedStaged.length === 0}
+								onclick={applyBulkRevealToStaged}
+							>
+								Apply to selected
+							</button>
+						</div>
+						<div class="batch-control">
+							<label class="strip-row">
+								<input type="checkbox" bind:checked={stripAllExif} />
+								Strip EXIF value
+							</label>
+							<button
+								type="button"
+								class="secondary-btn"
+								disabled={selectedStaged.length === 0}
+								onclick={() => setStripSelected(stripAllExif)}
+							>
+								Apply to selected
+							</button>
+							<button
+								type="button"
+								class="secondary-btn"
+								onclick={() => setStripAll(stripAllExif)}
+							>
+								Apply to all
+							</button>
+						</div>
+					</div>
+				{/if}
 
 				{#each staged as item, i (item.id)}
 					<div class="stage-row" class:row-selected={item.selected}>
@@ -423,6 +528,22 @@
 								<select bind:value={staged[i].collectionNumber}>
 									{#each PHOTO_COLLECTION_YEARS as year}
 										<option value={year}>{year}</option>
+									{/each}
+								</select>
+							</label>
+							<label>
+								Image position
+								<select bind:value={staged[i].objectPosition}>
+									{#each PHOTO_OBJECT_POSITIONS as position}
+										<option value={position}>{position}</option>
+									{/each}
+								</select>
+							</label>
+							<label>
+								Reveal side
+								<select bind:value={staged[i].revealFrom}>
+									{#each PHOTO_REVEAL_DIRECTIONS as direction}
+										<option value={direction}>{direction}</option>
 									{/each}
 								</select>
 							</label>
@@ -468,20 +589,75 @@
 
 		{#if displayOrder.length > 0}
 			<div class="existing-bulk">
-				<select bind:value={bulkCollectionYear}>
-					{#each PHOTO_COLLECTION_YEARS as year}
-						<option value={year}>{year}</option>
-					{/each}
-				</select>
 				<button
 					type="button"
 					class="secondary-btn"
-					disabled={selectedExistingSlugs.size === 0}
-					onclick={bulkUpdateExistingCollection}
+					onclick={() => (showExistingBatch = !showExistingBatch)}
 				>
-					Apply year to {selectedExistingSlugs.size} selected
+					{showExistingBatch
+						? 'Hide batch edit'
+						: `Batch edit selected (${selectedExistingSlugs.size})`}
 				</button>
 			</div>
+			{#if showExistingBatch}
+				<div class="batch-panel existing-panel">
+					<div class="batch-control">
+						<label>
+							Collection year
+							<select bind:value={bulkCollectionYear}>
+								{#each PHOTO_COLLECTION_YEARS as year}
+									<option value={year}>{year}</option>
+								{/each}
+							</select>
+						</label>
+						<button
+							type="button"
+							class="secondary-btn"
+							disabled={selectedExistingSlugs.size === 0}
+							onclick={bulkUpdateExistingCollection}
+						>
+							Apply to selected
+						</button>
+					</div>
+					<div class="batch-control">
+						<label>
+							Image position
+							<select bind:value={bulkObjectPosition}>
+								{#each PHOTO_OBJECT_POSITIONS as position}
+									<option value={position}>{position}</option>
+								{/each}
+							</select>
+						</label>
+						<button
+							type="button"
+							class="secondary-btn"
+							disabled={selectedExistingSlugs.size === 0}
+							onclick={() =>
+								bulkUpdateExistingVisual({ objectPosition: bulkObjectPosition })}
+						>
+							Apply to selected
+						</button>
+					</div>
+					<div class="batch-control">
+						<label>
+							Reveal side
+							<select bind:value={bulkRevealFrom}>
+								{#each PHOTO_REVEAL_DIRECTIONS as direction}
+									<option value={direction}>{direction}</option>
+								{/each}
+							</select>
+						</label>
+						<button
+							type="button"
+							class="secondary-btn"
+							disabled={selectedExistingSlugs.size === 0}
+							onclick={() => bulkUpdateExistingVisual({ revealFrom: bulkRevealFrom })}
+						>
+							Apply to selected
+						</button>
+					</div>
+				</div>
+			{/if}
 		{/if}
 
 		{#if isLoadingManifest}
@@ -522,6 +698,34 @@
 								>
 									{#each PHOTO_COLLECTION_YEARS as year}
 										<option value={year}>{year}</option>
+									{/each}
+								</select>
+							</label>
+							<label>
+								Image position
+								<select
+									value={photo.objectPosition}
+									onchange={(e) =>
+										updatePhoto(photo.slug, {
+											objectPosition: e.currentTarget.value
+										})}
+								>
+									{#each PHOTO_OBJECT_POSITIONS as position}
+										<option value={position}>{position}</option>
+									{/each}
+								</select>
+							</label>
+							<label>
+								Reveal side
+								<select
+									value={photo.revealFrom}
+									onchange={(e) =>
+										updatePhoto(photo.slug, {
+											revealFrom: e.currentTarget.value
+										})}
+								>
+									{#each PHOTO_REVEAL_DIRECTIONS as direction}
+										<option value={direction}>{direction}</option>
 									{/each}
 								</select>
 							</label>
@@ -583,25 +787,6 @@
 		margin-bottom: 2rem;
 	}
 
-	.defaults-row {
-		margin-top: 1rem;
-	}
-
-	.defaults-row label {
-		display: flex;
-		flex-direction: column;
-		gap: 0.35rem;
-		font-size: 0.9rem;
-		font-weight: 600;
-	}
-
-	.defaults-row select {
-		max-width: 12rem;
-		padding: 0.5rem;
-		border: 1px solid #ddd;
-		border-radius: 4px;
-	}
-
 	.drop-zone {
 		border: 2px dashed #ccc;
 		border-radius: 8px;
@@ -642,27 +827,12 @@
 		border-bottom: 1px solid #ddd;
 	}
 
-	.strip-all,
 	.select-all {
 		display: flex;
 		align-items: center;
 		gap: 0.5rem;
 		font-weight: 600;
 		font-size: 0.9rem;
-	}
-
-	.bulk-year {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 0.5rem;
-		align-items: center;
-		margin-left: auto;
-	}
-
-	.bulk-year select {
-		padding: 0.4rem 0.6rem;
-		border: 1px solid #ddd;
-		border-radius: 4px;
 	}
 
 	.secondary-btn {
@@ -677,6 +847,35 @@
 	.secondary-btn:disabled {
 		opacity: 0.5;
 		cursor: not-allowed;
+	}
+
+	.batch-panel {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+		gap: 0.75rem;
+		padding: 0.85rem;
+		background: #ededed;
+		border-radius: 6px;
+	}
+
+	.batch-control {
+		display: flex;
+		flex-direction: column;
+		gap: 0.45rem;
+		min-width: 0;
+	}
+
+	.batch-control label {
+		display: flex;
+		flex-direction: column;
+		gap: 0.25rem;
+		font-size: 0.82rem;
+		font-weight: 600;
+	}
+
+	.batch-control .strip-row {
+		flex-direction: row;
+		align-items: center;
 	}
 
 	.stage-row,
@@ -736,7 +935,8 @@
 	}
 
 	.stage-fields select,
-	.card-body select {
+	.card-body select,
+	.batch-control select {
 		padding: 0.5rem;
 		border: 1px solid #ddd;
 		border-radius: 4px;
@@ -827,10 +1027,8 @@
 		margin-bottom: 1rem;
 	}
 
-	.existing-bulk select {
-		padding: 0.4rem 0.6rem;
-		border: 1px solid #ddd;
-		border-radius: 4px;
+	.existing-panel {
+		margin-bottom: 1rem;
 	}
 
 	.save-order-btn {
@@ -907,9 +1105,8 @@
 			padding-top: 5rem;
 		}
 
-		.bulk-year {
-			margin-left: 0;
-			width: 100%;
+		.batch-panel {
+			grid-template-columns: 1fr;
 		}
 	}
 </style>

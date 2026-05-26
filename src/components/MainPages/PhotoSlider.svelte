@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { browser } from '$app/environment';
-	import type { EmblaCarouselType } from 'embla-carousel';
 	import { base } from '$app/paths';
 	import type { PhotoManifestEntry } from '../../shared/types';
 
@@ -11,110 +10,123 @@
 
 	let { photos }: Props = $props();
 
-	let viewportEl: HTMLDivElement | undefined = $state();
-	let emblaApi: EmblaCarouselType | undefined = $state();
-	let selectedIndex = $state(0);
-	let titleVisible = $state(true);
+	let rootEl: HTMLDivElement | undefined = $state();
+	let activeIndex = $state(0);
+	let visibleSlugs = $state<Set<string>>(new Set());
+	let wheelLocked = false;
 
 	const sorted = $derived([...photos].sort((a, b) => a.order - b.order));
-	const total = $derived(sorted.length);
-	const current = $derived(sorted[selectedIndex]);
 
 	function imgUrl(path: string): string {
 		return `${base}${path}`;
 	}
 
-	function formatCounter(index: number, count: number): string {
-		const n = String(index + 1).padStart(2, '0');
-		const t = String(count).padStart(2, '0');
-		return `${n} / ${t}`;
+	function fileName(photo: PhotoManifestEntry): string {
+		return photo.original.split('/').pop() ?? `${photo.slug}.webp`;
 	}
 
-	function preloadNext(index: number) {
-		if (sorted.length < 2) return;
-		const next = sorted[(index + 1) % sorted.length];
-		const img = new Image();
-		img.src = imgUrl(next.thumb);
+	function sectionNodes(): HTMLElement[] {
+		if (!rootEl) return [];
+		return Array.from(rootEl.querySelectorAll<HTMLElement>('[data-photo-section]'));
 	}
 
-	onMount(() => {
-		if (!browser || !viewportEl || sorted.length === 0) return;
-
-		let api: EmblaCarouselType;
-		let cancelled = false;
-
-		(async () => {
-			const { default: EmblaCarousel } = await import('embla-carousel');
-			if (cancelled || !viewportEl) return;
-
-			api = EmblaCarousel(viewportEl, {
-				loop: true,
-				dragFree: false,
-				align: 'center'
-			});
-
-			emblaApi = api;
-
-			const onSelect = () => {
-				const idx = api.selectedScrollSnap();
-				selectedIndex = idx;
-				preloadNext(idx);
-				titleVisible = false;
-				requestAnimationFrame(() => {
-					titleVisible = true;
-				});
-			};
-
-			api.on('select', onSelect);
-			onSelect();
-		})();
-
-		return () => {
-			cancelled = true;
-			emblaApi?.destroy();
-			emblaApi = undefined;
-		};
-	});
-
-	function goPrev() {
-		emblaApi?.scrollPrev();
+	function scrollToIndex(index: number) {
+		const nodes = sectionNodes();
+		const next = Math.max(0, Math.min(index, nodes.length - 1));
+		nodes[next]?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 	}
 
 	function goNext() {
-		emblaApi?.scrollNext();
+		scrollToIndex(activeIndex + 1 >= sorted.length ? 0 : activeIndex + 1);
 	}
 
-	function goTo(index: number) {
-		emblaApi?.scrollTo(index);
+	function goPrev() {
+		scrollToIndex(activeIndex <= 0 ? sorted.length - 1 : activeIndex - 1);
 	}
 
 	function handleKeydown(e: KeyboardEvent) {
-		if (e.key === 'ArrowLeft') goPrev();
-		if (e.key === 'ArrowRight') goNext();
-	}
-
-	function handleZoneClick(e: MouseEvent) {
-		const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-		const x = e.clientX - rect.left;
-		const ratio = x / rect.width;
-		if (ratio < 0.25) goPrev();
-		else if (ratio > 0.75) goNext();
+		if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
+			e.preventDefault();
+			goNext();
+		}
+		if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+			e.preventDefault();
+			goPrev();
+		}
+		if (e.key === 'Home') {
+			e.preventDefault();
+			scrollToIndex(0);
+		}
 	}
 
 	function handleContextMenu(e: MouseEvent) {
 		e.preventDefault();
 	}
+
+	function handleWheel(e: WheelEvent) {
+		if (!rootEl || window.matchMedia('(max-width: 767px)').matches) return;
+
+		e.preventDefault();
+		if (wheelLocked || Math.abs(e.deltaY) < 8) return;
+
+		wheelLocked = true;
+		if (e.deltaY > 0) goNext();
+		else goPrev();
+
+		window.setTimeout(() => {
+			wheelLocked = false;
+		}, 720);
+	}
+
+	onMount(() => {
+		if (!browser || !rootEl || sorted.length === 0) return;
+
+		const sections = sectionNodes();
+		visibleSlugs = new Set([sorted[0].slug]);
+
+		const observer = new IntersectionObserver(
+			(entries) => {
+				let mostVisible: IntersectionObserverEntry | undefined;
+				const nextVisible = new Set(visibleSlugs);
+
+				for (const entry of entries) {
+					const slug = (entry.target as HTMLElement).dataset.slug;
+					if (entry.isIntersecting && slug) {
+						nextVisible.add(slug);
+					}
+					if (
+						entry.isIntersecting &&
+						(!mostVisible || entry.intersectionRatio > mostVisible.intersectionRatio)
+					) {
+						mostVisible = entry;
+					}
+				}
+
+				visibleSlugs = nextVisible;
+
+				if (mostVisible) {
+					const nextIndex = Number((mostVisible.target as HTMLElement).dataset.index);
+					if (!Number.isNaN(nextIndex)) activeIndex = nextIndex;
+				}
+			},
+			{ threshold: [0.35, 0.55, 0.75] }
+		);
+
+		sections.forEach((section) => observer.observe(section));
+		rootEl.addEventListener('wheel', handleWheel, { passive: false });
+
+		return () => {
+			observer.disconnect();
+			rootEl?.removeEventListener('wheel', handleWheel);
+		};
+	});
 </script>
 
 <svelte:window onkeydown={handleKeydown} />
 
 <svelte:head>
-	<link
-		href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap"
-		rel="stylesheet"
-	/>
 	{#if sorted.length > 0}
-		<link rel="preload" as="image" href={imgUrl(sorted[0].thumb)} />
+		<link rel="preload" as="image" href={imgUrl(sorted[0].original)} />
 	{/if}
 </svelte:head>
 
@@ -122,212 +134,172 @@
 	<div class="empty">No photos available</div>
 {:else}
 	<div
-		class="slider-root"
+		class="gallery-root"
+		bind:this={rootEl}
 		oncontextmenu={handleContextMenu}
 		role="region"
 		aria-label="Photo portfolio"
 	>
-		<div class="counter font-anonymous">{formatCounter(selectedIndex, total)}</div>
-
-		<div class="embla" onclick={handleZoneClick} onkeydown={() => {}} role="presentation">
-			<div class="embla__viewport" bind:this={viewportEl}>
-				<div class="embla__container">
-					{#each sorted as photo, index (photo.id)}
-						<div class="embla__slide">
-							<div
-								class="slide-inner"
-								class:is-active={index === selectedIndex}
-								class:is-prev={index !== selectedIndex}
-							>
-								<img
-									src={imgUrl(photo.thumb)}
-									alt={photo.title}
-									class="slide-img"
-									loading={index === 0 ? 'eager' : 'lazy'}
-									decoding="async"
-									fetchpriority={index === 0 ? 'high' : 'auto'}
-								/>
-							</div>
-						</div>
-					{/each}
-				</div>
-			</div>
-		</div>
-
-		<div class="title-wrap" class:visible={titleVisible}>
-			<h2 class="title">{current?.title ?? ''}</h2>
-		</div>
-
-		<div class="dots">
-			{#each sorted as _, index}
+		{#each sorted as photo, index (photo.id)}
+			<section
+				class="photo-section from-{photo.revealFrom}"
+				class:is-visible={visibleSlugs.has(photo.slug)}
+				data-photo-section
+				data-index={index}
+				data-slug={photo.slug}
+				style={`--object-position: ${photo.objectPosition};`}
+			>
 				<button
 					type="button"
-					class="dot"
-					class:active={index === selectedIndex}
-					aria-label="Go to slide {index + 1}"
-					onclick={() => goTo(index)}
-				></button>
-			{/each}
-		</div>
+					class="image-trigger"
+					aria-label="Show next photo"
+					onclick={goNext}
+				>
+					<img
+						src={imgUrl(photo.original)}
+						alt={photo.title}
+						class="photo-image"
+						loading={index === 0 ? 'eager' : 'lazy'}
+						decoding="async"
+						fetchpriority={index === 0 ? 'high' : 'auto'}
+						draggable="false"
+					/>
+				</button>
+				<p class="file-name">{fileName(photo)}</p>
+			</section>
+		{/each}
 	</div>
 {/if}
 
 <style>
-	.slider-root {
-		position: relative;
+	.gallery-root {
 		width: 100%;
-		height: calc(100dvh - var(--site-header-height));
-		background: #000;
-		overflow: hidden;
+		min-height: calc(100dvh - var(--site-header-height));
+		background: #ffffff;
+		color: #111111;
 		user-select: none;
+		scroll-snap-type: y proximity;
 	}
 
 	.empty {
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		height: 100dvh;
-		color: #fff;
-		font-size: 1.25rem;
+		min-height: calc(100dvh - var(--site-header-height));
+		background: #ffffff;
+		color: #111111;
+		font-size: 1rem;
 	}
 
-	.counter {
-		position: absolute;
-		top: 1.25rem;
-		right: 1.25rem;
-		z-index: 20;
-		color: rgba(255, 255, 255, 0.85);
-		font-size: 0.875rem;
-		letter-spacing: 0.08em;
+	.photo-section {
+		min-height: calc(100dvh - var(--site-header-height));
+		display: grid;
+		grid-template-rows: minmax(0, 1fr) auto;
+		gap: 0.7rem;
+		padding: 0 0 1rem;
+		scroll-snap-align: start;
+		opacity: 0;
+		transform: translate3d(0, 40px, 0);
+		transition:
+			opacity 720ms ease,
+			transform 900ms cubic-bezier(0.22, 1, 0.36, 1);
 	}
 
-	.embla {
-		height: 100%;
-		width: 100%;
-		cursor: grab;
+	.photo-section.from-left {
+		transform: translate3d(-9vw, 0, 0);
 	}
 
-	.embla:active {
-		cursor: grabbing;
+	.photo-section.from-right {
+		transform: translate3d(9vw, 0, 0);
 	}
 
-	.embla__viewport {
-		overflow: hidden;
-		height: 100%;
-		width: 100%;
+	.photo-section.from-top {
+		transform: translate3d(0, -7vh, 0);
 	}
 
-	.embla__container {
-		display: flex;
-		height: 100%;
+	.photo-section.from-bottom {
+		transform: translate3d(0, 7vh, 0);
 	}
 
-	.embla__slide {
-		flex: 0 0 100%;
-		min-width: 0;
-		height: 100%;
-		position: relative;
+	.photo-section.is-visible {
+		opacity: 1;
+		transform: translate3d(0, 0, 0);
 	}
 
-	.slide-inner {
+	.image-trigger {
 		width: 100%;
 		height: 100%;
-		position: relative;
-	}
-
-	.slide-inner.is-active {
-		animation: slideReveal 600ms cubic-bezier(0.77, 0, 0.18, 1) forwards;
-	}
-
-	.slide-inner.is-prev {
-		opacity: 0.4;
-		transition: opacity 300ms ease;
-	}
-
-	@keyframes slideReveal {
-		from {
-			clip-path: inset(0 100% 0 0);
-		}
-		to {
-			clip-path: inset(0 0% 0 0);
-		}
-	}
-
-	.slide-img {
-		width: 100%;
-		height: 100%;
-		object-fit: cover;
-		pointer-events: none;
+		min-height: calc(100dvh - var(--site-header-height) - 3rem);
+		border: 0;
+		padding: 0;
+		background: transparent;
+		cursor: pointer;
 		display: block;
 	}
 
-	.title-wrap {
-		position: absolute;
-		bottom: 4.5rem;
-		left: 1.5rem;
-		z-index: 20;
-		max-width: min(90vw, 32rem);
-		opacity: 0;
-		transform: translateY(12px);
-		transition:
-			opacity 400ms ease 200ms,
-			transform 400ms ease 200ms;
+	.image-trigger:focus-visible {
+		outline: 1px solid #111111;
+		outline-offset: -1px;
 	}
 
-	.title-wrap.visible {
-		opacity: 1;
-		transform: translateY(0);
+	.photo-image {
+		width: 100%;
+		height: 100%;
+		display: block;
+		object-fit: cover;
+		object-position: var(--object-position);
+		pointer-events: none;
 	}
 
-	.title {
-		font-family: 'Cormorant Garamond', serif;
-		font-size: clamp(1.75rem, 5vw, 3.25rem);
-		font-weight: 400;
-		color: #fff;
-		text-shadow: 0 2px 24px rgba(0, 0, 0, 0.6);
-		line-height: 1.15;
+	.file-name {
 		margin: 0;
+		padding: 0 1rem;
+		font-family: monospace;
+		font-size: 0.78rem;
+		line-height: 1.35;
+		letter-spacing: 0;
+		color: rgba(0, 0, 0, 0.62);
 	}
 
-	.dots {
-		position: absolute;
-		bottom: 1.5rem;
-		left: 50%;
-		transform: translateX(-50%);
-		z-index: 20;
-		display: flex;
-		gap: 0.65rem;
-	}
-
-	.dot {
-		width: 10px;
-		height: 10px;
-		border-radius: 50%;
-		border: 1.5px solid rgba(255, 255, 255, 0.7);
-		background: transparent;
-		padding: 0;
-		cursor: pointer;
-		transition: background 0.25s ease;
-	}
-
-	.dot.active {
-		background: #fff;
-	}
-
-	@media (max-width: 768px) {
-		.counter {
-			top: 0.75rem;
-			right: 0.75rem;
-			font-size: 0.75rem;
+	@media (max-width: 767px) {
+		.gallery-root {
+			scroll-snap-type: none;
 		}
 
-		.title-wrap {
-			bottom: 3.5rem;
-			left: 1rem;
+		.photo-section,
+		.photo-section.from-left,
+		.photo-section.from-right,
+		.photo-section.from-top,
+		.photo-section.from-bottom {
+			transform: translate3d(0, 30px, 0);
+			transition:
+				opacity 520ms ease,
+				transform 680ms ease;
 		}
 
-		.dots {
-			bottom: 1rem;
+		.photo-section.is-visible {
+			transform: translate3d(0, 0, 0);
+		}
+
+		.image-trigger {
+			min-height: calc(100dvh - var(--site-header-height) - 2.75rem);
+		}
+
+		.file-name {
+			padding: 0 0.75rem;
+			font-size: 0.72rem;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.photo-section,
+		.photo-section.from-left,
+		.photo-section.from-right,
+		.photo-section.from-top,
+		.photo-section.from-bottom {
+			opacity: 1;
+			transform: none;
+			transition: none;
 		}
 	}
 </style>

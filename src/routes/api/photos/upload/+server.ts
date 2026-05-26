@@ -7,6 +7,8 @@ import { loadManifest, saveManifest, sortByOrder } from '$lib/photos-server';
 import {
 	defaultCollectionNumber,
 	isPhotoCollectionYear,
+	isPhotoObjectPosition,
+	isPhotoRevealDirection,
 	type PhotoManifestEntry
 } from '../../../../shared/types';
 import type { RequestHandler } from './$types';
@@ -29,6 +31,8 @@ export const POST: RequestHandler = async ({ request }) => {
 		const title = String(formData.get('title') ?? '').trim();
 		const stripExif = formData.get('stripExif') !== 'false';
 		const collectionRaw = formData.get('collectionNumber');
+		const objectPositionRaw = formData.get('objectPosition');
+		const revealFromRaw = formData.get('revealFrom');
 		let collectionNumber = defaultCollectionNumber();
 		if (collectionRaw !== null && collectionRaw !== '') {
 			const parsed = Number(collectionRaw);
@@ -37,6 +41,10 @@ export const POST: RequestHandler = async ({ request }) => {
 			}
 			collectionNumber = parsed;
 		}
+		const objectPosition = isPhotoObjectPosition(objectPositionRaw)
+			? objectPositionRaw
+			: 'center center';
+		const revealFrom = isPhotoRevealDirection(revealFromRaw) ? revealFromRaw : 'bottom';
 
 		if (!(file instanceof File)) {
 			return json({ error: 'Missing file' }, { status: 400 });
@@ -87,6 +95,8 @@ export const POST: RequestHandler = async ({ request }) => {
 			thumb: `/photos/thumbs/${slug}.webp`,
 			width,
 			height,
+			objectPosition,
+			revealFrom,
 			uploadedAt: new Date().toISOString()
 		};
 

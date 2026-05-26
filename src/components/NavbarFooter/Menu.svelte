@@ -254,9 +254,9 @@
 		position: relative;
 		z-index: 51;
 		pointer-events: auto;
-		background: rgba(251, 247, 244, 0.98);
-		padding: 0.5rem 0.75rem;
-		border-radius: 0.5rem;
-		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+		background: transparent;
+		padding: 0;
+		border-radius: 0;
+		box-shadow: none;
 	}
 </style>

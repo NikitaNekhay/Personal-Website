@@ -9,6 +9,8 @@
     "thumb": "/photos/thumbs/a-sunned-man.webp",
     "width": 1920,
     "height": 1440,
+    "objectPosition": "center center",
+    "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T19:23:28.473Z"
   }
 ]
