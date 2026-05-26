@@ -992,5 +992,19 @@
     "objectPosition": "center center",
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T20:08:57.942Z"
+  },
+  {
+    "id": "bb5455aa",
+    "slug": "road-from-the-pushkin",
+    "title": "road_from_the_pushkin",
+    "order": 72,
+    "collectionNumber": 2026,
+    "original": "/photos/originals/road-from-the-pushkin.webp",
+    "thumb": "/photos/thumbs/road-from-the-pushkin.webp",
+    "width": 1920,
+    "height": 2877,
+    "objectPosition": "center center",
+    "revealFrom": "bottom",
+    "uploadedAt": "2026-05-26T20:09:09.922Z"
   }
 ]
