@@ -796,5 +796,19 @@
     "objectPosition": "center center",
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T20:07:00.787Z"
+  },
+  {
+    "id": "6949b808",
+    "slug": "neznakomka-celebration",
+    "title": "neznakomka_celebration",
+    "order": 58,
+    "collectionNumber": 2026,
+    "original": "/photos/originals/neznakomka-celebration.webp",
+    "thumb": "/photos/thumbs/neznakomka-celebration.webp",
+    "width": 1920,
+    "height": 2560,
+    "objectPosition": "center center",
+    "revealFrom": "bottom",
+    "uploadedAt": "2026-05-26T20:07:08.776Z"
   }
 ]
