@@ -922,5 +922,19 @@
     "objectPosition": "center center",
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T20:08:07.658Z"
+  },
+  {
+    "id": "21c96f39",
+    "slug": "church-zaslavl",
+    "title": "church_Zaslavl",
+    "order": 67,
+    "collectionNumber": 2026,
+    "original": "/photos/originals/church-zaslavl.webp",
+    "thumb": "/photos/thumbs/church-zaslavl.webp",
+    "width": 1920,
+    "height": 1280,
+    "objectPosition": "center center",
+    "revealFrom": "bottom",
+    "uploadedAt": "2026-05-26T20:08:17.924Z"
   }
 ]
