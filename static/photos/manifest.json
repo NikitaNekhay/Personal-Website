@@ -96,5 +96,19 @@
     "objectPosition": "center center",
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T19:59:37.593Z"
+  },
+  {
+    "id": "7b0e009a",
+    "slug": "summer-ushkova-pushkin",
+    "title": "summer_ushkova_pushkin",
+    "order": 8,
+    "collectionNumber": 2026,
+    "original": "/photos/originals/summer-ushkova-pushkin.webp",
+    "thumb": "/photos/thumbs/summer-ushkova-pushkin.webp",
+    "width": 1920,
+    "height": 2877,
+    "objectPosition": "center center",
+    "revealFrom": "bottom",
+    "uploadedAt": "2026-05-26T19:59:47.873Z"
   }
 ]
