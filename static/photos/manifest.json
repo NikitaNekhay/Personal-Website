@@ -656,5 +656,19 @@
     "objectPosition": "center center",
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T20:05:31.577Z"
+  },
+  {
+    "id": "99f1d7ee",
+    "slug": "hidden-street-view-on-the-way-to-climbing-gym",
+    "title": "hidden_street_view_on_the_way_to_climbing_gym",
+    "order": 48,
+    "collectionNumber": 2026,
+    "original": "/photos/originals/hidden-street-view-on-the-way-to-climbing-gym.webp",
+    "thumb": "/photos/thumbs/hidden-street-view-on-the-way-to-climbing-gym.webp",
+    "width": 1920,
+    "height": 2560,
+    "objectPosition": "center center",
+    "revealFrom": "bottom",
+    "uploadedAt": "2026-05-26T20:05:40.184Z"
   }
 ]
