@@ -166,5 +166,19 @@
     "objectPosition": "center center",
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T20:00:18.594Z"
+  },
+  {
+    "id": "7d422323",
+    "slug": "what-in-his-hand",
+    "title": "what_in_his_hand",
+    "order": 13,
+    "collectionNumber": 2026,
+    "original": "/photos/originals/what-in-his-hand.webp",
+    "thumb": "/photos/thumbs/what-in-his-hand.webp",
+    "width": 1920,
+    "height": 2560,
+    "objectPosition": "center center",
+    "revealFrom": "bottom",
+    "uploadedAt": "2026-05-26T20:00:26.775Z"
   }
 ]
