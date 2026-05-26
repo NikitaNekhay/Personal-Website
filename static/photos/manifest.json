@@ -208,5 +208,19 @@
     "objectPosition": "center center",
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T20:00:41.724Z"
+  },
+  {
+    "id": "67ce1343",
+    "slug": "yellow-flower-pt1",
+    "title": "yellow_flower_pt1",
+    "order": 16,
+    "collectionNumber": 2026,
+    "original": "/photos/originals/yellow-flower-pt1.webp",
+    "thumb": "/photos/thumbs/yellow-flower-pt1.webp",
+    "width": 1920,
+    "height": 1440,
+    "objectPosition": "center center",
+    "revealFrom": "bottom",
+    "uploadedAt": "2026-05-26T20:00:49.004Z"
   }
 ]
