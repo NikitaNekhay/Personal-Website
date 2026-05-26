@@ -698,5 +698,19 @@
     "objectPosition": "center center",
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T20:05:59.997Z"
+  },
+  {
+    "id": "b2268bff",
+    "slug": "man-walking-in-almet",
+    "title": "man_walking_in_Almet",
+    "order": 51,
+    "collectionNumber": 2026,
+    "original": "/photos/originals/man-walking-in-almet.webp",
+    "thumb": "/photos/thumbs/man-walking-in-almet.webp",
+    "width": 1920,
+    "height": 2560,
+    "objectPosition": "center center",
+    "revealFrom": "bottom",
+    "uploadedAt": "2026-05-26T20:06:10.129Z"
   }
 ]
