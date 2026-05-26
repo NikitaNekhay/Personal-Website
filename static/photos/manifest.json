@@ -320,5 +320,19 @@
     "objectPosition": "center center",
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T20:01:43.878Z"
+  },
+  {
+    "id": "d21349b4",
+    "slug": "big-smile",
+    "title": "big_smile",
+    "order": 24,
+    "collectionNumber": 2026,
+    "original": "/photos/originals/big-smile.webp",
+    "thumb": "/photos/thumbs/big-smile.webp",
+    "width": 1920,
+    "height": 1440,
+    "objectPosition": "center center",
+    "revealFrom": "bottom",
+    "uploadedAt": "2026-05-26T20:01:51.219Z"
   }
 ]
