@@ -964,5 +964,19 @@
     "objectPosition": "center center",
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T20:08:36.645Z"
+  },
+  {
+    "id": "c37a5f8a",
+    "slug": "guys-zaslavl",
+    "title": "guys_Zaslavl",
+    "order": 70,
+    "collectionNumber": 2026,
+    "original": "/photos/originals/guys-zaslavl.webp",
+    "thumb": "/photos/thumbs/guys-zaslavl.webp",
+    "width": 1920,
+    "height": 1280,
+    "objectPosition": "center center",
+    "revealFrom": "bottom",
+    "uploadedAt": "2026-05-26T20:08:46.151Z"
   }
 ]
