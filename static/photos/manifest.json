@@ -152,5 +152,19 @@
     "objectPosition": "center center",
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T20:00:08.459Z"
+  },
+  {
+    "id": "ccb3421d",
+    "slug": "we-listen-you-gulf",
+    "title": "we_listen_you_gulf",
+    "order": 12,
+    "collectionNumber": 2026,
+    "original": "/photos/originals/we-listen-you-gulf.webp",
+    "thumb": "/photos/thumbs/we-listen-you-gulf.webp",
+    "width": 1920,
+    "height": 1440,
+    "objectPosition": "center center",
+    "revealFrom": "bottom",
+    "uploadedAt": "2026-05-26T20:00:18.594Z"
   }
 ]
