@@ -306,5 +306,19 @@
     "objectPosition": "center center",
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T20:01:39.274Z"
+  },
+  {
+    "id": "31d5f533",
+    "slug": "beach-plus",
+    "title": "beach_plus",
+    "order": 23,
+    "collectionNumber": 2026,
+    "original": "/photos/originals/beach-plus.webp",
+    "thumb": "/photos/thumbs/beach-plus.webp",
+    "width": 1280,
+    "height": 960,
+    "objectPosition": "center center",
+    "revealFrom": "bottom",
+    "uploadedAt": "2026-05-26T20:01:43.878Z"
   }
 ]
