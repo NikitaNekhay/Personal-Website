@@ -1,6 +1,6 @@
 <script>
     import { t } from "svelte-i18n";
-  import EmptyPage from "../../components/Shared/EmptyPage.svelte";
+
 </script>
 
 <svelte:head>
@@ -30,4 +30,9 @@
   <meta property="og:url" content="https://nekhaynikita.ru/policy" />
 </svelte:head>
 
-<EmptyPage />
+<div class="grid h-screen px-4 bg-white place-content-center">
+  <h1 class="tracking-widest text-center text-black-1 uppercase font-abril text-3xl">
+    404 | {$t("Currently this page is under the maintenance!")}<br>
+    
+  </h1>
+</div>

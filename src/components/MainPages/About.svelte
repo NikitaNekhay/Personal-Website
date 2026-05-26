@@ -128,7 +128,7 @@
                                 <li>
                                     <p>
                                         {$t(
-                                            "master degree student (DevOps & Security Engineering) seeking for a job as a front-end developer in React, Svelte, Bitrix1C",
+                                            "master degree student seeking for a job as a DevOps & Security Engineer",
                                         )}
                                     </p>
                                     
@@ -136,7 +136,7 @@
                                   <li>
                                     <p>
                                         {$t(
-                                            "graduate (programming and logistics)",
+                                            "bachelor graduate (programming and logistics)",
                                         )}
                                     </p>
                                     
@@ -186,7 +186,7 @@
                                 <li>
                                     <p>
                                         {$t(
-                                            "sew myself, design myself, make photos myself, write web-sites myself",
+                                            "sew myself, design myself, make photos myself, write web-sites myself, set up infrastructure myself",
                                         )}
                                     </p>
                                 </li>

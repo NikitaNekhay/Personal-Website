@@ -83,7 +83,7 @@ font-anonymous bottom-0 mt-20 shadow-white-2 drop-shadow-2xl"
             2xl:gap-0 3xl:gap-0 md:gap-0 xl:gap-8"
         >
             <div>
-                <p>
+                <!-- <p>
                     <span class="text-xs tracking-wide text-black-0">
                         {$t("CALL US")}
                     </span>
@@ -92,11 +92,6 @@ font-anonymous bottom-0 mt-20 shadow-white-2 drop-shadow-2xl"
                         href="tel:+375445785057"
                         class="block text-2xl font-medium text-black-1 transition duration-300 delay-100 hover:opacity-75 hover:text-blue-0 sm:text-3xl"
                     >
-                        <!-- {#if innerWidth > 374 && innerWidth<414}
-                    +37544...
-                    {:else}
-                    +375445785057
-                    {/if} -->
                         +375445785057
                     </a>
                 </p>
@@ -104,7 +99,7 @@ font-anonymous bottom-0 mt-20 shadow-white-2 drop-shadow-2xl"
                 <ul class="mt-8 space-y-1 text-sm text-black-0">
                     <li>{$t("Monday to Friday")} : 10am - 5pm</li>
                     <li>{$t("Weekend")} : 10am - 3pm</li>
-                </ul>
+                </ul> -->
 
                 <ul class="flex gap-6 mt-8">
                     <li class="">
@@ -308,7 +303,7 @@ font-anonymous bottom-0 mt-20 shadow-white-2 drop-shadow-2xl"
                     class="mt-8 text-xs text-gray-700 sm:mt-0 text-transparent bg-clip-text
                 bg-gradient-to-r from-yellow-500 via-red-500 to-pink-500"
                 >
-                    &copy; 2025. NEKHAY NIKITA. {$t("All rights reserved")}.
+                    &copy; 2026. NEKHAY NIKITA. {$t("All rights reserved")}.
                 </p>
             </div>
         </div>
