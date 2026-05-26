@@ -362,5 +362,19 @@
     "objectPosition": "center center",
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T20:02:05.297Z"
+  },
+  {
+    "id": "65df40e2",
+    "slug": "capturing-view-from-hidden-doors",
+    "title": "capturing_view_from_hidden_doors",
+    "order": 27,
+    "collectionNumber": 2026,
+    "original": "/photos/originals/capturing-view-from-hidden-doors.webp",
+    "thumb": "/photos/thumbs/capturing-view-from-hidden-doors.webp",
+    "width": 1920,
+    "height": 2560,
+    "objectPosition": "center center",
+    "revealFrom": "bottom",
+    "uploadedAt": "2026-05-26T20:02:14.989Z"
   }
 ]
