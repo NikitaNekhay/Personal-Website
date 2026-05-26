@@ -278,5 +278,19 @@
     "objectPosition": "center center",
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T20:01:26.494Z"
+  },
+  {
+    "id": "f2202fec",
+    "slug": "beach-50byn-cili",
+    "title": "beach_50byn_cili",
+    "order": 21,
+    "collectionNumber": 2026,
+    "original": "/photos/originals/beach-50byn-cili.webp",
+    "thumb": "/photos/thumbs/beach-50byn-cili.webp",
+    "width": 1920,
+    "height": 1440,
+    "objectPosition": "center center",
+    "revealFrom": "bottom",
+    "uploadedAt": "2026-05-26T20:01:33.279Z"
   }
 ]
