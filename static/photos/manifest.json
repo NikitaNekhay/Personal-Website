@@ -684,5 +684,19 @@
     "objectPosition": "center center",
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T20:05:48.406Z"
+  },
+  {
+    "id": "9751d6c3",
+    "slug": "man-on-the-kazan-hill",
+    "title": "man_on_the_kazan_hill",
+    "order": 50,
+    "collectionNumber": 2026,
+    "original": "/photos/originals/man-on-the-kazan-hill.webp",
+    "thumb": "/photos/thumbs/man-on-the-kazan-hill.webp",
+    "width": 1920,
+    "height": 2560,
+    "objectPosition": "center center",
+    "revealFrom": "bottom",
+    "uploadedAt": "2026-05-26T20:05:59.997Z"
   }
 ]
