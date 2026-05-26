@@ -1,1 +1,14 @@
-[]
+[
+  {
+    "id": "7e4b42d0",
+    "slug": "a-sunned-man",
+    "title": "a_sunned_man",
+    "order": 1,
+    "collectionNumber": 2026,
+    "original": "/photos/originals/a-sunned-man.webp",
+    "thumb": "/photos/thumbs/a-sunned-man.webp",
+    "width": 1920,
+    "height": 1440,
+    "uploadedAt": "2026-05-26T19:23:28.473Z"
+  }
+]
