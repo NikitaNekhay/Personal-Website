@@ -600,5 +600,19 @@
     "objectPosition": "center center",
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T20:04:57.729Z"
+  },
+  {
+    "id": "41d297d0",
+    "slug": "gopnik-way",
+    "title": "gopnik_way",
+    "order": 44,
+    "collectionNumber": 2026,
+    "original": "/photos/originals/gopnik-way.webp",
+    "thumb": "/photos/thumbs/gopnik-way.webp",
+    "width": 1920,
+    "height": 2560,
+    "objectPosition": "center center",
+    "revealFrom": "bottom",
+    "uploadedAt": "2026-05-26T20:05:08.746Z"
   }
 ]
