@@ -908,5 +908,19 @@
     "objectPosition": "center center",
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T20:07:56.454Z"
+  },
+  {
+    "id": "f54ea5f1",
+    "slug": "we-at-the-gulf-hill",
+    "title": "we_at_the_gulf_hill",
+    "order": 66,
+    "collectionNumber": 2026,
+    "original": "/photos/originals/we-at-the-gulf-hill.webp",
+    "thumb": "/photos/thumbs/we-at-the-gulf-hill.webp",
+    "width": 1920,
+    "height": 1040,
+    "objectPosition": "center center",
+    "revealFrom": "bottom",
+    "uploadedAt": "2026-05-26T20:08:07.658Z"
   }
 ]
