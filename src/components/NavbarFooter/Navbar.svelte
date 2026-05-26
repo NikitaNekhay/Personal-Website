@@ -55,7 +55,7 @@
 
     <nav class="flex w-[100%] font-anonymous">
         <!--The form itself  -->
-        <div class="fixed top-0 z-30 w-full">
+        <div class="site-header fixed top-0 z-50 w-full">
             <div
                 class="mx-auto flex items-center justify-between border-x-4 border-navy-1
                 bg-white-1 shadow-white-2 drop-shadow-2xl sm:border-x-[6px] md:border-x-[6px]
@@ -149,3 +149,10 @@
             </div>
         </div>
     </nav>
+
+<style>
+    .site-header {
+        pointer-events: auto;
+        isolation: isolate;
+    }
+</style>

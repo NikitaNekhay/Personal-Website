@@ -22,6 +22,7 @@
     "@types/gtag.js": "^0.0.18",
     "@types/nodemailer": "^6.4.14",
     "@types/scrollmagic": "^2.0.8",
+    "@types/sharp": "^0.31.1",
     "@vercel/speed-insights": "^1.0.2",
     "autoprefixer": "^10.4.14",
     "caniuse-lite": "^1.0.30001565",
@@ -55,5 +56,9 @@
     "vite": "^6.0.7",
     "xmp-js": "^0.0.5"
   },
-  "type": "module"
+  "type": "module",
+  "dependencies": {
+    "embla-carousel": "^8.6.0",
+    "sharp": "^0.34.5"
+  }
 }

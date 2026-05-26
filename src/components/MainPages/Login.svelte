@@ -26,69 +26,61 @@
 
 
 
-    function typeAction(node){
-        //console.log(node.type)
-        node.type = isPassHidden ? "password" : "text";
-        //console.log(node.type)
-    }
-
-    function changeActionTransparency(){
+    function togglePasswordVisibility(e: MouseEvent) {
+        e.preventDefault();
+        e.stopPropagation();
         isPassHidden = !isPassHidden;
     }
 
     async function handleAuthenticate() {
-        try {
-            submitClicked = !submitClicked;
-            isLoading = true;
-            if (authenticating) {
-                isLoading = false;
-                return;
-            }
+        if (authenticating) return;
 
-            if (rpassword !== password && register) {
+        try {
+            submitClicked = true;
+            isLoading = true;
+            authenticating = true;
+
+            if (register && rpassword !== password) {
                 throw Errors.RepeatPass;
             }
 
             if (
-                (email.length === 0 ||
-                    password.length === 0 ||
-                    rpassword.length === 0) &&
-                register
+                register &&
+                (email.length === 0 || password.length === 0 || rpassword.length === 0)
             ) {
                 throw Errors.EmptyInput;
             }
 
-            authenticating = true;
-            isLoading = false;
-
-            try {
-                if (!register) {
-                    await authHandlers.login(email, password);
-                } else {
-                    await authHandlers.signup(email, password);
-                    
-                }
-            } catch (err) {
-                throw err;
+            if (!register && (email.length === 0 || password.length === 0)) {
+                throw Errors.EmptyInput;
             }
-        } catch (err) {
-            if (typeof err === "string") {
+
+            if (!register) {
+                await authHandlers.login(email, password);
+            } else {
+                await authHandlers.signup(email, password);
+            }
+        } catch (err: unknown) {
+            if (typeof err === 'string') {
                 msg = err;
-            } else if (err.message !== undefined) {
+            } else if (err instanceof Error && err.message) {
                 msg = err.message;
             } else {
-                msg = Errors.Authentication;
+                msg = register ? Errors.Register : Errors.Authentication;
             }
             isChanged = true;
-
+        } finally {
             isLoading = false;
             authenticating = false;
-        } finally {
             setTimeout(() => {
-                // Calculate and set the new scroll position based on the previous percentage
                 submitClicked = false;
             }, 2500);
         }
+    }
+
+    function handleFormSubmit(e: SubmitEvent) {
+        e.preventDefault();
+        handleAuthenticate();
     }
 
     function handleRegister() {
@@ -125,7 +117,8 @@
         <div class="flex sm:px-[4%] place-content-center">
             <form
                 class="w-full max-w-lg flex flex-col justify-center items-center"
-                 
+                method="post"
+                onsubmit={handleFormSubmit}
             >
                 <div class="-mx-3 mb-6 flex flex-wrap w-full">
                     <div class="w-full px-3">
@@ -177,17 +170,18 @@
                             for="password"
                         >
 
-                        <button class="text-gray-400 absolute right-3 inset-y-0 my-auto active:text-gray-600"
-                        on:click={changeActionTransparency}
+                        <button
+                            type="button"
+                            class="text-gray-400 absolute right-3 inset-y-0 z-10 my-auto active:text-gray-600"
+                            aria-label={isPassHidden ? 'Show password' : 'Hide password'}
+                            onclick={togglePasswordVisibility}
                         >
                             {#if isPassHidden}
-                                <img src="{base}/media/closed-eye.svg" alt="closed eye icon">
+                                <img src="{base}/media/closed-eye.svg" alt="" />
                             {:else}
-                                 <img src="{base}/media/open-eye.svg" alt="open eye icon">
+                                <img src="{base}/media/open-eye.svg" alt="" />
                             {/if}
-               
                         </button>
-                            {#key isPassHidden}
                             <input
                             class="peer h-8 w-full border-none bg-transparent
                         bg-white-1 p-0 placeholder-transparent
@@ -196,11 +190,10 @@
                             id="password"
                             placeholder="Password"
                             name="password"
-                            use:typeAction
+                            type={isPassHidden ? 'password' : 'text'}
                             autocomplete="current-password"
                             required
                         />
-                            {/key}
 
                             <span
                                 class=" absolute start-3 top-3 -translate-y-1/2 cursor-text
@@ -228,7 +221,6 @@
                             focus-within:ring-white-2"
                                 for="password"
                             >
-                            {#key isPassHidden}
                                 <input
                                     class="peer h-8 w-full border-none bg-transparent
                             bg-white-1 p-0 placeholder-transparent
@@ -237,10 +229,10 @@
                                     id="rpassword"
                                     placeholder="   Repeat password"
                                     name="rpassword"
-                                    use:typeAction
+                                    type={isPassHidden ? 'password' : 'text'}
+                                    autocomplete="new-password"
                                     required
                                 />
-                                {/key}
                                 <span
                                     class=" absolute start-3 top-3 -translate-y-1/2 cursor-text
                             bg-white-1 text-xs text-gray-700 transition-all peer-placeholder-shown:top-1/2
@@ -272,9 +264,10 @@
                             tabindex="0"
                             class=" bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 
                              duration-300 delay-100 bg-clip-text font-anonymous text-base font-extrabold text-transparent transition hover:text-red-0 hover:opacity-75"
-                            on:click={handleRegister}
-                            on:keydown={() => {
-                                handleRegister;
+                            type="button"
+                            onclick={handleRegister}
+                            onkeydown={(e) => {
+                                if (e.key === 'Enter' || e.key === ' ') handleRegister();
                             }}
                         >
                             {$t("Login")}
@@ -288,8 +281,11 @@
                         tabindex="0"
                         class="bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 
                          duration-300 delay-100 hover:opacity-75 hover:text-red-0  bg-clip-text font-anonymous text-base font-extrabold text-transparent transition "
-                        on:click={handleRegister}
-                        on:keydown={() => {}}
+                        type="button"
+                        onclick={handleRegister}
+                        onkeydown={(e) => {
+                            if (e.key === 'Enter' || e.key === ' ') handleRegister();
+                        }}
                     >
                         {$t("Register")}
                     </button>

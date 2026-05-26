@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+    --site-header-height: 5.5rem;
+}
+
 html,
 body {
     @apply font-maven

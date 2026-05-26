@@ -19,7 +19,7 @@
   w-48 sm:w-36 items-center justify-center overflow-hidden
 rounded-md border border-orange-0
 px-8 py-3 focus:outline-none focus:ring"
-        on:click={passedfunction}
+        onclick={passedfunction}
         type="button"
     >
         <span

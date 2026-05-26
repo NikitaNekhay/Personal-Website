@@ -186,6 +186,7 @@ export const AdminRoutes = [
     `${base}/create`,
     `${base}/posts`,
     `${base}/slider-dashboard`,
+    `${base}/photos-dashboard`,
 ];
 
 export interface SliderPhoto {
@@ -194,4 +195,56 @@ export interface SliderPhoto {
     url: string;
     order: number;
     createdAt: string;
+}
+
+/** Years available in the home page collection filter */
+export const PHOTO_COLLECTION_YEARS = [2023, 2024, 2025, 2026] as const;
+export type PhotoCollectionYear = (typeof PHOTO_COLLECTION_YEARS)[number];
+
+export interface PhotoManifestEntry {
+    id: string;
+    slug: string;
+    title: string;
+    order: number;
+    /** Collection year shown in home filter (e.g. 2023–2026) */
+    collectionNumber: number;
+    original: string;
+    thumb: string;
+    width: number;
+    height: number;
+    uploadedAt: string;
+}
+
+export function defaultCollectionNumber(): number {
+    const year = new Date().getFullYear();
+    return (PHOTO_COLLECTION_YEARS as readonly number[]).includes(year)
+        ? year
+        : PHOTO_COLLECTION_YEARS[PHOTO_COLLECTION_YEARS.length - 1];
+}
+
+export function normalizePhotoEntry(
+    entry: Partial<PhotoManifestEntry> & Pick<PhotoManifestEntry, 'id' | 'slug'>
+): PhotoManifestEntry {
+    const collectionNumber =
+        typeof entry.collectionNumber === 'number' &&
+        (PHOTO_COLLECTION_YEARS as readonly number[]).includes(entry.collectionNumber)
+            ? entry.collectionNumber
+            : defaultCollectionNumber();
+
+    return {
+        id: entry.id,
+        slug: entry.slug,
+        title: entry.title ?? entry.slug,
+        order: entry.order ?? 0,
+        collectionNumber,
+        original: entry.original ?? `/photos/originals/${entry.slug}.webp`,
+        thumb: entry.thumb ?? `/photos/thumbs/${entry.slug}.webp`,
+        width: entry.width ?? 0,
+        height: entry.height ?? 0,
+        uploadedAt: entry.uploadedAt ?? new Date().toISOString()
+    };
+}
+
+export function isPhotoCollectionYear(value: number): value is PhotoCollectionYear {
+    return (PHOTO_COLLECTION_YEARS as readonly number[]).includes(value);
 }
