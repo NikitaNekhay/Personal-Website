@@ -572,5 +572,19 @@
     "objectPosition": "center center",
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T20:04:38.867Z"
+  },
+  {
+    "id": "1537445e",
+    "slug": "gallery-pt-2",
+    "title": "gallery_pt_2",
+    "order": 42,
+    "collectionNumber": 2026,
+    "original": "/photos/originals/gallery-pt-2.webp",
+    "thumb": "/photos/thumbs/gallery-pt-2.webp",
+    "width": 1920,
+    "height": 2560,
+    "objectPosition": "center center",
+    "revealFrom": "bottom",
+    "uploadedAt": "2026-05-26T20:04:47.886Z"
   }
 ]
