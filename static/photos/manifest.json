@@ -460,5 +460,19 @@
     "objectPosition": "center center",
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T20:03:23.767Z"
+  },
+  {
+    "id": "9e0cf4dc",
+    "slug": "dili-neswizh",
+    "title": "dili_neswizh",
+    "order": 34,
+    "collectionNumber": 2026,
+    "original": "/photos/originals/dili-neswizh.webp",
+    "thumb": "/photos/thumbs/dili-neswizh.webp",
+    "width": 1920,
+    "height": 1281,
+    "objectPosition": "center center",
+    "revealFrom": "bottom",
+    "uploadedAt": "2026-05-26T20:03:32.816Z"
   }
 ]
