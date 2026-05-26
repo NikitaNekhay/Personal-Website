@@ -810,5 +810,19 @@
     "objectPosition": "center center",
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T20:07:08.776Z"
+  },
+  {
+    "id": "37ef455b",
+    "slug": "neznakomka-found",
+    "title": "neznakomka_found",
+    "order": 59,
+    "collectionNumber": 2026,
+    "original": "/photos/originals/neznakomka-found.webp",
+    "thumb": "/photos/thumbs/neznakomka-found.webp",
+    "width": 1920,
+    "height": 2560,
+    "objectPosition": "center center",
+    "revealFrom": "bottom",
+    "uploadedAt": "2026-05-26T20:07:18.603Z"
   }
 ]
