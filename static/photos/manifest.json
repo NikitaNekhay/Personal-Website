@@ -474,5 +474,19 @@
     "objectPosition": "center center",
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T20:03:32.816Z"
+  },
+  {
+    "id": "48f884e3",
+    "slug": "dili-neswizh-run",
+    "title": "dili_neswizh_run",
+    "order": 35,
+    "collectionNumber": 2026,
+    "original": "/photos/originals/dili-neswizh-run.webp",
+    "thumb": "/photos/thumbs/dili-neswizh-run.webp",
+    "width": 1920,
+    "height": 1281,
+    "objectPosition": "center center",
+    "revealFrom": "bottom",
+    "uploadedAt": "2026-05-26T20:03:41.276Z"
   }
 ]
