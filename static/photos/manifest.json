@@ -418,5 +418,19 @@
     "objectPosition": "center center",
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T20:02:48.487Z"
+  },
+  {
+    "id": "860e13f0",
+    "slug": "cats-sky-closer",
+    "title": "cats_sky_closer",
+    "order": 31,
+    "collectionNumber": 2026,
+    "original": "/photos/originals/cats-sky-closer.webp",
+    "thumb": "/photos/thumbs/cats-sky-closer.webp",
+    "width": 1920,
+    "height": 2560,
+    "objectPosition": "center center",
+    "revealFrom": "bottom",
+    "uploadedAt": "2026-05-26T20:02:59.101Z"
   }
 ]
