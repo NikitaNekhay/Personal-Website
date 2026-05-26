@@ -894,5 +894,19 @@
     "objectPosition": "center center",
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T20:07:50.504Z"
+  },
+  {
+    "id": "2dda8ffd",
+    "slug": "only-one-such-balcony",
+    "title": "only_one_such_balcony",
+    "order": 65,
+    "collectionNumber": 2026,
+    "original": "/photos/originals/only-one-such-balcony.webp",
+    "thumb": "/photos/thumbs/only-one-such-balcony.webp",
+    "width": 1920,
+    "height": 1981,
+    "objectPosition": "center center",
+    "revealFrom": "bottom",
+    "uploadedAt": "2026-05-26T20:07:56.454Z"
   }
 ]
