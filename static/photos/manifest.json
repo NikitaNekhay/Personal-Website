@@ -768,5 +768,19 @@
     "objectPosition": "center center",
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T20:06:44.953Z"
+  },
+  {
+    "id": "06f33f7b",
+    "slug": "mirror-style",
+    "title": "mirror_style",
+    "order": 56,
+    "collectionNumber": 2026,
+    "original": "/photos/originals/mirror-style.webp",
+    "thumb": "/photos/thumbs/mirror-style.webp",
+    "width": 1920,
+    "height": 2560,
+    "objectPosition": "center center",
+    "revealFrom": "bottom",
+    "uploadedAt": "2026-05-26T20:06:53.507Z"
   }
 ]
