@@ -292,5 +292,19 @@
     "objectPosition": "center center",
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T20:01:33.279Z"
+  },
+  {
+    "id": "5037a788",
+    "slug": "beach-50byn-nik",
+    "title": "beach_50byn_nik",
+    "order": 22,
+    "collectionNumber": 2026,
+    "original": "/photos/originals/beach-50byn-nik.webp",
+    "thumb": "/photos/thumbs/beach-50byn-nik.webp",
+    "width": 1920,
+    "height": 1440,
+    "objectPosition": "center center",
+    "revealFrom": "bottom",
+    "uploadedAt": "2026-05-26T20:01:39.274Z"
   }
 ]
