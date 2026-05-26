@@ -880,5 +880,19 @@
     "objectPosition": "center center",
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T20:07:40.689Z"
+  },
+  {
+    "id": "569598ec",
+    "slug": "nik-vano-kazanka",
+    "title": "nik_vano_kazanka",
+    "order": 64,
+    "collectionNumber": 2026,
+    "original": "/photos/originals/nik-vano-kazanka.webp",
+    "thumb": "/photos/thumbs/nik-vano-kazanka.webp",
+    "width": 1920,
+    "height": 1442,
+    "objectPosition": "center center",
+    "revealFrom": "bottom",
+    "uploadedAt": "2026-05-26T20:07:50.504Z"
   }
 ]
