@@ -44,6 +44,10 @@
 		scrollToIndex(activeIndex <= 0 ? sorted.length - 1 : activeIndex - 1);
 	}
 
+	function backToTop() {
+		scrollToIndex(0);
+	}
+
 	function handleKeydown(e: KeyboardEvent) {
 		if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
 			e.preventDefault();
@@ -168,6 +172,14 @@
 				<p class="file-name">{fileName(photo)}</p>
 			</section>
 		{/each}
+		<button
+			type="button"
+			class="back-to-top"
+			class:is-visible={activeIndex > 0}
+			onclick={backToTop}
+		>
+			Back to top
+		</button>
 	</div>
 {/if}
 
@@ -261,6 +273,36 @@
 		color: rgba(0, 0, 0, 0.62);
 	}
 
+	.back-to-top {
+		position: fixed;
+		right: 1rem;
+		bottom: 1rem;
+		z-index: 15;
+		padding: 0;
+		border: 0;
+		background: transparent;
+		color: rgba(0, 0, 0, 0.58);
+		font-family: monospace;
+		font-size: 0.75rem;
+		line-height: 1;
+		letter-spacing: 0;
+		cursor: pointer;
+		opacity: 0;
+		pointer-events: none;
+		transition:
+			opacity 240ms ease,
+			color 180ms ease;
+	}
+
+	.back-to-top.is-visible {
+		opacity: 1;
+		pointer-events: auto;
+	}
+
+	.back-to-top:hover {
+		color: #111111;
+	}
+
 	@media (max-width: 767px) {
 		.gallery-root {
 			scroll-snap-type: none;
@@ -288,6 +330,12 @@
 		.file-name {
 			padding: 0 0.75rem;
 			font-size: 0.72rem;
+		}
+
+		.back-to-top {
+			right: 0.75rem;
+			bottom: 0.75rem;
+			font-size: 0.7rem;
 		}
 	}
 
