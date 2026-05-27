@@ -18,7 +18,7 @@ export async function loadManifest(): Promise<{ entries: PhotoManifestEntry[]; s
 
 export async function saveManifest(entries: PhotoManifestEntry[], sha: string): Promise<void> {
 	const content = Buffer.from(JSON.stringify(entries, null, 2), 'utf-8').toString('base64');
-	await ghPut(MANIFEST_PATH, content, 'Update photo manifest', sha);
+	await ghPut(MANIFEST_PATH, content, '[photos skip deploy] Update photo manifest', sha);
 }
 
 export function sortByOrder(entries: PhotoManifestEntry[]): PhotoManifestEntry[] {

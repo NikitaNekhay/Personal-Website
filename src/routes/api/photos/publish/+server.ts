@@ -1,0 +1,95 @@
+import { json } from '@sveltejs/kit';
+import { requireAdmin } from '$lib/auth-admin';
+import { ghCommitFiles } from '$lib/github';
+import { loadManifest, MANIFEST_PATH, sortByOrder } from '$lib/photos-server';
+import {
+	isPhotoCollectionYear,
+	isPhotoObjectPosition,
+	isPhotoRevealDirection,
+	normalizePhotoEntry,
+	type PhotoManifestEntry
+} from '../../../../shared/types';
+import type { RequestHandler } from './$types';
+
+interface PendingPhotoCommit {
+	entry: PhotoManifestEntry;
+	originalBlobSha: string;
+	thumbBlobSha: string;
+}
+
+function isValidPendingPhoto(value: unknown): value is PendingPhotoCommit {
+	if (!value || typeof value !== 'object') return false;
+	const item = value as PendingPhotoCommit;
+	const entry = item.entry as PhotoManifestEntry | undefined;
+	return (
+		!!entry &&
+		typeof entry.slug === 'string' &&
+		typeof entry.title === 'string' &&
+		typeof item.originalBlobSha === 'string' &&
+		typeof item.thumbBlobSha === 'string' &&
+		isPhotoCollectionYear(entry.collectionNumber) &&
+		isPhotoObjectPosition(entry.objectPosition) &&
+		isPhotoRevealDirection(entry.revealFrom)
+	);
+}
+
+export const POST: RequestHandler = async ({ request }) => {
+	const authError = await requireAdmin(request);
+	if (authError) return authError;
+
+	try {
+		const body = await request.json();
+		const pending = Array.isArray(body.photos) ? body.photos : [];
+		if (pending.length === 0 || !pending.every(isValidPendingPhoto)) {
+			return json({ error: 'No valid pending photos provided' }, { status: 400 });
+		}
+
+		const { entries } = await loadManifest();
+		const existingSlugs = new Set(entries.map((entry) => entry.slug));
+		const incomingSlugs = pending.map((photo: PendingPhotoCommit) => photo.entry.slug);
+
+		if (new Set(incomingSlugs).size !== incomingSlugs.length) {
+			return json({ error: 'Duplicate uploaded slugs' }, { status: 409 });
+		}
+		if (incomingSlugs.some((slug) => existingSlugs.has(slug))) {
+			return json({ error: 'One or more slugs already exist' }, { status: 409 });
+		}
+
+		const maxOrder = entries.reduce((max, entry) => Math.max(max, entry.order), 0);
+		const newEntries = pending.map((photo: PendingPhotoCommit, index: number) =>
+			normalizePhotoEntry({
+				...photo.entry,
+				order: maxOrder + index + 1
+			})
+		);
+		const updated = sortByOrder([...entries, ...newEntries]);
+		const manifestBase64 = Buffer.from(JSON.stringify(updated, null, 2), 'utf-8').toString(
+			'base64'
+		);
+
+		await ghCommitFiles(
+			[
+				...pending.flatMap((photo: PendingPhotoCommit) => [
+					{
+						path: `static/photos/originals/${photo.entry.slug}.webp`,
+						sha: photo.originalBlobSha
+					},
+					{
+						path: `static/photos/thumbs/${photo.entry.slug}.webp`,
+						sha: photo.thumbBlobSha
+					}
+				]),
+				{
+					path: MANIFEST_PATH,
+					contentBase64: manifestBase64
+				}
+			],
+			`[photos skip deploy] Publish ${pending.length} photo${pending.length === 1 ? '' : 's'}`
+		);
+
+		return json(updated);
+	} catch (error) {
+		console.error('Publish photos failed:', error);
+		return json({ error: 'Publish photos failed' }, { status: 500 });
+	}
+};

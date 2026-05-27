@@ -2,8 +2,8 @@ import { json } from '@sveltejs/kit';
 import sharp from 'sharp';
 import { randomBytes } from 'crypto';
 import { requireAdmin } from '$lib/auth-admin';
-import { ghCommitFiles } from '$lib/github';
-import { loadManifest, MANIFEST_PATH, sortByOrder } from '$lib/photos-server';
+import { ghCreateBlob } from '$lib/github';
+import { loadManifest } from '$lib/photos-server';
 import {
 	defaultCollectionNumber,
 	isPhotoCollectionYear,
@@ -20,6 +20,12 @@ export const config = {
 
 const SLUG_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
+interface PendingPhotoUpload {
+	entry: PhotoManifestEntry;
+	originalBlobSha: string;
+	thumbBlobSha: string;
+}
+
 export const POST: RequestHandler = async ({ request }) => {
 	const authError = await requireAdmin(request);
 	if (authError) return authError;
@@ -33,6 +39,7 @@ export const POST: RequestHandler = async ({ request }) => {
 		const collectionRaw = formData.get('collectionNumber');
 		const objectPositionRaw = formData.get('objectPosition');
 		const revealFromRaw = formData.get('revealFrom');
+
 		let collectionNumber = defaultCollectionNumber();
 		if (collectionRaw !== null && collectionRaw !== '') {
 			const parsed = Number(collectionRaw);
@@ -41,6 +48,7 @@ export const POST: RequestHandler = async ({ request }) => {
 			}
 			collectionNumber = parsed;
 		}
+
 		const objectPosition = isPhotoObjectPosition(objectPositionRaw)
 			? objectPositionRaw
 			: 'center center';
@@ -56,11 +64,15 @@ export const POST: RequestHandler = async ({ request }) => {
 			return json({ error: 'Title is required' }, { status: 400 });
 		}
 
-		const buffer = Buffer.from(await file.arrayBuffer());
+		const { entries } = await loadManifest();
+		if (entries.some((e) => e.slug === slug)) {
+			return json({ error: 'Slug already exists' }, { status: 409 });
+		}
 
+		const buffer = Buffer.from(await file.arrayBuffer());
 		let pipeline = sharp(buffer);
 		if (stripExif) {
-			pipeline = pipeline.rotate(); // auto-orient without keeping metadata
+			pipeline = pipeline.rotate();
 		}
 
 		const originalBuffer = await pipeline
@@ -76,59 +88,30 @@ export const POST: RequestHandler = async ({ request }) => {
 			.toBuffer();
 
 		const meta = await sharp(originalBuffer).metadata();
-		const width = meta.width ?? 0;
-		const height = meta.height ?? 0;
-
-		const { entries } = await loadManifest();
-		if (entries.some((e) => e.slug === slug)) {
-			return json({ error: 'Slug already exists' }, { status: 409 });
-		}
-
-		const maxOrder = entries.reduce((max, e) => Math.max(max, e.order), 0);
 		const entry: PhotoManifestEntry = {
 			id: randomBytes(4).toString('hex'),
 			slug,
 			title,
-			order: maxOrder + 1,
+			order: 0,
 			collectionNumber,
 			original: `/photos/originals/${slug}.webp`,
 			thumb: `/photos/thumbs/${slug}.webp`,
-			width,
-			height,
+			width: meta.width ?? 0,
+			height: meta.height ?? 0,
 			objectPosition,
 			revealFrom,
 			uploadedAt: new Date().toISOString()
 		};
 
-		const originalPath = `static/photos/originals/${slug}.webp`;
-		const thumbPath = `static/photos/thumbs/${slug}.webp`;
+		const pending: PendingPhotoUpload = {
+			entry,
+			originalBlobSha: await ghCreateBlob(originalBuffer.toString('base64'), 'base64'),
+			thumbBlobSha: await ghCreateBlob(thumbBuffer.toString('base64'), 'base64')
+		};
 
-		const updated = [...entries, entry];
-		const manifestBase64 = Buffer.from(JSON.stringify(updated, null, 2), 'utf-8').toString(
-			'base64'
-		);
-
-		await ghCommitFiles(
-			[
-				{
-					path: originalPath,
-					contentBase64: originalBuffer.toString('base64')
-				},
-				{
-					path: thumbPath,
-					contentBase64: thumbBuffer.toString('base64')
-				},
-				{
-					path: MANIFEST_PATH,
-					contentBase64: manifestBase64
-				}
-			],
-			`[photos skip deploy] Add photo: ${slug}`
-		);
-
-		return json(sortByOrder(updated));
+		return json(pending);
 	} catch (error) {
-		console.error('Upload failed:', error);
-		return json({ error: 'Upload failed' }, { status: 500 });
+		console.error('Draft upload failed:', error);
+		return json({ error: 'Draft upload failed' }, { status: 500 });
 	}
 };

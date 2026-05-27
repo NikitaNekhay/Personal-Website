@@ -15,6 +15,12 @@
 
 	type UploadStatus = 'pending' | 'uploading' | 'done' | 'error';
 
+	interface PendingPhotoUpload {
+		entry: PhotoManifestEntry;
+		originalBlobSha: string;
+		thumbBlobSha: string;
+	}
+
 	interface StagedFile {
 		id: string;
 		file: File;
@@ -175,6 +181,7 @@
 		if (!slugValid || staged.length === 0) return;
 		isUploading = true;
 		const headers = await getAuthHeaders();
+		const pendingPhotos: PendingPhotoUpload[] = [];
 
 		for (let i = 0; i < staged.length; i++) {
 			const item = staged[i];
@@ -191,7 +198,7 @@
 				formData.append('objectPosition', item.objectPosition);
 				formData.append('revealFrom', item.revealFrom);
 
-				const res = await fetch(`${base}/api/photos/upload`, {
+				const res = await fetch(`${base}/api/photos/upload-draft`, {
 					method: 'POST',
 					headers,
 					body: formData
@@ -202,8 +209,8 @@
 					throw new Error(err.error ?? 'Upload failed');
 				}
 
-				manifest = await res.json();
-				staged[i] = { ...staged[i], status: 'done' };
+				pendingPhotos.push(await res.json());
+				staged[i] = { ...staged[i], status: 'uploading' };
 				staged = [...staged];
 			} catch (e) {
 				staged[i] = {
@@ -212,6 +219,35 @@
 					error: e instanceof Error ? e.message : 'Upload failed'
 				};
 				staged = [...staged];
+			}
+		}
+
+		if (pendingPhotos.length > 0) {
+			try {
+				const publishHeaders = {
+					...(await getAuthHeaders()),
+					'Content-Type': 'application/json'
+				};
+				const res = await fetch(`${base}/api/photos/publish`, {
+					method: 'POST',
+					headers: publishHeaders,
+					body: JSON.stringify({ photos: pendingPhotos })
+				});
+				if (!res.ok) {
+					const err = await res.json().catch(() => ({}));
+					throw new Error(err.error ?? 'Publish failed');
+				}
+				manifest = await res.json();
+				const published = new Set(pendingPhotos.map((photo) => photo.entry.slug));
+				staged = staged.map((item) =>
+					published.has(item.slug) ? { ...item, status: 'done' } : item
+				);
+			} catch (e) {
+				const message = e instanceof Error ? e.message : 'Publish failed';
+				const published = new Set(pendingPhotos.map((photo) => photo.entry.slug));
+				staged = staged.map((item) =>
+					published.has(item.slug) ? { ...item, status: 'error', error: message } : item
+				);
 			}
 		}
 
@@ -361,7 +397,8 @@
 	}
 
 	function imgUrl(path: string): string {
-		return `${base}${path}`;
+		const photoPath = path.replace(/^\/?photos\//, '');
+		return `${base}/api/photos/image/${photoPath}`;
 	}
 </script>
 

@@ -18,7 +18,8 @@
 	const sorted = $derived([...photos].sort((a, b) => a.order - b.order));
 
 	function imgUrl(path: string): string {
-		return `${base}${path}`;
+		const photoPath = path.replace(/^\/?photos\//, '');
+		return `${base}/api/photos/image/${photoPath}`;
 	}
 
 	function fileName(photo: PhotoManifestEntry): string {
