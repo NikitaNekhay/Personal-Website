@@ -198,7 +198,7 @@ export interface SliderPhoto {
 }
 
 /** Years available in the home page collection filter */
-export const PHOTO_COLLECTION_YEARS = [2023, 2024, 2025, 2026] as const;
+export const PHOTO_COLLECTION_YEARS = [2026, 2025, 2024, 2023] as const;
 export type PhotoCollectionYear = (typeof PHOTO_COLLECTION_YEARS)[number];
 
 export const PHOTO_REVEAL_DIRECTIONS = ['left', 'right', 'top', 'bottom'] as const;
