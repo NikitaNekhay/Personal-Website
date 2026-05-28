@@ -83,19 +83,20 @@ font-anonymous bottom-0 mt-20 shadow-white-2 drop-shadow-2xl"
             2xl:gap-0 3xl:gap-0 md:gap-0 xl:gap-8"
         >
             <div>
-                <!-- <p>
+                <p>
                     <span class="text-xs tracking-wide text-black-0">
                         {$t("CONTACT ME")}
                     </span>
-
+<!-- 
                     <a
                         href="tel:+375445785057"
                         class="block text-2xl font-medium text-black-1 transition duration-300 delay-100 hover:opacity-75 hover:text-blue-0 sm:text-3xl"
                     >
                         +375445785057
                     </a>
+                    -->
                 </p>
-
+<!--
                 <ul class="mt-8 space-y-1 text-sm text-black-0">
                     <li>{$t("Monday to Friday")} : 10am - 5pm</li>
                     <li>{$t("Weekend")} : 10am - 3pm</li>
