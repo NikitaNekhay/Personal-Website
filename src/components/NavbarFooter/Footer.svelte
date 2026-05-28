@@ -105,7 +105,7 @@ font-anonymous bottom-0 mt-20 shadow-white-2 drop-shadow-2xl"
                 <ul class="flex gap-6 mt-8">
                     <li class="">
                         <a
-                            href="https://t.me/nikitanekhay"
+                            href="https://t.me/nekhaymikita"
                             rel="noreferrer"
                             target="_blank"
                             class="text-gray-700 transition duration-300 delay-100 hover:opacity-75 hover:text-blue-0"
