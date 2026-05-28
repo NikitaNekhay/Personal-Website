@@ -4,6 +4,7 @@ import { ghCommitFiles } from '$lib/github';
 import { loadManifest, MANIFEST_PATH, sortByOrder } from '$lib/photos-server';
 import {
 	isPhotoCollectionYear,
+	isPhotoCollectionKey,
 	isPhotoObjectPosition,
 	isPhotoPositionPercent,
 	isPhotoRevealDirection,
@@ -30,6 +31,7 @@ function isValidPendingPhoto(value: unknown): value is PendingPhotoCommit {
 		typeof item.originalBlobSha === 'string' &&
 		typeof item.thumbBlobSha === 'string' &&
 		isPhotoCollectionYear(entry.collectionNumber) &&
+		isPhotoCollectionKey(entry.collectionKey) &&
 		isPhotoObjectPosition(entry.objectPosition) &&
 		isPhotoPositionPercent(entry.positionX) &&
 		isPhotoPositionPercent(entry.positionY) &&

@@ -4,12 +4,13 @@ items-center justify-center overflow-hidden
 rounded-md border border-orange-0
 px-8 py-3 focus:outline-none "
 type="button"
+aria-label="Loading"
 >
 <span
   class="absolute inset-x-0 bottom-0
 h-full bg-orange-0 transition-all
 "
-/>
+></span>
 
 <span
   class="relative text-sm font-medium

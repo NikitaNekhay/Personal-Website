@@ -1,13 +1,17 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { PHOTO_COLLECTION_YEARS } from '../../shared/types';
+	import {
+		PHOTO_COLLECTION_YEARS,
+		PHOTO_SELECTION_COLLECTION,
+		type PhotoCollectionKey
+	} from '../../shared/types';
 
 	interface Props {
-		selectedYear: number | null;
-		onSelect: (year: number | null) => void;
+		selectedCollection: PhotoCollectionKey;
+		onSelect: (collection: PhotoCollectionKey) => void;
 	}
 
-	let { selectedYear, onSelect }: Props = $props();
+	let { selectedCollection, onSelect }: Props = $props();
 
 	let menuOpen = $state(false);
 	let dropVisible = $state(false);
@@ -50,8 +54,8 @@
 		menuOpen = true;
 	}
 
-	function selectYear(year: number | null) {
-		onSelect(year);
+	function selectCollection(collection: PhotoCollectionKey) {
+		onSelect(collection);
 		clearTimer(menuHideTimer);
 		menuHideTimer = setTimeout(() => {
 			menuOpen = false;
@@ -118,8 +122,8 @@
 			<button
 				type="button"
 				class="collection-pill"
-				class:active={selectedYear === null}
-				onclick={() => selectYear(null)}
+				class:active={selectedCollection === PHOTO_SELECTION_COLLECTION}
+				onclick={() => selectCollection(PHOTO_SELECTION_COLLECTION)}
 			>
 				Selection
 			</button>
@@ -127,8 +131,8 @@
 				<button
 					type="button"
 					class="collection-pill"
-					class:active={selectedYear === year}
-					onclick={() => selectYear(year)}
+					class:active={selectedCollection === year}
+					onclick={() => selectCollection(year)}
 				>
 					{year}
 				</button>

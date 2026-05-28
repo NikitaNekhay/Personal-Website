@@ -13,7 +13,6 @@
 	let rootEl: HTMLDivElement | undefined = $state();
 	let activeIndex = $state(0);
 	let visibleSlugs = $state<Set<string>>(new Set());
-	let wheelLocked = false;
 
 	const sorted = $derived([...photos].sort((a, b) => a.order - b.order));
 
@@ -73,21 +72,6 @@
 		e.preventDefault();
 	}
 
-	function handleWheel(e: WheelEvent) {
-		if (!rootEl || window.matchMedia('(max-width: 767px)').matches) return;
-
-		e.preventDefault();
-		if (wheelLocked || Math.abs(e.deltaY) < 8) return;
-
-		wheelLocked = true;
-		if (e.deltaY > 0) goNext();
-		else goPrev();
-
-		window.setTimeout(() => {
-			wheelLocked = false;
-		}, 720);
-	}
-
 	onMount(() => {
 		if (!browser || !rootEl || sorted.length === 0) return;
 
@@ -123,11 +107,9 @@
 		);
 
 		sections.forEach((section) => observer.observe(section));
-		rootEl.addEventListener('wheel', handleWheel, { passive: false });
 
 		return () => {
 			observer.disconnect();
-			rootEl?.removeEventListener('wheel', handleWheel);
 		};
 	});
 </script>
@@ -196,7 +178,6 @@
 		background: #ffffff;
 		color: #111111;
 		user-select: none;
-		scroll-snap-type: y proximity;
 	}
 
 	.empty {
@@ -219,8 +200,10 @@
 		opacity: 0;
 		transform: translate3d(0, 40px, 0);
 		transition:
-			opacity 720ms ease,
-			transform 900ms cubic-bezier(0.22, 1, 0.36, 1);
+			opacity 260ms ease,
+			transform 360ms cubic-bezier(0.22, 1, 0.36, 1);
+		content-visibility: auto;
+		contain-intrinsic-size: calc(100dvh - var(--site-header-height)) 100vw;
 	}
 
 	.photo-section.from-left {
@@ -312,10 +295,6 @@
 	}
 
 	@media (max-width: 767px) {
-		.gallery-root {
-			scroll-snap-type: none;
-		}
-
 		.photo-section,
 		.photo-section.from-left,
 		.photo-section.from-right,
@@ -323,8 +302,8 @@
 		.photo-section.from-bottom {
 			transform: translate3d(0, 30px, 0);
 			transition:
-				opacity 520ms ease,
-				transform 680ms ease;
+				opacity 220ms ease,
+				transform 300ms ease;
 		}
 
 		.photo-section.is-visible {

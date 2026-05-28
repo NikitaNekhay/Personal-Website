@@ -200,6 +200,8 @@ export interface SliderPhoto {
 /** Years available in the home page collection filter */
 export const PHOTO_COLLECTION_YEARS = [2026, 2025, 2024, 2023] as const;
 export type PhotoCollectionYear = (typeof PHOTO_COLLECTION_YEARS)[number];
+export const PHOTO_SELECTION_COLLECTION = 'selection';
+export type PhotoCollectionKey = PhotoCollectionYear | typeof PHOTO_SELECTION_COLLECTION;
 
 export const PHOTO_REVEAL_DIRECTIONS = ['left', 'right', 'top', 'bottom'] as const;
 export type PhotoRevealDirection = (typeof PHOTO_REVEAL_DIRECTIONS)[number];
@@ -224,6 +226,8 @@ export interface PhotoManifestEntry {
     order: number;
     /** Collection year shown in home filter (e.g. 2023–2026) */
     collectionNumber: number;
+    /** Home/dashboard bucket: the editorial Selection group or a year */
+    collectionKey: PhotoCollectionKey;
     original: string;
     thumb: string;
     width: number;
@@ -247,6 +251,7 @@ export const PHOTO_SCALE_MIN = 1;
 export const PHOTO_SCALE_MAX = 100;
 export const DEFAULT_PHOTO_POSITION = 50;
 export const DEFAULT_PHOTO_SCALE = 1;
+export const DEFAULT_PHOTO_COLLECTION = PHOTO_SELECTION_COLLECTION;
 
 export function defaultCollectionNumber(): number {
     const year = new Date().getFullYear();
@@ -263,6 +268,7 @@ export function normalizePhotoEntry(
         (PHOTO_COLLECTION_YEARS as readonly number[]).includes(entry.collectionNumber)
             ? entry.collectionNumber
             : defaultCollectionNumber();
+    const collectionKey = normalizePhotoCollectionKey(entry.collectionKey, collectionNumber);
 
     const fallbackPosition = getPercentsFromObjectPosition(entry.objectPosition);
 
@@ -272,6 +278,7 @@ export function normalizePhotoEntry(
         title: entry.title ?? entry.slug,
         order: entry.order ?? 0,
         collectionNumber,
+        collectionKey,
         original: entry.original ?? `/photos/originals/${entry.slug}.webp`,
         thumb: entry.thumb ?? `/photos/thumbs/${entry.slug}.webp`,
         width: entry.width ?? 0,
@@ -304,6 +311,21 @@ export function normalizePhotoEntry(
 
 export function isPhotoCollectionYear(value: number): value is PhotoCollectionYear {
     return (PHOTO_COLLECTION_YEARS as readonly number[]).includes(value);
+}
+
+export function isPhotoCollectionKey(value: unknown): value is PhotoCollectionKey {
+    if (value === PHOTO_SELECTION_COLLECTION) return true;
+    const parsed = typeof value === 'string' ? Number(value) : value;
+    return typeof parsed === 'number' && isPhotoCollectionYear(parsed);
+}
+
+export function normalizePhotoCollectionKey(
+    value: unknown,
+    fallbackYear = defaultCollectionNumber()
+): PhotoCollectionKey {
+    if (value === PHOTO_SELECTION_COLLECTION) return PHOTO_SELECTION_COLLECTION;
+    const parsed = typeof value === 'string' ? Number(value) : value;
+    return typeof parsed === 'number' && isPhotoCollectionYear(parsed) ? parsed : fallbackYear;
 }
 
 export function isPhotoRevealDirection(value: unknown): value is PhotoRevealDirection {

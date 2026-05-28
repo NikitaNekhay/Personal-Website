@@ -4,21 +4,23 @@
 	import { t } from 'svelte-i18n';
 	import PhotoSlider from '../components/MainPages/PhotoSlider.svelte';
 	import PhotoCollectionFilter from '../components/MainPages/PhotoCollectionFilter.svelte';
-	import type { PhotoManifestEntry } from '../shared/types';
+	import {
+		PHOTO_SELECTION_COLLECTION,
+		type PhotoCollectionKey,
+		type PhotoManifestEntry
+	} from '../shared/types';
 
 	let photos = $state<PhotoManifestEntry[]>([]);
-	let selectedYear = $state<number | null>(null);
+	let selectedCollection = $state<PhotoCollectionKey>(PHOTO_SELECTION_COLLECTION);
 	let isLoading = $state(true);
 	let loadError = $state<string | null>(null);
 
 	const filteredPhotos = $derived(
-		selectedYear === null
-			? photos
-			: photos.filter((p) => p.collectionNumber === selectedYear)
+		photos.filter((p) => p.collectionKey === selectedCollection)
 	);
 
 	const sliderKey = $derived(
-		`${selectedYear ?? 'all'}-${filteredPhotos.map((p) => p.slug).join(',')}`
+		`${selectedCollection}-${filteredPhotos.map((p) => p.slug).join(',')}`
 	);
 
 	onMount(async () => {
@@ -75,9 +77,9 @@
 		<div class="error-msg">{loadError}</div>
 	{:else}
 		<PhotoCollectionFilter
-			{selectedYear}
-			onSelect={(year) => {
-				selectedYear = year;
+			selectedCollection={selectedCollection}
+			onSelect={(collection) => {
+				selectedCollection = collection;
 			}}
 		/>
 		{#key sliderKey}

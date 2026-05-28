@@ -3,10 +3,13 @@ import { requireAdmin } from '$lib/auth-admin';
 import { loadManifest, saveManifest, sortByOrder } from '$lib/photos-server';
 import {
 	isPhotoCollectionYear,
+	isPhotoCollectionKey,
 	isPhotoObjectPosition,
 	isPhotoPositionPercent,
 	isPhotoRevealDirection,
 	isPhotoScalePercent,
+	normalizePhotoCollectionKey,
+	type PhotoCollectionKey,
 	type PhotoRevealDirection
 } from '../../../../shared/types';
 import type { RequestHandler } from './$types';
@@ -24,6 +27,7 @@ export const PATCH: RequestHandler = async ({ request }) => {
 			const slugSet = new Set(slugs);
 			const updates: {
 				collectionNumber?: number;
+				collectionKey?: PhotoCollectionKey;
 				positionX?: number;
 				positionY?: number;
 				scalePercent?: number;
@@ -35,6 +39,15 @@ export const PATCH: RequestHandler = async ({ request }) => {
 					return json({ error: 'Invalid collection year' }, { status: 400 });
 				}
 				updates.collectionNumber = body.collectionNumber;
+				updates.collectionKey = body.collectionNumber;
+			}
+			if (body.collectionKey !== undefined) {
+				if (!isPhotoCollectionKey(body.collectionKey)) {
+					return json({ error: 'Invalid collection group' }, { status: 400 });
+				}
+				const collectionKey = normalizePhotoCollectionKey(body.collectionKey);
+				updates.collectionKey = collectionKey;
+				if (typeof collectionKey === 'number') updates.collectionNumber = collectionKey;
 			}
 			if (body.objectPosition !== undefined) {
 				if (!isPhotoObjectPosition(body.objectPosition)) {
@@ -89,7 +102,17 @@ export const PATCH: RequestHandler = async ({ request }) => {
 		}
 
 		// Single photo update
-		const { slug, title, collectionNumber, objectPosition, positionX, positionY, scalePercent, revealFrom } = body;
+		const {
+			slug,
+			title,
+			collectionNumber,
+			collectionKey,
+			objectPosition,
+			positionX,
+			positionY,
+			scalePercent,
+			revealFrom
+		} = body;
 		if (!slug || typeof slug !== 'string') {
 			return json({ error: 'Missing slug' }, { status: 400 });
 		}
@@ -109,6 +132,14 @@ export const PATCH: RequestHandler = async ({ request }) => {
 				return json({ error: 'Invalid collection year' }, { status: 400 });
 			}
 			entry.collectionNumber = collectionNumber;
+			entry.collectionKey = collectionNumber;
+		}
+		if (collectionKey !== undefined) {
+			if (!isPhotoCollectionKey(collectionKey)) {
+				return json({ error: 'Invalid collection group' }, { status: 400 });
+			}
+			entry.collectionKey = normalizePhotoCollectionKey(collectionKey, entry.collectionNumber);
+			if (typeof entry.collectionKey === 'number') entry.collectionNumber = entry.collectionKey;
 		}
 		if (objectPosition !== undefined) {
 			if (!isPhotoObjectPosition(objectPosition)) {

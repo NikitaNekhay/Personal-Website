@@ -10,7 +10,7 @@
     
 </script>
 
-{#if submitClicked && !isLoading}
+{#if submitClicked && isLoading}
 <LoadingButton />
 {:else}
     <button
@@ -26,7 +26,7 @@ px-8 py-3 focus:outline-none focus:ring"
             class="absolute inset-x-0 bottom-0 h-[2px]
 bg-orange-0 transition-all group-hover:h-full
 group-active:bg-orange-0"
-        />
+        ></span>
 
         <span
             class="relative text-sm font-medium

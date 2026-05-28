@@ -6,11 +6,14 @@ import { ghCreateBlob } from '$lib/github';
 import { loadManifest } from '$lib/photos-server';
 import {
 	defaultCollectionNumber,
+	DEFAULT_PHOTO_COLLECTION,
 	isPhotoCollectionYear,
+	isPhotoCollectionKey,
 	isPhotoObjectPosition,
 	isPhotoPositionPercent,
 	isPhotoRevealDirection,
 	isPhotoScalePercent,
+	normalizePhotoCollectionKey,
 	type PhotoManifestEntry
 } from '../../../../shared/types';
 import type { RequestHandler } from './$types';
@@ -39,6 +42,7 @@ export const POST: RequestHandler = async ({ request }) => {
 		const title = String(formData.get('title') ?? '').trim();
 		const stripExif = formData.get('stripExif') !== 'false';
 		const collectionRaw = formData.get('collectionNumber');
+		const collectionKeyRaw = formData.get('collectionKey') ?? DEFAULT_PHOTO_COLLECTION;
 		const objectPositionRaw = formData.get('objectPosition');
 		const positionXRaw = formData.get('positionX');
 		const positionYRaw = formData.get('positionY');
@@ -53,6 +57,11 @@ export const POST: RequestHandler = async ({ request }) => {
 			}
 			collectionNumber = parsed;
 		}
+		if (!isPhotoCollectionKey(collectionKeyRaw)) {
+			return json({ error: 'Invalid collection group' }, { status: 400 });
+		}
+		const collectionKey = normalizePhotoCollectionKey(collectionKeyRaw, collectionNumber);
+		if (typeof collectionKey === 'number') collectionNumber = collectionKey;
 
 		const objectPosition = isPhotoObjectPosition(objectPositionRaw)
 			? objectPositionRaw
@@ -117,6 +126,7 @@ export const POST: RequestHandler = async ({ request }) => {
 			width: meta.width ?? 0,
 			height: meta.height ?? 0,
 			objectPosition,
+			collectionKey,
 			positionX: Math.round(positionX),
 			positionY: Math.round(positionY),
 			scalePercent: Math.round(scalePercent),
