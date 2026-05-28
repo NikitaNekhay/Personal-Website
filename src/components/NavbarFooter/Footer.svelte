@@ -85,7 +85,7 @@ font-anonymous bottom-0 mt-20 shadow-white-2 drop-shadow-2xl"
             <div>
                 <!-- <p>
                     <span class="text-xs tracking-wide text-black-0">
-                        {$t("CALL US")}
+                        {$t("CONTACT ME")}
                     </span>
 
                     <a

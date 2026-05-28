@@ -3,6 +3,7 @@
 	import { base } from '$app/paths';
 	import { auth } from '$lib/firebase/firebase';
 	import CommonPopUp from '../../components/Shared/CommonPopUp.svelte';
+	import ConfirmationPopUp from '../../components/Shared/ConfirmationPopUp.svelte';
 	import InfoGuide from '../../components/Shared/InfoGuide.svelte';
 	import {
 		DEFAULT_PHOTO_COLLECTION,
@@ -82,6 +83,10 @@
 	let popupKind = $state<PopupKind>('success');
 	let dragOver = $state(false);
 	let fileInput: HTMLInputElement | undefined = $state();
+	let deleteConfirmOpen = $state(false);
+	let stagedRemoveConfirmOpen = $state(false);
+	let pendingDeletePhoto = $state<PhotoManifestEntry | null>(null);
+	let pendingRemoveStagedId = $state<string | null>(null);
 
 	function toSlug(filename: string): string {
 		return filename
@@ -201,6 +206,18 @@
 		const item = staged.find((s) => s.id === id);
 		if (item) URL.revokeObjectURL(item.preview);
 		staged = staged.filter((s) => s.id !== id);
+	}
+
+	function requestRemoveStaged(id: string) {
+		pendingRemoveStagedId = id;
+		stagedRemoveConfirmOpen = true;
+	}
+
+	function confirmRemoveStaged() {
+		if (!pendingRemoveStagedId) return;
+		removeStaged(pendingRemoveStagedId);
+		pendingRemoveStagedId = null;
+		stagedRemoveConfirmOpen = false;
 	}
 
 	function setStripAll(value: boolean) {
@@ -591,8 +608,14 @@
 		);
 	}
 
-	async function deletePhoto(slug: string, title: string) {
-		if (!confirm(`Delete "${title}"?`)) return;
+	function requestDeletePhoto(photo: PhotoManifestEntry) {
+		pendingDeletePhoto = photo;
+		deleteConfirmOpen = true;
+	}
+
+	async function confirmDeletePhoto() {
+		if (!pendingDeletePhoto) return;
+		const { slug, title } = pendingDeletePhoto;
 		savingAction = `delete-${slug}`;
 		try {
 			const headers = {
@@ -609,6 +632,8 @@
 			displayOrder = [...manifest].sort((a, b) => a.order - b.order);
 			syncDrafts(displayOrder);
 			setPopup('success', 'Success', `Deleted "${title}".`);
+			deleteConfirmOpen = false;
+			pendingDeletePhoto = null;
 		} catch (e) {
 			setPopup('error', 'Error', e instanceof Error ? e.message : 'Delete failed');
 		} finally {
@@ -638,6 +663,27 @@
 			href=""
 		/>
 	{/if}
+
+	<ConfirmationPopUp
+		bind:isOpen={deleteConfirmOpen}
+		isLoading={savingAction?.startsWith('delete-') ?? false}
+		title="Delete photo"
+		message={pendingDeletePhoto
+			? `Are you sure you want to delete "${pendingDeletePhoto.title}"? Original, thumb, and manifest entry will be removed.`
+			: 'Are you sure you want to delete this photo?'}
+		confirmText="Delete"
+		cancelText="Cancel"
+		confirmfunction={confirmDeletePhoto}
+	/>
+
+	<ConfirmationPopUp
+		bind:isOpen={stagedRemoveConfirmOpen}
+		title="Remove staged photo"
+		message="Remove this photo from the upload staging list? The original local file will not be deleted."
+		confirmText="Remove"
+		cancelText="Cancel"
+		confirmfunction={confirmRemoveStaged}
+	/>
 
 	<h1>Photos Dashboard</h1>
 
@@ -885,7 +931,7 @@
 							{#if item.error}
 								<span class="error-text">{item.error}</span>
 							{/if}
-							<button type="button" class="fancy-btn small neutral" onclick={() => removeStaged(item.id)}>
+							<button type="button" class="fancy-btn small neutral" onclick={() => requestRemoveStaged(item.id)}>
 								Remove
 							</button>
 						</div>
@@ -1230,7 +1276,7 @@
 									type="button"
 									class="fancy-btn small danger"
 									disabled={savingAction !== null}
-									onclick={() => deletePhoto(photo.slug, photo.title)}
+									onclick={() => requestDeletePhoto(photo)}
 								>
 									{#if savingAction === `delete-${photo.slug}`}
 										<span class="button-spinner"></span>

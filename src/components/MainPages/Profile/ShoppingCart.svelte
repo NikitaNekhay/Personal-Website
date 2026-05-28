@@ -20,6 +20,7 @@
   import SquareButton from "../../Shared/SquareButton.svelte";
   import { base } from "$app/paths";
   import CommonPopUp from "../../Shared/CommonPopUp.svelte";
+  import ConfirmationPopUp from "../../Shared/ConfirmationPopUp.svelte";
 
   import { cart } from "../../../store/cart_store_";
   import {
@@ -56,6 +57,9 @@
   let showDropdown = false;
   let submitClicked = false;
   let isLoading = false;
+  let cartDeleteConfirmOpen = false;
+  let deletingCartItem = false;
+  let pendingCartDeleteIndex: number | null = null;
 
   let productQuantities = new Map<string, number>();
   let cartItems: ProductType[] = [];
@@ -139,6 +143,20 @@
     return cartPrice;
   }
 
+  function requestDeleteItemFromCart(tempId: number) {
+    pendingCartDeleteIndex = tempId;
+    cartDeleteConfirmOpen = true;
+  }
+
+  async function confirmDeleteItemFromCart() {
+    if (pendingCartDeleteIndex === null) return;
+    deletingCartItem = true;
+    await handleDeleteItemFromCart(pendingCartDeleteIndex);
+    pendingCartDeleteIndex = null;
+    cartDeleteConfirmOpen = false;
+    deletingCartItem = false;
+  }
+
   async function handleDeleteItemFromCart(tempId: number) {
     if ($authStore.user) {
       const clickedItem: ProductType = cartItems.find((obj) => {
@@ -146,8 +164,9 @@
       });
 
       cartItems.splice(cartItems.indexOf(clickedItem), 1);
+      cartItems = [...cartItems];
       $authStore.data.cart = cartItems;
-      tempUserCart.cart = cartItems;
+      tempUserCart = { ...tempUserCart, cart: cartItems };
 
       // make map out of user's cart
       cartItems.forEach((item) => {
@@ -175,7 +194,8 @@
       });
       //console.log("clickedItem from cart");
       cartItems.splice(cartItems.indexOf(clickedItem), 1);
-      tempUserCart.cart = cartItems;
+      cartItems = [...cartItems];
+      tempUserCart = { ...tempUserCart, cart: cartItems };
       $cart.cart = cartItems;
 
       // make map out of user's cart
@@ -634,6 +654,16 @@
   }
 </script>
 
+<ConfirmationPopUp
+  bind:isOpen={cartDeleteConfirmOpen}
+  bind:isLoading={deletingCartItem}
+  title="Remove item"
+  message="Remove this item from your cart?"
+  confirmText="Remove"
+  cancelText="Cancel"
+  confirmfunction={confirmDeleteItemFromCart}
+/>
+
 {#if isChanged}
   <CommonPopUp
     bind:isChanged
@@ -713,7 +743,7 @@
                   <div class="flex gap-2">
                     <SquareButton
                       passedfunction={() => {
-                        handleDeleteItemFromCart(index);
+                        requestDeleteItemFromCart(index);
                       }}
                       typeSquare="delete"
                     />

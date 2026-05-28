@@ -9,7 +9,6 @@
     import { getProducts } from "./post";
 
 
-    let triggerReload:boolean = false;
   let passComponent = false;
   let tempProductStore:ProductType[];
   ////console.log("mounting in posts...",passComponent);
@@ -26,9 +25,7 @@
 </svelte:head>
 
 {#if passComponent}
-{#key triggerReload}
-  <Gallery tempProductStore={tempProductStore} bind:triggerReload/>
-{/key}
+  <Gallery tempProductStore={tempProductStore}/>
 {:else}
   <LoadingSpinner />
 {/if}

@@ -212,7 +212,7 @@
                 </h1>
                 <p>{$t('Return of goods is only possible in case of defects or flaws in the product within 14 calendar days from the date of purchase. Confirmation of defects is done through our inspection.')}</p>
                 <p>{$t('Return and exchange of non-defective goods are possible if the product has not been used, shows no signs of wear or contamination, maintains its original appearance, factory packaging is intact, and the document confirming the purchase conditions is retained.')}</p>
-                <p>{$t('To initiate a return, please contact us by email at or by phone.')}</p>
+                <p>{$t('To initiate a return, please CONTACT ME by email at or by phone.')}</p>
                 <br>
                 <p>{$t('In your email message, please provide:')}</p>
                 <ul>

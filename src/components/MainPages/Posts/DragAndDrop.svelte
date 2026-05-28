@@ -5,9 +5,12 @@
     import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
     import { storage } from "$lib/firebase/firebase";
     import InfoGuide from "../../Shared/InfoGuide.svelte";
+    import ConfirmationPopUp from "../../Shared/ConfirmationPopUp.svelte";
 
     export let tempProductStore: ProductType;
     let dragTargetIndex: number | null = null;
+    let removeConfirmOpen = false;
+    let pendingRemoveIndex: number | null = null;
 
     async function uploadImage(image: File) {
         try {
@@ -56,6 +59,18 @@
         tempProductStore.images = updatedImages;
     }
 
+    function requestRemoveImage(index: number) {
+        pendingRemoveIndex = index;
+        removeConfirmOpen = true;
+    }
+
+    function confirmRemoveImage() {
+        if (pendingRemoveIndex === null) return;
+        removeImage(pendingRemoveIndex);
+        pendingRemoveIndex = null;
+        removeConfirmOpen = false;
+    }
+
     function dragover(event: DragEvent) {
         event.preventDefault();
     }
@@ -78,6 +93,15 @@
         });
     });
 </script>
+
+<ConfirmationPopUp
+    bind:isOpen={removeConfirmOpen}
+    title="Remove image"
+    message="Remove this image from the product edit list? Save the product afterwards to keep the change."
+    confirmText="Remove"
+    cancelText="Cancel"
+    confirmfunction={confirmRemoveImage}
+/>
 
 <div class="p-3 rounded mx-auto w-full h-auto bg-white-0">
     <div
@@ -132,7 +156,7 @@
                         <button
                             class="absolute top-0 right-0 z-50 p-1 bg-white rounded-bl focus:outline-none"
                             type="button"
-                            on:click={() => removeImage(index)}
+                            on:click={() => requestRemoveImage(index)}
                         >
                             <img
                                 src="{base}/media/trash.svg"

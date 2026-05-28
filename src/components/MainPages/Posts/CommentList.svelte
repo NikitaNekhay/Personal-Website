@@ -9,6 +9,7 @@
     import { page } from "$app/stores";
     import { authStore, isAdmin, triggerComments } from "../../../store/store";
     import CommonPopUp from "../../Shared/CommonPopUp.svelte";
+    import ConfirmationPopUp from "../../Shared/ConfirmationPopUp.svelte";
 
 
     let commentaries: MessageType[] = [];
@@ -27,6 +28,9 @@
     let smmsgE: String = "Error while editing commentaries!";
     let smmsgT: String = "Changes saved!";
     let isError: boolean = false;
+    let deleteConfirmOpen = false;
+    let deletingComment = false;
+    let pendingDeleteCommentId: string | null = null;
 
     onMount(async () => {
         try {
@@ -109,7 +113,16 @@
         editClicked.index = commentIndex;
     }
 
-    function handleDelete(event, cid: string) {
+    function requestDelete(event, cid: string) {
+        event.preventDefault();
+        pendingDeleteCommentId = cid;
+        deleteConfirmOpen = true;
+    }
+
+    async function confirmDeleteComment() {
+        if (!pendingDeleteCommentId) return;
+        deletingComment = true;
+        const cid = pendingDeleteCommentId;
         try {
             $triggerComments.value = true;
 
@@ -117,17 +130,35 @@
                 $triggerComments.value = false;
                 ////console.log($triggerComments.value)
             }, 1500);
-            deleteComment(cid);
+            await deleteComment(cid);
+            commentaries = commentaries.filter((comment) => comment.cid !== cid);
             isChanged = true;
             isError = false;
             msg = msgT;
             smmsg = smmsgT;
+            deleteConfirmOpen = false;
+            pendingDeleteCommentId = null;
         } catch (error) {
-            throw Errors.DeleteComment;
+            isChanged = true;
+            isError = true;
+            msg = Errors.DeleteComment;
+            smmsg = "Error";
             ////console.log("error while delete comment")
+        } finally {
+            deletingComment = false;
         }
     }
 </script>
+
+<ConfirmationPopUp
+    bind:isOpen={deleteConfirmOpen}
+    bind:isLoading={deletingComment}
+    title="Delete comment"
+    message="Are you sure you want to delete this comment? This action cannot be undone."
+    confirmText="Delete"
+    cancelText="Cancel"
+    confirmfunction={confirmDeleteComment}
+/>
 
 {#if isChanged}
     <CommonPopUp
@@ -184,7 +215,7 @@
                             type="button"
                             class="rounded bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-indigo-700"
                             on:click={(event) => {
-                                handleDelete(event, comment.cid);
+                                requestDelete(event, comment.cid);
                             }}
                         >
                             Delete

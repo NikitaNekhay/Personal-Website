@@ -1,6 +1,7 @@
 <script lang="ts">
     import Navbar from "../components/NavbarFooter/Navbar.svelte";
     import EmptyPage from "../components/Shared/EmptyPage.svelte";
+    import RouteLoadingOverlay from "../components/Shared/RouteLoadingOverlay.svelte";
     import "../app.css";
     import Footer from "../components/NavbarFooter/Footer.svelte";
     import { page } from "$app/stores";
@@ -162,6 +163,7 @@
 
 
 <Analytics />
+<RouteLoadingOverlay />
 <Navbar />
 
 {#if $page.error}

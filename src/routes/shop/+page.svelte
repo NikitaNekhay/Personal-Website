@@ -7,7 +7,6 @@
     import { t } from "svelte-i18n";
   let passComponent = false;
   let tempProductStore: ProductType[];
-  let triggerReload: boolean = false;
   onMount(async () => {
     ////console.log("mounting in posts...", passComponent);
     tempProductStore = await getProducts();
@@ -43,9 +42,7 @@
 </svelte:head>
 
 {#if passComponent}
-  {#key triggerReload}
-    <Gallery {tempProductStore} bind:triggerReload />
-  {/key}
+  <Gallery {tempProductStore} />
 {:else}
   <LoadingSpinner />
 {/if}

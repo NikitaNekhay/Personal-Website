@@ -4,6 +4,7 @@
 	import { t } from 'svelte-i18n';
 	import PhotoSlider from '../components/MainPages/PhotoSlider.svelte';
 	import PhotoCollectionFilter from '../components/MainPages/PhotoCollectionFilter.svelte';
+	import LoadingSpinner from '../components/Shared/LoadingSpinner.svelte';
 	import {
 		PHOTO_SELECTION_COLLECTION,
 		type PhotoCollectionKey,
@@ -68,10 +69,8 @@
 
 <div class="photo-home">
 	{#if isLoading}
-		<div class="skeleton-wrap">
-			{#each [0, 1, 2] as _}
-				<div class="skeleton-block"></div>
-			{/each}
+		<div class="home-loading">
+			<LoadingSpinner />
 		</div>
 	{:else if loadError}
 		<div class="error-msg">{loadError}</div>
@@ -96,35 +95,9 @@
 		z-index: 0;
 	}
 
-	.skeleton-wrap {
-		display: flex;
-		flex-direction: column;
-		width: 100%;
-	}
-
-	.skeleton-block {
-		width: 100%;
-		height: calc(100dvh - var(--site-header-height));
-		background: #1a1a1a;
-		animation: pulse 1.5s ease-in-out infinite;
-	}
-
-	.skeleton-block:nth-child(2) {
-		animation-delay: 0.2s;
-	}
-
-	.skeleton-block:nth-child(3) {
-		animation-delay: 0.4s;
-	}
-
-	@keyframes pulse {
-		0%,
-		100% {
-			opacity: 1;
-		}
-		50% {
-			opacity: 0.45;
-		}
+	.home-loading {
+		min-height: calc(100dvh - var(--site-header-height));
+		background: #ffffff;
 	}
 
 	.error-msg {

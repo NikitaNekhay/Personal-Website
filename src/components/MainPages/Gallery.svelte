@@ -1,6 +1,7 @@
 <script lang="ts">
   // import states
   import { onMount } from "svelte";
+  import { fade } from "svelte/transition";
   import { deleteProduct, handleCart } from "../../routes/posts/post";
   import { base } from "$app/paths";
   import { authStore, isAdmin, productStore } from "../../store/store";
@@ -16,6 +17,7 @@
   } from "../../shared/types";
   import CartAdded from "../Shared/CartAdded.svelte";
   import CommonPopUp from "../Shared/CommonPopUp.svelte";
+  import ConfirmationPopUp from "../Shared/ConfirmationPopUp.svelte";
   import SquareButton from "../Shared/SquareButton.svelte";
 
   let isLoading: boolean = true;
@@ -24,10 +26,12 @@
   export let tempProductStore: ProductType[];
   let tempAuthStore: AuthStoreType;
   let isChangedCart: boolean = false;
-  export let triggerReload: boolean;
   let isChanged: boolean = false;
   let msg: String = "";
   let smmsg: String = "Something went wrong while scrolling the shop.";
+  let deleteConfirmOpen = false;
+  let deletingProduct = false;
+  let pendingDeleteProduct: ProductType | null = null;
 
   onMount(async () => {
     try {
@@ -96,26 +100,48 @@
     window.location.href = `${base}/posts/${id}/edit`;
   }
 
-  function handleDelete(id: string) {
-    // Store the previous scroll position percentage
-    const previousScrollPercentage =
-      (window.pageYOffset || document.documentElement.scrollTop) /
-      (document.documentElement.scrollHeight -
-        document.documentElement.clientHeight);
-    // Delete the blog post and navigate back to the gallery page
-    deleteProduct(id);
-    const newScrollPosition =
-      previousScrollPercentage *
-      (document.documentElement.scrollHeight -
-        document.documentElement.clientHeight);
-    window.scrollTo(0, newScrollPosition);
+  function requestDelete(post: ProductType) {
+    pendingDeleteProduct = post;
+    deleteConfirmOpen = true;
+  }
 
-    setTimeout(() => {
-      triggerReload = !triggerReload;
-      location.reload();
-    }, 2000);
+  async function confirmDeleteProduct() {
+    if (!pendingDeleteProduct) return;
+    deletingProduct = true;
+    const productToDelete = pendingDeleteProduct;
+
+    try {
+      await deleteProduct(productToDelete.id);
+      tempProductStore = tempProductStore.filter((post) => post.id !== productToDelete.id);
+      isEmpty = tempProductStore.length === 0;
+      msg = `"${productToDelete.title}" was deleted.`;
+      smmsg = "Changes saved";
+      isError = false;
+      isChanged = true;
+      deleteConfirmOpen = false;
+      pendingDeleteProduct = null;
+    } catch (err) {
+      msg = err instanceof Error ? err.message : Errors.DeletePost || "Error while deleting product.";
+      smmsg = "Error";
+      isError = true;
+      isChanged = true;
+    } finally {
+      deletingProduct = false;
+    }
   }
 </script>
+
+<ConfirmationPopUp
+  bind:isOpen={deleteConfirmOpen}
+  bind:isLoading={deletingProduct}
+  title="Delete product"
+  message={pendingDeleteProduct
+    ? `Are you sure you want to delete "${pendingDeleteProduct.title}"? This action cannot be undone.`
+    : "Are you sure you want to delete this product? This action cannot be undone."}
+  confirmText="Delete"
+  cancelText="Cancel"
+  confirmfunction={confirmDeleteProduct}
+/>
 
 <section class="bg-white">
   <div
@@ -150,7 +176,7 @@
         {#key tempProductStore.length}
           {#each tempProductStore as post}
             {#if !post.isArchive || $isAdmin.value}
-              <div class="flex ">
+              <div class="flex" transition:fade={{ duration: 180 }}>
                 <div class=" h-[800px]">
                   <div
                         on:click={() => handleClick(post.id)}
@@ -239,7 +265,7 @@
                         />
                         <SquareButton
                           passedfunction={() => {
-                            handleDelete(post.id);
+                            requestDelete(post);
                           }}
                           typeSquare="delete"
                         />

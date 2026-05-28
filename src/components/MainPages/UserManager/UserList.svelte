@@ -1,13 +1,17 @@
 <script lang="ts">
     import { base } from "$app/paths";
-    import {  handleDelete, updateUserProfile } from "../../../routes/profile/user";
+    import { handleDelete as deleteUserProfile, updateUserProfile } from "../../../routes/profile/user";
     import type { UserDataType } from "../../../shared/types";
     import { t } from "svelte-i18n";
+    import ConfirmationPopUp from "../../Shared/ConfirmationPopUp.svelte";
 
 
     export let userProfiles:UserDataType[];
     export let latestProfiles:UserDataType[];
     let triggerProfiles:UserDataType[]=[];
+    let deleteConfirmOpen = false;
+    let deletingUser = false;
+    let pendingDeleteUser: UserDataType | null = null;
 
 
 
@@ -44,6 +48,27 @@
         ////console.log("passed vairables don't exist in UserList")
     }
    
+  }
+
+  function requestDeleteUser(user: UserDataType) {
+    pendingDeleteUser = user;
+    deleteConfirmOpen = true;
+  }
+
+  async function confirmDeleteUser() {
+    if (!pendingDeleteUser) return;
+    deletingUser = true;
+    try {
+      await deleteUserProfile(pendingDeleteUser.id);
+      userProfiles = userProfiles.filter((item) => item.id !== pendingDeleteUser?.id);
+      latestProfiles = latestProfiles.filter((item) => item.id !== pendingDeleteUser?.id);
+      pendingDeleteUser = null;
+      deleteConfirmOpen = false;
+    } catch (error) {
+      console.error("error while deleting user", error);
+    } finally {
+      deletingUser = false;
+    }
   }
 </script>
 
@@ -151,15 +176,28 @@
       class="relative inline-block px-3 py-1 font-semibold leading-tight text-green-900"
     >
       <span
-        aria-hidden
+        aria-hidden="true"
         class="absolute inset-0 rounded-full bg-green-200 opacity-50"
-      />
+      ></span>
       <span class="relative">{user.id}</span>
     </span>
   </td>
   <td
     class="border-b border-gray-200 bg-white px-5 py-5 text-sm"
   >
+    {#if i === 0}
+      <ConfirmationPopUp
+        bind:isOpen={deleteConfirmOpen}
+        bind:isLoading={deletingUser}
+        title="Delete user"
+        message={pendingDeleteUser
+          ? `Are you sure you want to delete "${pendingDeleteUser.email}" from Firestore? Auth account deletion is not handled here.`
+          : "Are you sure you want to delete this user?"}
+        confirmText="Delete"
+        cancelText="Cancel"
+        confirmfunction={confirmDeleteUser}
+      />
+    {/if}
     <div class="flex justify-items-center gap-4">
       <div class="">
         <div
@@ -176,7 +214,7 @@
           <span
             class="absolute inset-0 translate-x-0 translate-y-0 bg-navy-1 transition-transform
             group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
-          />
+          ></span>
 
           <span
             class="relative block border border-current bg-white px-8 py-3"
@@ -194,16 +232,10 @@
           class="group relative inline-block text-sm font-medium text-black-1
             hover:cursor-pointer focus:outline-none focus:ring active:text-black-1"
           on:click={() => {
-            handleDelete(user.id);
-            ////console.log("clicked delete");
-            userProfiles = userProfiles.filter(item => item !== user);
-
+            requestDeleteUser(user);
           }}
           on:keypress={() => {
-            handleDelete(user.id);
-            ////console.log("clicked delete");
-            userProfiles = userProfiles.filter(item => item !== user);
-
+            requestDeleteUser(user);
           }}
           id="menu-button"
           aria-expanded="true"
@@ -214,7 +246,7 @@
           <span
             class="absolute inset-0 translate-x-0 translate-y-0 bg-navy-1 transition-transform
             group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
-          />
+          ></span>
 
           <span
             class="relative block border border-current bg-white px-8 py-3"
