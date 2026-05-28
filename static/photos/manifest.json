@@ -13,7 +13,7 @@
     "objectPosition": "center center",
     "positionX": 50,
     "positionY": 50,
-    "scalePercent": 1,
+    "scalePercent": 100,
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T19:23:28.473Z"
   },
@@ -31,7 +31,7 @@
     "objectPosition": "center center",
     "positionX": 50,
     "positionY": 50,
-    "scalePercent": 1,
+    "scalePercent": 100,
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T19:58:43.378Z"
   },
@@ -49,7 +49,7 @@
     "objectPosition": "center center",
     "positionX": 50,
     "positionY": 50,
-    "scalePercent": 1,
+    "scalePercent": 100,
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T19:58:52.819Z"
   },
@@ -67,7 +67,7 @@
     "objectPosition": "center center",
     "positionX": 50,
     "positionY": 50,
-    "scalePercent": 1,
+    "scalePercent": 100,
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T19:59:05.036Z"
   },
@@ -85,7 +85,7 @@
     "objectPosition": "center center",
     "positionX": 50,
     "positionY": 50,
-    "scalePercent": 1,
+    "scalePercent": 100,
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T19:59:17.783Z"
   },
@@ -103,7 +103,7 @@
     "objectPosition": "center center",
     "positionX": 50,
     "positionY": 50,
-    "scalePercent": 1,
+    "scalePercent": 100,
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T19:59:26.006Z"
   },
@@ -121,7 +121,7 @@
     "objectPosition": "center center",
     "positionX": 50,
     "positionY": 50,
-    "scalePercent": 1,
+    "scalePercent": 100,
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T19:59:37.593Z"
   },
@@ -139,7 +139,7 @@
     "objectPosition": "center center",
     "positionX": 50,
     "positionY": 50,
-    "scalePercent": 1,
+    "scalePercent": 100,
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T19:59:47.873Z"
   },
@@ -157,7 +157,7 @@
     "objectPosition": "center center",
     "positionX": 50,
     "positionY": 50,
-    "scalePercent": 1,
+    "scalePercent": 100,
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T19:59:54.730Z"
   },
@@ -175,7 +175,7 @@
     "objectPosition": "center center",
     "positionX": 50,
     "positionY": 50,
-    "scalePercent": 1,
+    "scalePercent": 100,
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T20:00:01.268Z"
   },
@@ -193,7 +193,7 @@
     "objectPosition": "center center",
     "positionX": 50,
     "positionY": 50,
-    "scalePercent": 1,
+    "scalePercent": 100,
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T20:00:08.459Z"
   },
@@ -211,7 +211,7 @@
     "objectPosition": "center center",
     "positionX": 50,
     "positionY": 50,
-    "scalePercent": 1,
+    "scalePercent": 100,
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T20:00:18.594Z"
   },
@@ -229,7 +229,7 @@
     "objectPosition": "center center",
     "positionX": 50,
     "positionY": 50,
-    "scalePercent": 1,
+    "scalePercent": 100,
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T20:00:26.775Z"
   },
@@ -247,7 +247,7 @@
     "objectPosition": "center center",
     "positionX": 50,
     "positionY": 50,
-    "scalePercent": 1,
+    "scalePercent": 100,
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T20:00:34.170Z"
   },
@@ -265,7 +265,7 @@
     "objectPosition": "center center",
     "positionX": 50,
     "positionY": 50,
-    "scalePercent": 1,
+    "scalePercent": 100,
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T20:00:41.724Z"
   },
@@ -283,7 +283,7 @@
     "objectPosition": "center center",
     "positionX": 50,
     "positionY": 50,
-    "scalePercent": 1,
+    "scalePercent": 100,
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T20:00:49.004Z"
   },
@@ -301,7 +301,7 @@
     "objectPosition": "center center",
     "positionX": 50,
     "positionY": 50,
-    "scalePercent": 1,
+    "scalePercent": 100,
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T20:00:57.883Z"
   },
@@ -319,7 +319,7 @@
     "objectPosition": "center center",
     "positionX": 50,
     "positionY": 50,
-    "scalePercent": 1,
+    "scalePercent": 100,
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T20:01:06.758Z"
   },
@@ -337,7 +337,7 @@
     "objectPosition": "center center",
     "positionX": 50,
     "positionY": 50,
-    "scalePercent": 1,
+    "scalePercent": 100,
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T20:01:16.275Z"
   },
@@ -355,7 +355,7 @@
     "objectPosition": "center center",
     "positionX": 50,
     "positionY": 50,
-    "scalePercent": 1,
+    "scalePercent": 100,
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T20:01:26.494Z"
   },
@@ -373,7 +373,7 @@
     "objectPosition": "center center",
     "positionX": 50,
     "positionY": 50,
-    "scalePercent": 1,
+    "scalePercent": 100,
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T20:01:33.279Z"
   },
@@ -391,7 +391,7 @@
     "objectPosition": "center center",
     "positionX": 50,
     "positionY": 50,
-    "scalePercent": 1,
+    "scalePercent": 100,
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T20:01:39.274Z"
   },
@@ -409,7 +409,7 @@
     "objectPosition": "center center",
     "positionX": 50,
     "positionY": 50,
-    "scalePercent": 1,
+    "scalePercent": 100,
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T20:01:43.878Z"
   },
@@ -427,7 +427,7 @@
     "objectPosition": "center center",
     "positionX": 50,
     "positionY": 50,
-    "scalePercent": 1,
+    "scalePercent": 100,
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T20:01:51.219Z"
   },
@@ -445,7 +445,7 @@
     "objectPosition": "center center",
     "positionX": 50,
     "positionY": 50,
-    "scalePercent": 1,
+    "scalePercent": 100,
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T20:01:58.814Z"
   },
@@ -463,7 +463,7 @@
     "objectPosition": "center center",
     "positionX": 50,
     "positionY": 50,
-    "scalePercent": 1,
+    "scalePercent": 100,
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T20:02:05.297Z"
   },
@@ -481,7 +481,7 @@
     "objectPosition": "center center",
     "positionX": 50,
     "positionY": 50,
-    "scalePercent": 1,
+    "scalePercent": 100,
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T20:02:14.989Z"
   },
@@ -499,7 +499,7 @@
     "objectPosition": "center center",
     "positionX": 50,
     "positionY": 50,
-    "scalePercent": 1,
+    "scalePercent": 100,
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T20:02:27.497Z"
   },
@@ -517,7 +517,7 @@
     "objectPosition": "center center",
     "positionX": 50,
     "positionY": 50,
-    "scalePercent": 1,
+    "scalePercent": 100,
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T20:02:36.202Z"
   },
@@ -535,7 +535,7 @@
     "objectPosition": "center center",
     "positionX": 50,
     "positionY": 50,
-    "scalePercent": 1,
+    "scalePercent": 100,
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T20:02:48.487Z"
   },
@@ -553,7 +553,7 @@
     "objectPosition": "center center",
     "positionX": 50,
     "positionY": 50,
-    "scalePercent": 1,
+    "scalePercent": 100,
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T20:02:59.101Z"
   },
@@ -571,7 +571,7 @@
     "objectPosition": "center center",
     "positionX": 50,
     "positionY": 50,
-    "scalePercent": 1,
+    "scalePercent": 100,
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T20:03:10.164Z"
   },
@@ -589,7 +589,7 @@
     "objectPosition": "center center",
     "positionX": 50,
     "positionY": 50,
-    "scalePercent": 1,
+    "scalePercent": 100,
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T20:03:23.767Z"
   },
@@ -607,7 +607,7 @@
     "objectPosition": "center center",
     "positionX": 50,
     "positionY": 50,
-    "scalePercent": 1,
+    "scalePercent": 100,
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T20:03:32.816Z"
   },
@@ -625,7 +625,7 @@
     "objectPosition": "center center",
     "positionX": 50,
     "positionY": 50,
-    "scalePercent": 1,
+    "scalePercent": 100,
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T20:03:41.276Z"
   },
@@ -643,7 +643,7 @@
     "objectPosition": "center center",
     "positionX": 50,
     "positionY": 50,
-    "scalePercent": 1,
+    "scalePercent": 100,
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T20:03:54.432Z"
   },
@@ -661,7 +661,7 @@
     "objectPosition": "center center",
     "positionX": 50,
     "positionY": 50,
-    "scalePercent": 1,
+    "scalePercent": 100,
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T20:04:06.085Z"
   },
@@ -679,7 +679,7 @@
     "objectPosition": "center center",
     "positionX": 50,
     "positionY": 50,
-    "scalePercent": 1,
+    "scalePercent": 100,
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T20:04:14.390Z"
   },
@@ -697,7 +697,7 @@
     "objectPosition": "center center",
     "positionX": 50,
     "positionY": 50,
-    "scalePercent": 1,
+    "scalePercent": 100,
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T20:04:21.017Z"
   },
@@ -715,7 +715,7 @@
     "objectPosition": "center center",
     "positionX": 50,
     "positionY": 50,
-    "scalePercent": 1,
+    "scalePercent": 100,
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T20:04:28.262Z"
   },
@@ -733,7 +733,7 @@
     "objectPosition": "center center",
     "positionX": 50,
     "positionY": 50,
-    "scalePercent": 1,
+    "scalePercent": 100,
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T20:04:38.867Z"
   },
@@ -751,7 +751,7 @@
     "objectPosition": "center center",
     "positionX": 50,
     "positionY": 50,
-    "scalePercent": 1,
+    "scalePercent": 100,
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T20:04:47.886Z"
   },
@@ -769,7 +769,7 @@
     "objectPosition": "center center",
     "positionX": 50,
     "positionY": 50,
-    "scalePercent": 1,
+    "scalePercent": 100,
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T20:04:57.729Z"
   },
@@ -787,7 +787,7 @@
     "objectPosition": "center center",
     "positionX": 50,
     "positionY": 50,
-    "scalePercent": 1,
+    "scalePercent": 100,
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T20:05:08.746Z"
   },
@@ -805,7 +805,7 @@
     "objectPosition": "center center",
     "positionX": 50,
     "positionY": 50,
-    "scalePercent": 1,
+    "scalePercent": 100,
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T20:05:16.787Z"
   },
@@ -823,7 +823,7 @@
     "objectPosition": "center center",
     "positionX": 50,
     "positionY": 50,
-    "scalePercent": 1,
+    "scalePercent": 100,
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T20:05:24.005Z"
   },
@@ -841,7 +841,7 @@
     "objectPosition": "center center",
     "positionX": 50,
     "positionY": 50,
-    "scalePercent": 1,
+    "scalePercent": 100,
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T20:05:31.577Z"
   },
@@ -859,7 +859,7 @@
     "objectPosition": "center center",
     "positionX": 50,
     "positionY": 50,
-    "scalePercent": 1,
+    "scalePercent": 100,
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T20:05:40.184Z"
   },
@@ -877,7 +877,7 @@
     "objectPosition": "center center",
     "positionX": 50,
     "positionY": 50,
-    "scalePercent": 1,
+    "scalePercent": 100,
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T20:05:48.406Z"
   },
@@ -895,7 +895,7 @@
     "objectPosition": "center center",
     "positionX": 50,
     "positionY": 50,
-    "scalePercent": 1,
+    "scalePercent": 100,
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T20:05:59.997Z"
   },
@@ -913,7 +913,7 @@
     "objectPosition": "center center",
     "positionX": 50,
     "positionY": 50,
-    "scalePercent": 1,
+    "scalePercent": 100,
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T20:06:10.129Z"
   },
@@ -931,7 +931,7 @@
     "objectPosition": "center center",
     "positionX": 50,
     "positionY": 50,
-    "scalePercent": 1,
+    "scalePercent": 100,
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T20:06:18.106Z"
   },
@@ -949,7 +949,7 @@
     "objectPosition": "center center",
     "positionX": 50,
     "positionY": 50,
-    "scalePercent": 1,
+    "scalePercent": 100,
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T20:06:26.601Z"
   },
@@ -967,7 +967,7 @@
     "objectPosition": "center center",
     "positionX": 50,
     "positionY": 50,
-    "scalePercent": 1,
+    "scalePercent": 100,
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T20:06:35.541Z"
   },
@@ -985,7 +985,7 @@
     "objectPosition": "center center",
     "positionX": 50,
     "positionY": 50,
-    "scalePercent": 1,
+    "scalePercent": 100,
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T20:06:44.953Z"
   },
@@ -1003,7 +1003,7 @@
     "objectPosition": "center center",
     "positionX": 50,
     "positionY": 50,
-    "scalePercent": 1,
+    "scalePercent": 100,
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T20:06:53.507Z"
   },
@@ -1021,7 +1021,7 @@
     "objectPosition": "center center",
     "positionX": 50,
     "positionY": 50,
-    "scalePercent": 1,
+    "scalePercent": 100,
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T20:07:00.787Z"
   },
@@ -1039,7 +1039,7 @@
     "objectPosition": "center center",
     "positionX": 50,
     "positionY": 50,
-    "scalePercent": 1,
+    "scalePercent": 100,
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T20:07:08.776Z"
   },
@@ -1057,7 +1057,7 @@
     "objectPosition": "center center",
     "positionX": 50,
     "positionY": 50,
-    "scalePercent": 1,
+    "scalePercent": 100,
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T20:07:18.603Z"
   },
@@ -1075,7 +1075,7 @@
     "objectPosition": "center center",
     "positionX": 50,
     "positionY": 50,
-    "scalePercent": 1,
+    "scalePercent": 100,
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T20:07:24.835Z"
   },
@@ -1093,7 +1093,7 @@
     "objectPosition": "center center",
     "positionX": 50,
     "positionY": 50,
-    "scalePercent": 1,
+    "scalePercent": 100,
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T20:07:30.634Z"
   },
@@ -1111,7 +1111,7 @@
     "objectPosition": "center center",
     "positionX": 50,
     "positionY": 50,
-    "scalePercent": 1,
+    "scalePercent": 100,
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T20:07:35.623Z"
   },
@@ -1129,7 +1129,7 @@
     "objectPosition": "center center",
     "positionX": 50,
     "positionY": 50,
-    "scalePercent": 1,
+    "scalePercent": 100,
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T20:07:40.689Z"
   },
@@ -1147,7 +1147,7 @@
     "objectPosition": "center center",
     "positionX": 50,
     "positionY": 50,
-    "scalePercent": 1,
+    "scalePercent": 100,
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T20:07:50.504Z"
   },
@@ -1165,7 +1165,7 @@
     "objectPosition": "center center",
     "positionX": 50,
     "positionY": 50,
-    "scalePercent": 1,
+    "scalePercent": 100,
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T20:07:56.454Z"
   },
@@ -1183,7 +1183,7 @@
     "objectPosition": "center center",
     "positionX": 50,
     "positionY": 50,
-    "scalePercent": 1,
+    "scalePercent": 100,
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T20:08:07.658Z"
   },
@@ -1201,7 +1201,7 @@
     "objectPosition": "center center",
     "positionX": 50,
     "positionY": 50,
-    "scalePercent": 1,
+    "scalePercent": 100,
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T20:08:17.924Z"
   },
@@ -1219,7 +1219,7 @@
     "objectPosition": "center center",
     "positionX": 50,
     "positionY": 50,
-    "scalePercent": 1,
+    "scalePercent": 100,
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T20:08:27.362Z"
   },
@@ -1237,7 +1237,7 @@
     "objectPosition": "center center",
     "positionX": 50,
     "positionY": 50,
-    "scalePercent": 1,
+    "scalePercent": 100,
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T20:08:36.645Z"
   },
@@ -1255,7 +1255,7 @@
     "objectPosition": "center center",
     "positionX": 50,
     "positionY": 50,
-    "scalePercent": 1,
+    "scalePercent": 100,
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T20:08:46.151Z"
   },
@@ -1273,7 +1273,7 @@
     "objectPosition": "center center",
     "positionX": 50,
     "positionY": 50,
-    "scalePercent": 1,
+    "scalePercent": 100,
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T20:08:57.942Z"
   },
@@ -1291,7 +1291,7 @@
     "objectPosition": "center center",
     "positionX": 50,
     "positionY": 50,
-    "scalePercent": 1,
+    "scalePercent": 100,
     "revealFrom": "bottom",
     "uploadedAt": "2026-05-26T20:09:09.922Z"
   }

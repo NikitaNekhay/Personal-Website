@@ -7,6 +7,7 @@
   import type { ProductType } from "../../../shared/types";
 
   import DragAndDrop from "./DragAndDrop.svelte";
+  import InfoGuide from "../../Shared/InfoGuide.svelte";
 
   import { processColorsString } from "../../../services/help";
   import CommonPopUp from "../../Shared/CommonPopUp.svelte";
@@ -102,6 +103,9 @@
           >
             {$t("Title")}
           </span>
+          <span class="field-guide">
+            <InfoGuide text="Product name shown on the shop card and product detail page. Keep it short because it is translated with the i18n key system." />
+          </span>
         </label>
       </div>
     </div>
@@ -128,6 +132,9 @@
           peer-placeholder-shown:text-sm peer-focus:top-3 peer-focus:text-xs pointer-events-none"
           >
             {$t("Small description")}
+          </span>
+          <span class="field-guide">
+            <InfoGuide text="Short card text shown in the shop grid and at the top of the product page. Best length: one compact sentence." />
           </span>
         </label>
       </div>
@@ -156,6 +163,9 @@
           >
             {$t("Big description")}
           </span>
+          <span class="field-guide">
+            <InfoGuide text="Long product description shown inside the DESCRIPTION details block. It can be empty; empty values hide that block." />
+          </span>
         </label>
       </div>
     </div>
@@ -182,6 +192,9 @@
           peer-placeholder-shown:text-sm peer-focus:top-3 peer-focus:text-xs pointer-events-none"
           >
             {$t("Description of model")}
+          </span>
+          <span class="field-guide">
+            <InfoGuide text="Model/fit notes for the MODEL block on the product page. Use it for size, fit, silhouette, or model-wearing details." />
           </span>
         </label>
       </div>
@@ -210,6 +223,9 @@
           >
             {$t("Description of materials")}
           </span>
+          <span class="field-guide">
+            <InfoGuide text="Material/composition text shown inside the MATERIALS details block. Empty values hide that block." />
+          </span>
         </label>
       </div>
     </div>
@@ -221,7 +237,12 @@
         border border-gray-200 bg-white-1 shadow-sm focus-within:border-white-2 focus-within:ring-1
         focus-within:ring-white-2"
         >
-          <legend class="">{$t("Sizes")}</legend>
+          <legend class="">
+            <span class="legend-guide">
+              {$t("Sizes")}
+              <InfoGuide text="Checked sizes are shown on the product detail page. Use Individual size for custom measurements and One size for universal pieces." />
+            </span>
+          </legend>
 
           <div class="flex flex-col">
             <input
@@ -330,6 +351,9 @@
             >
               {$t("Price")}
             </span>
+            <span class="field-guide">
+              <InfoGuide text="Numeric product price in BYN. The shop appends BYN on display, so enter only the amount, for example 250." />
+            </span>
           </label>
           <p class="mt-3 text-xs italic text-gray-600">
             {$t("Input only numbers")}
@@ -359,6 +383,9 @@
           peer-placeholder-shown:text-sm peer-focus:top-3 peer-focus:text-xs pointer-events-none"
             >
               {$t("Colors")}
+            </span>
+            <span class="field-guide">
+              <InfoGuide text="Color list displayed on the product page. Enter colors separated by spaces or commas; each color should start with a capital letter." />
             </span>
           </label>
           <p
@@ -400,6 +427,9 @@
             >
               {$t("Section")}
             </span>
+            <span class="field-guide">
+              <InfoGuide text="Internal wardrobe/category section saved with the product. Use a consistent value such as Dresses, Jackets, Accessories, or another shop grouping." />
+            </span>
           </label>
           <p class="mt-3 text-xs italic text-gray-600">
             {$t("Input section in wardrobe")}
@@ -411,7 +441,12 @@
         border border-gray-200 bg-white-1 shadow-sm focus-within:border-white-2 focus-within:ring-1
         focus-within:ring-white-2"
           >
-            <legend class="">{$t("Is archived item?")}</legend>
+            <legend class="">
+              <span class="legend-guide">
+                {$t("Is archived item?")}
+                <InfoGuide text="Archived products are hidden from regular shoppers in the shop grid, but admins can still see and edit them." />
+              </span>
+            </legend>
 
             <div class="flex flex-col">
               <input
@@ -441,3 +476,18 @@
     </div>
   </form>
 </div>
+
+<style>
+  .field-guide {
+    position: absolute;
+    top: 0.55rem;
+    right: 0.65rem;
+    z-index: 10;
+  }
+
+  .legend-guide {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+</style>

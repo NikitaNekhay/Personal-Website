@@ -2,8 +2,9 @@
     import { base } from "$app/paths";
     import { onDestroy } from "svelte";
     import type { ProductType } from "../../../shared/types";
-    import { ref, uploadBytes, getDownloadURL, listAll } from "firebase/storage";
+    import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
     import { storage } from "$lib/firebase/firebase";
+    import InfoGuide from "../../Shared/InfoGuide.svelte";
 
     export let tempProductStore: ProductType;
     let dragTargetIndex: number | null = null;
@@ -97,9 +98,12 @@
             >
                 <img src="{base}/media/cloud-upload.svg" alt="upload icon" />
                 <div>
-                    <p class="mb-2 text-sm text-gray-00">
-                        <span class="font-semibold">Click to upload</span> or drag
-                        and drop
+                    <p class="mb-2 text-sm text-gray-00 inline-flex items-center justify-center gap-2">
+                        <span>
+                            <span class="font-semibold">Click to upload</span> or drag
+                            and drop
+                        </span>
+                        <InfoGuide text="Product images are uploaded to Firebase Storage immediately. The first image becomes the shop card cover; drag thumbnails below to change order." />
                     </p>
                     <p class="text-xs text-gray-00">
                         SVG, PNG, JPG or GIF (MAX. 800x400px)

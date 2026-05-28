@@ -14,6 +14,7 @@ import {
 	isPhotoRevealDirection,
 	isPhotoScalePercent,
 	normalizePhotoCollectionKey,
+	DEFAULT_PHOTO_SCALE,
 	type PhotoManifestEntry
 } from '../../../../shared/types';
 import type { RequestHandler } from './$types';
@@ -60,7 +61,7 @@ export const POST: RequestHandler = async ({ request }) => {
 			: 'center center';
 		const positionX = Number(positionXRaw ?? 50);
 		const positionY = Number(positionYRaw ?? 50);
-		const scalePercent = Number(scalePercentRaw ?? 1);
+		const scalePercent = Number(scalePercentRaw ?? DEFAULT_PHOTO_SCALE);
 		const revealFrom = isPhotoRevealDirection(revealFromRaw) ? revealFromRaw : 'bottom';
 
 		if (!isPhotoPositionPercent(positionX)) {

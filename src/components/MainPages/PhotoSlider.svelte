@@ -25,9 +25,9 @@
 		return photo.original.split('/').pop() ?? `${photo.slug}.webp`;
 	}
 
-	function scaleFactor(photo: PhotoManifestEntry): string {
-		const value = Number.isFinite(photo.scalePercent) ? photo.scalePercent : 1;
-		return (1 + (Math.max(1, Math.min(100, value)) - 1) / 100).toFixed(3);
+	function photoSize(photo: PhotoManifestEntry): string {
+		const value = Number.isFinite(photo.scalePercent) ? photo.scalePercent : 100;
+		return `${Math.max(1, Math.min(100, Math.round(value)))}%`;
 	}
 
 	function sectionNodes(): HTMLElement[] {
@@ -139,7 +139,7 @@
 				data-photo-section
 				data-index={index}
 				data-slug={photo.slug}
-				style={`--object-position: ${photo.positionX}% ${photo.positionY}%; --photo-scale: ${scaleFactor(photo)};`}
+				style={`--photo-x: ${photo.positionX}%; --photo-y: ${photo.positionY}%; --photo-offset-x: -${photo.positionX}%; --photo-offset-y: -${photo.positionY}%; --photo-size: ${photoSize(photo)};`}
 			>
 				<button
 					type="button"
@@ -228,6 +228,7 @@
 	}
 
 	.image-trigger {
+		position: relative;
 		width: 100%;
 		height: 100%;
 		min-height: calc(100dvh - var(--site-header-height) - 3rem);
@@ -244,13 +245,14 @@
 	}
 
 	.photo-image {
-		width: 100%;
-		height: 100%;
+		position: absolute;
+		left: var(--photo-x);
+		top: var(--photo-y);
+		width: var(--photo-size);
+		height: var(--photo-size);
 		display: block;
-		object-fit: cover;
-		object-position: var(--object-position);
-		transform: scale(var(--photo-scale));
-		transform-origin: var(--object-position);
+		object-fit: contain;
+		transform: translate(var(--photo-offset-x), var(--photo-offset-y));
 		pointer-events: none;
 	}
 

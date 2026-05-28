@@ -238,7 +238,7 @@ export interface PhotoManifestEntry {
     positionX: number;
     /** Vertical focal point percentage, 0 = top, 100 = bottom */
     positionY: number;
-    /** Extra zoom/crop strength. 1 = natural cover, 100 = strongest zoom. */
+    /** Visible image size percentage. 1 = tiny, 100 = full available width/height. */
     scalePercent: number;
     /** Desktop/tablet scroll reveal direction. Mobile always reveals from bottom. */
     revealFrom: PhotoRevealDirection;
@@ -250,7 +250,7 @@ export const PHOTO_POSITION_MAX = 100;
 export const PHOTO_SCALE_MIN = 1;
 export const PHOTO_SCALE_MAX = 100;
 export const DEFAULT_PHOTO_POSITION = 50;
-export const DEFAULT_PHOTO_SCALE = 1;
+export const DEFAULT_PHOTO_SCALE = 100;
 export const DEFAULT_PHOTO_COLLECTION = PHOTO_SELECTION_COLLECTION;
 
 export function defaultCollectionNumber(): number {

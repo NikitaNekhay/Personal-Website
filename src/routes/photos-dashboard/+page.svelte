@@ -3,6 +3,7 @@
 	import { base } from '$app/paths';
 	import { auth } from '$lib/firebase/firebase';
 	import CommonPopUp from '../../components/Shared/CommonPopUp.svelte';
+	import InfoGuide from '../../components/Shared/InfoGuide.svelte';
 	import {
 		DEFAULT_PHOTO_COLLECTION,
 		PHOTO_COLLECTION_YEARS,
@@ -574,8 +575,8 @@
 		return Math.max(min, Math.min(max, Math.round(value)));
 	}
 
-	function scaleFactor(value: number): string {
-		return (1 + (clampNumber(value, 1, 100) - 1) / 100).toFixed(3);
+	function photoSize(value: number): string {
+		return `${clampNumber(value, 1, 100)}%`;
 	}
 
 	async function bulkUpdateExistingView() {
@@ -695,7 +696,7 @@
 							<label>
 								<span class="label-row">
 									Collection group
-									<img class="info-icon" src="{base}/media/info.svg" alt="" title="Selection is a separate editorial group. Years are separate groups shown in the home filter." />
+									<InfoGuide text="Choose where the photo appears on the home page. Selection is a separate editorial group; year groups appear under the year filter." />
 								</span>
 								<select bind:value={bulkCollectionKey}>
 									{#each PHOTO_COLLECTION_OPTIONS as collection}
@@ -713,25 +714,25 @@
 							</button>
 						</div>
 						<div class="batch-control">
-							<span class="control-title">Photo crop</span>
+							<span class="control-title">Photo placement</span>
 							<label>
 								<span class="label-row">
 									Horizontal / left %
-									<img class="info-icon" src="{base}/media/info.svg" alt="" title="0 keeps the focal point at the left edge, 50 is center, 100 is right." />
+									<InfoGuide text="Horizontal position from 0 to 100. 0 places the photo toward the left side, 50 centers it, 100 places it toward the right side." />
 								</span>
 								<input type="number" min="0" max="100" bind:value={bulkPositionX} />
 							</label>
 							<label>
 								<span class="label-row">
 									Vertical / top %
-									<img class="info-icon" src="{base}/media/info.svg" alt="" title="0 keeps the focal point at the top, 50 is center, 100 is bottom." />
+									<InfoGuide text="Vertical position from 0 to 100. 0 places the photo toward the top, 50 centers it, 100 places it toward the bottom." />
 								</span>
 								<input type="number" min="0" max="100" bind:value={bulkPositionY} />
 							</label>
 							<label>
 								<span class="label-row">
 									Scale %
-									<img class="info-icon" src="{base}/media/info.svg" alt="" title="1 is natural cover. Higher values zoom in more while keeping the selected focal point." />
+									<InfoGuide text="Visible photo size from 1 to 100 percent. 1 is very small; 100 uses the full available width and height. This does not zoom or crop the photo." />
 								</span>
 								<input type="number" min="1" max="100" bind:value={bulkScalePercent} />
 							</label>
@@ -748,7 +749,7 @@
 							<label>
 								<span class="label-row">
 									Reveal side
-									<img class="info-icon" src="{base}/media/info.svg" alt="" title="Desktop/tablet reveal direction during scroll. On phone photos always reveal from below." />
+									<InfoGuide text="Animation direction for desktop and tablet scroll reveal: left, right, top, or bottom. Phones always reveal from below for simpler performance." />
 								</span>
 								<select bind:value={bulkRevealFrom}>
 									{#each PHOTO_REVEAL_DIRECTIONS as direction}
@@ -802,7 +803,7 @@
 						/>
 						<div
 							class="stage-preview"
-							style={`--preview-position: ${item.positionX}% ${item.positionY}%; --preview-scale: ${scaleFactor(item.scalePercent)};`}
+							style={`--preview-x: ${item.positionX}%; --preview-y: ${item.positionY}%; --preview-offset-x: -${item.positionX}%; --preview-offset-y: -${item.positionY}%; --preview-size: ${photoSize(item.scalePercent)};`}
 						>
 							<img src={item.preview} alt="" class="stage-thumb" />
 						</div>
@@ -810,21 +811,21 @@
 							<label>
 								<span class="label-row">
 									Slug
-									<img class="info-icon" src="{base}/media/info.svg" alt="" title="Used as the WebP filename. Lowercase letters, numbers and hyphens only." />
+									<InfoGuide text="Used as the WebP filename and URL slug. Use only lowercase English letters, numbers, and hyphens. No spaces or duplicate slugs." />
 								</span>
 								<input type="text" bind:value={staged[i].slug} />
 							</label>
 							<label>
 								<span class="label-row">
 									Title
-									<img class="info-icon" src="{base}/media/info.svg" alt="" title="Internal/display title for this photo." />
+									<InfoGuide text="Human-readable photo title for the admin interface and alt text. Keep it short and descriptive." />
 								</span>
 								<input type="text" bind:value={staged[i].title} />
 							</label>
 							<label>
 								<span class="label-row">
 									Collection group
-									<img class="info-icon" src="{base}/media/info.svg" alt="" title="Selection is a separate home-page group. Years are separate groups." />
+									<InfoGuide text="Choose the home-page group for this photo. Selection is its own editorial group; year groups are separate filters." />
 								</span>
 								<select
 									bind:value={staged[i].collectionKey}
@@ -844,28 +845,28 @@
 							<label>
 								<span class="label-row">
 									Horizontal / left %
-									<img class="info-icon" src="{base}/media/info.svg" alt="" title="0 left, 50 center, 100 right." />
+									<InfoGuide text="Horizontal position from 0 to 100. 0 moves the photo left, 50 centers it, 100 moves it right." />
 								</span>
 								<input type="number" min="0" max="100" bind:value={staged[i].positionX} />
 							</label>
 							<label>
 								<span class="label-row">
 									Vertical / top %
-									<img class="info-icon" src="{base}/media/info.svg" alt="" title="0 top, 50 center, 100 bottom." />
+									<InfoGuide text="Vertical position from 0 to 100. 0 moves the photo up, 50 centers it, 100 moves it down." />
 								</span>
 								<input type="number" min="0" max="100" bind:value={staged[i].positionY} />
 							</label>
 							<label>
 								<span class="label-row">
 									Scale %
-									<img class="info-icon" src="{base}/media/info.svg" alt="" title="1 natural cover, 100 strongest zoom." />
+									<InfoGuide text="Visible photo size from 1 to 100 percent. 1 is tiny; 100 fills the available image area. It changes size, not zoom." />
 								</span>
 								<input type="number" min="1" max="100" bind:value={staged[i].scalePercent} />
 							</label>
 							<label>
 								<span class="label-row">
 									Reveal side
-									<img class="info-icon" src="{base}/media/info.svg" alt="" title="Desktop/tablet reveal direction. Mobile always reveals from below." />
+									<InfoGuide text="Desktop/tablet scroll animation direction. Mobile ignores this and always reveals from below." />
 								</span>
 								<select bind:value={staged[i].revealFrom}>
 									{#each PHOTO_REVEAL_DIRECTIONS as direction}
@@ -876,7 +877,7 @@
 							<label class="strip-row">
 								<input type="checkbox" bind:checked={staged[i].stripExif} />
 								Strip EXIF
-								<img class="info-icon" src="{base}/media/info.svg" alt="" title="Removes camera/device metadata during WebP generation." />
+								<InfoGuide text="Removes camera/device metadata while generating WebP files. Keep enabled unless you intentionally need metadata preserved." />
 							</label>
 						</div>
 						<div class="stage-actions">
@@ -980,7 +981,7 @@
 						<label>
 							<span class="label-row">
 								Collection group
-								<img class="info-icon" src="{base}/media/info.svg" alt="" title="Apply Selection or a year to all checked photos." />
+								<InfoGuide text="Bulk change the checked existing photos to Selection or one year group. It does not affect unchecked photos." />
 							</span>
 							<select bind:value={bulkCollectionKey}>
 								{#each PHOTO_COLLECTION_OPTIONS as collection}
@@ -1001,25 +1002,25 @@
 						</button>
 					</div>
 					<div class="batch-control">
-						<span class="control-title">Photo crop</span>
+						<span class="control-title">Photo placement</span>
 						<label>
 							<span class="label-row">
 								Horizontal / left %
-								<img class="info-icon" src="{base}/media/info.svg" alt="" title="0 left, 50 center, 100 right." />
+								<InfoGuide text="Horizontal position from 0 to 100. 0 moves checked photos left, 50 centers them, 100 moves them right." />
 							</span>
 							<input type="number" min="0" max="100" bind:value={bulkPositionX} />
 						</label>
 						<label>
 							<span class="label-row">
 								Vertical / top %
-								<img class="info-icon" src="{base}/media/info.svg" alt="" title="0 top, 50 center, 100 bottom." />
+								<InfoGuide text="Vertical position from 0 to 100. 0 moves checked photos up, 50 centers them, 100 moves them down." />
 							</span>
 							<input type="number" min="0" max="100" bind:value={bulkPositionY} />
 						</label>
 						<label>
 							<span class="label-row">
 								Scale %
-								<img class="info-icon" src="{base}/media/info.svg" alt="" title="1 natural cover, 100 strongest zoom." />
+								<InfoGuide text="Visible photo size from 1 to 100 percent. 1 is tiny; 100 fills the available image area. No zoom is applied." />
 							</span>
 							<input type="number" min="1" max="100" bind:value={bulkScalePercent} />
 						</label>
@@ -1039,7 +1040,7 @@
 						<label>
 							<span class="label-row">
 								Reveal side
-								<img class="info-icon" src="{base}/media/info.svg" alt="" title="Desktop/tablet reveal direction. Mobile always reveals from below." />
+								<InfoGuide text="Desktop/tablet reveal direction for checked photos. Mobile always reveals from below." />
 							</span>
 							<select bind:value={bulkRevealFrom}>
 								{#each PHOTO_REVEAL_DIRECTIONS as direction}
@@ -1081,7 +1082,7 @@
 						/>
 						<div
 							class="card-preview"
-							style={`--preview-position: ${photoDrafts[photo.slug]?.positionX ?? photo.positionX}% ${photoDrafts[photo.slug]?.positionY ?? photo.positionY}%; --preview-scale: ${scaleFactor(photoDrafts[photo.slug]?.scalePercent ?? photo.scalePercent)};`}
+							style={`--preview-x: ${photoDrafts[photo.slug]?.positionX ?? photo.positionX}%; --preview-y: ${photoDrafts[photo.slug]?.positionY ?? photo.positionY}%; --preview-offset-x: -${photoDrafts[photo.slug]?.positionX ?? photo.positionX}%; --preview-offset-y: -${photoDrafts[photo.slug]?.positionY ?? photo.positionY}%; --preview-size: ${photoSize(photoDrafts[photo.slug]?.scalePercent ?? photo.scalePercent)};`}
 						>
 							<img src={imgUrl(photo.thumb)} alt={photo.title} class="card-thumb" />
 						</div>
@@ -1090,7 +1091,7 @@
 							<label>
 								<span class="label-row">
 									Title
-									<img class="info-icon" src="{base}/media/info.svg" alt="" title="Internal/display title for this photo. Click Save changes after editing." />
+									<InfoGuide text="Human-readable photo title. After editing, click Save changes on this card to commit it to the manifest." />
 								</span>
 								<input
 									type="text"
@@ -1103,7 +1104,7 @@
 							<label>
 								<span class="label-row">
 									Collection group
-									<img class="info-icon" src="{base}/media/info.svg" alt="" title="Selection is a separate editorial group. Years are separate home filter groups." />
+									<InfoGuide text="Selection is a separate editorial group on the home page. Year values are separate filter groups." />
 								</span>
 								<select
 									value={photoDrafts[photo.slug]?.collectionKey ?? photo.collectionKey}
@@ -1123,7 +1124,7 @@
 							<label>
 								<span class="label-row">
 									Horizontal / left %
-									<img class="info-icon" src="{base}/media/info.svg" alt="" title="0 left, 50 center, 100 right." />
+									<InfoGuide text="Horizontal position from 0 to 100. 0 moves this photo left, 50 centers it, 100 moves it right." />
 								</span>
 								<input
 									type="number"
@@ -1139,7 +1140,7 @@
 							<label>
 								<span class="label-row">
 									Vertical / top %
-									<img class="info-icon" src="{base}/media/info.svg" alt="" title="0 top, 50 center, 100 bottom." />
+									<InfoGuide text="Vertical position from 0 to 100. 0 moves this photo up, 50 centers it, 100 moves it down." />
 								</span>
 								<input
 									type="number"
@@ -1155,7 +1156,7 @@
 							<label>
 								<span class="label-row">
 									Scale %
-									<img class="info-icon" src="{base}/media/info.svg" alt="" title="1 natural cover, 100 strongest zoom." />
+									<InfoGuide text="Visible photo size from 1 to 100 percent. 1 makes it very small; 100 uses full available width and height. It never zooms the image." />
 								</span>
 								<input
 									type="number"
@@ -1171,7 +1172,7 @@
 							<label>
 								<span class="label-row">
 									Reveal side
-									<img class="info-icon" src="{base}/media/info.svg" alt="" title="Desktop/tablet reveal direction. Mobile always reveals from below." />
+									<InfoGuide text="Desktop/tablet scroll reveal direction for this photo. Phones always use bottom reveal for simpler movement." />
 								</span>
 								<select
 									value={photoDrafts[photo.slug]?.revealFrom ?? photo.revealFrom}
@@ -1402,13 +1403,6 @@
 		gap: 0.35rem;
 	}
 
-	.info-icon {
-		width: 0.95rem;
-		height: 0.95rem;
-		color: #241e4e;
-		opacity: 0.72;
-	}
-
 	@keyframes spin {
 		to {
 			transform: rotate(360deg);
@@ -1478,6 +1472,7 @@
 
 	.stage-preview,
 	.card-preview {
+		position: relative;
 		overflow: hidden;
 		border-radius: 4px;
 		background: #ddd;
@@ -1490,12 +1485,13 @@
 	}
 
 	.stage-thumb {
-		width: 100%;
-		height: 100%;
-		object-fit: cover;
-		object-position: var(--preview-position);
-		transform: scale(var(--preview-scale));
-		transform-origin: var(--preview-position);
+		position: absolute;
+		left: var(--preview-x);
+		top: var(--preview-y);
+		width: var(--preview-size);
+		height: var(--preview-size);
+		object-fit: contain;
+		transform: translate(var(--preview-offset-x), var(--preview-offset-y));
 	}
 
 	.stage-fields {
@@ -1637,12 +1633,13 @@
 	}
 
 	.card-thumb {
-		width: 100%;
-		height: 100%;
-		object-fit: cover;
-		object-position: var(--preview-position);
-		transform: scale(var(--preview-scale));
-		transform-origin: var(--preview-position);
+		position: absolute;
+		left: var(--preview-x);
+		top: var(--preview-y);
+		width: var(--preview-size);
+		height: var(--preview-size);
+		object-fit: contain;
+		transform: translate(var(--preview-offset-x), var(--preview-offset-y));
 	}
 
 	.card-body {
