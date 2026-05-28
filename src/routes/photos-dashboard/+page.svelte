@@ -3,9 +3,10 @@
 	import { base } from '$app/paths';
 	import { auth } from '$lib/firebase/firebase';
 	import {
-		PHOTO_OBJECT_POSITIONS,
 		PHOTO_COLLECTION_YEARS,
 		PHOTO_REVEAL_DIRECTIONS,
+		DEFAULT_PHOTO_POSITION,
+		DEFAULT_PHOTO_SCALE,
 		defaultCollectionNumber,
 		type PhotoManifestEntry
 	} from '../../shared/types';
@@ -28,7 +29,9 @@
 		slug: string;
 		title: string;
 		collectionNumber: number;
-		objectPosition: string;
+		positionX: number;
+		positionY: number;
+		scalePercent: number;
 		revealFrom: string;
 		stripExif: boolean;
 		selected: boolean;
@@ -36,13 +39,17 @@
 		error?: string;
 	}
 
+	type ManagementSection = 'all' | 'selection' | number;
+
 	let manifest = $state<PhotoManifestEntry[]>([]);
 	let isLoadingManifest = $state(true);
 	let staged = $state<StagedFile[]>([]);
 	let stripAllExif = $state(true);
 	let defaultUploadYear = $state(defaultCollectionNumber());
 	let bulkCollectionYear = $state(defaultCollectionNumber());
-	let bulkObjectPosition = $state('center center');
+	let bulkPositionX = $state(DEFAULT_PHOTO_POSITION);
+	let bulkPositionY = $state(DEFAULT_PHOTO_POSITION);
+	let bulkScalePercent = $state(DEFAULT_PHOTO_SCALE);
 	let bulkRevealFrom = $state('bottom');
 	let showStagingBatch = $state(false);
 	let showExistingBatch = $state(false);
@@ -50,6 +57,7 @@
 	let orderDirty = $state(false);
 	let displayOrder = $state<PhotoManifestEntry[]>([]);
 	let selectedExistingSlugs = $state<Set<string>>(new Set());
+	let activeSection = $state<ManagementSection>('all');
 	let dragOver = $state(false);
 	let fileInput: HTMLInputElement | undefined = $state();
 
@@ -103,7 +111,9 @@
 			slug: toSlug(file.name),
 			title: file.name.replace(/\.[^.]+$/, ''),
 			collectionNumber: defaultUploadYear,
-			objectPosition: 'center center',
+			positionX: DEFAULT_PHOTO_POSITION,
+			positionY: DEFAULT_PHOTO_POSITION,
+			scalePercent: DEFAULT_PHOTO_SCALE,
 			revealFrom: 'bottom',
 			stripExif: true,
 			selected: true,
@@ -144,9 +154,40 @@
 
 	const allStagedSelected = $derived(staged.length > 0 && staged.every((s) => s.selected));
 
+	function getPhotosForSection(section: ManagementSection): PhotoManifestEntry[] {
+		if (section === 'selection') {
+			return displayOrder.filter((photo) => selectedExistingSlugs.has(photo.slug));
+		}
+		if (section === 'all') return displayOrder;
+		return displayOrder.filter((photo) => photo.collectionNumber === section);
+	}
+
+	const sectionPhotos = $derived.by(() => getPhotosForSection(activeSection));
+	const allSectionSelected = $derived(
+		sectionPhotos.length > 0 &&
+			sectionPhotos.every((photo) => selectedExistingSlugs.has(photo.slug))
+	);
+	const activeSectionTitle = $derived(
+		activeSection === 'all'
+			? 'All'
+			: activeSection === 'selection'
+				? 'Selection'
+				: String(activeSection)
+	);
+
 	function toggleSelectAllStaged() {
 		const next = !allStagedSelected;
 		staged = staged.map((s) => ({ ...s, selected: next }));
+	}
+
+	function toggleSelectSection() {
+		const next = new Set(selectedExistingSlugs);
+		if (allSectionSelected) {
+			for (const photo of sectionPhotos) next.delete(photo.slug);
+		} else {
+			for (const photo of sectionPhotos) next.add(photo.slug);
+		}
+		selectedExistingSlugs = next;
 	}
 
 	function applyBulkYearToStaged() {
@@ -155,9 +196,16 @@
 		);
 	}
 
-	function applyBulkPositionToStaged() {
+	function applyBulkViewToStaged() {
 		staged = staged.map((s) =>
-			s.selected ? { ...s, objectPosition: bulkObjectPosition } : s
+			s.selected
+				? {
+						...s,
+						positionX: bulkPositionX,
+						positionY: bulkPositionY,
+						scalePercent: bulkScalePercent
+					}
+				: s
 		);
 	}
 
@@ -195,7 +243,9 @@
 				formData.append('title', item.title);
 				formData.append('stripExif', String(item.stripExif));
 				formData.append('collectionNumber', String(item.collectionNumber));
-				formData.append('objectPosition', item.objectPosition);
+				formData.append('positionX', String(item.positionX));
+				formData.append('positionY', String(item.positionY));
+				formData.append('scalePercent', String(item.scalePercent));
 				formData.append('revealFrom', item.revealFrom);
 
 				const res = await fetch(`${base}/api/photos/upload-draft`, {
@@ -256,19 +306,20 @@
 		displayOrder = [...manifest].sort((a, b) => a.order - b.order);
 	}
 
-	function moveUp(index: number) {
-		if (index <= 0) return;
-		const arr = [...displayOrder];
-		[arr[index - 1], arr[index]] = [arr[index], arr[index - 1]];
-		displayOrder = arr;
-		orderDirty = true;
-	}
+	function moveWithinSection(sectionIndex: number, direction: -1 | 1) {
+		const scoped = sectionPhotos;
+		const target = sectionIndex + direction;
+		if (target < 0 || target >= scoped.length) return;
 
-	function moveDown(index: number) {
-		if (index >= displayOrder.length - 1) return;
+		const currentSlug = scoped[sectionIndex].slug;
+		const targetSlug = scoped[target].slug;
+		const currentGlobal = displayOrder.findIndex((photo) => photo.slug === currentSlug);
+		const targetGlobal = displayOrder.findIndex((photo) => photo.slug === targetSlug);
+		if (currentGlobal === -1 || targetGlobal === -1) return;
+
 		const arr = [...displayOrder];
-		[arr[index], arr[index + 1]] = [arr[index + 1], arr[index]];
-		displayOrder = arr;
+		[arr[currentGlobal], arr[targetGlobal]] = [arr[targetGlobal], arr[currentGlobal]];
+		displayOrder = arr.map((photo, index) => ({ ...photo, order: index + 1 }));
 		orderDirty = true;
 	}
 
@@ -297,7 +348,9 @@
 		updates: {
 			title?: string;
 			collectionNumber?: number;
-			objectPosition?: string;
+			positionX?: number;
+			positionY?: number;
+			scalePercent?: number;
 			revealFrom?: string;
 		}
 	) {
@@ -343,7 +396,7 @@
 	}
 
 	async function bulkUpdateExistingVisual(
-		updates: { objectPosition?: string; revealFrom?: string },
+		updates: { positionX?: number; positionY?: number; scalePercent?: number; revealFrom?: string },
 		message = 'Bulk update failed'
 	) {
 		if (selectedExistingSlugs.size === 0) return;
@@ -374,6 +427,23 @@
 		if (next.has(slug)) next.delete(slug);
 		else next.add(slug);
 		selectedExistingSlugs = next;
+	}
+
+	function clampNumber(value: number, min: number, max: number): number {
+		if (!Number.isFinite(value)) return min;
+		return Math.max(min, Math.min(max, Math.round(value)));
+	}
+
+	function scaleFactor(value: number): string {
+		return (1 + (clampNumber(value, 1, 100) - 1) / 100).toFixed(3);
+	}
+
+	async function bulkUpdateExistingView() {
+		await bulkUpdateExistingVisual({
+			positionX: bulkPositionX,
+			positionY: bulkPositionY,
+			scalePercent: bulkScalePercent
+		});
 	}
 
 	async function deletePhoto(slug: string, title: string) {
@@ -480,19 +550,24 @@
 							</button>
 						</div>
 						<div class="batch-control">
+							<span class="control-title">Photo crop</span>
 							<label>
-								Image position
-								<select bind:value={bulkObjectPosition}>
-									{#each PHOTO_OBJECT_POSITIONS as position}
-										<option value={position}>{position}</option>
-									{/each}
-								</select>
+								Horizontal / left %
+								<input type="number" min="0" max="100" bind:value={bulkPositionX} />
+							</label>
+							<label>
+								Vertical / top %
+								<input type="number" min="0" max="100" bind:value={bulkPositionY} />
+							</label>
+							<label>
+								Scale %
+								<input type="number" min="1" max="100" bind:value={bulkScalePercent} />
 							</label>
 							<button
 								type="button"
 								class="secondary-btn"
 								disabled={selectedStaged.length === 0}
-								onclick={applyBulkPositionToStaged}
+								onclick={applyBulkViewToStaged}
 							>
 								Apply to selected
 							</button>
@@ -550,7 +625,12 @@
 								staged = [...staged];
 							}}
 						/>
-						<img src={item.preview} alt="" class="stage-thumb" />
+						<div
+							class="stage-preview"
+							style={`--preview-position: ${item.positionX}% ${item.positionY}%; --preview-scale: ${scaleFactor(item.scalePercent)};`}
+						>
+							<img src={item.preview} alt="" class="stage-thumb" />
+						</div>
 						<div class="stage-fields">
 							<label>
 								Slug
@@ -569,12 +649,16 @@
 								</select>
 							</label>
 							<label>
-								Image position
-								<select bind:value={staged[i].objectPosition}>
-									{#each PHOTO_OBJECT_POSITIONS as position}
-										<option value={position}>{position}</option>
-									{/each}
-								</select>
+								Horizontal / left %
+								<input type="number" min="0" max="100" bind:value={staged[i].positionX} />
+							</label>
+							<label>
+								Vertical / top %
+								<input type="number" min="0" max="100" bind:value={staged[i].positionY} />
+							</label>
+							<label>
+								Scale %
+								<input type="number" min="1" max="100" bind:value={staged[i].scalePercent} />
 							</label>
 							<label>
 								Reveal side
@@ -625,7 +709,42 @@
 		</div>
 
 		{#if displayOrder.length > 0}
+			<div class="section-tabs" aria-label="Photo management sections">
+				<button
+					type="button"
+					class:active={activeSection === 'all'}
+					onclick={() => (activeSection = 'all')}
+				>
+					All ({displayOrder.length})
+				</button>
+				<button
+					type="button"
+					class:active={activeSection === 'selection'}
+					onclick={() => (activeSection = 'selection')}
+				>
+					Selection ({selectedExistingSlugs.size})
+				</button>
+				{#each PHOTO_COLLECTION_YEARS as year}
+					<button
+						type="button"
+						class:active={activeSection === year}
+						onclick={() => (activeSection = year)}
+					>
+						{year} ({displayOrder.filter((photo) => photo.collectionNumber === year).length})
+					</button>
+				{/each}
+			</div>
+
 			<div class="existing-bulk">
+				<label class="select-all">
+					<input
+						type="checkbox"
+						checked={allSectionSelected}
+						disabled={sectionPhotos.length === 0}
+						onchange={toggleSelectSection}
+					/>
+					Select all in {activeSectionTitle} ({sectionPhotos.length})
+				</label>
 				<button
 					type="button"
 					class="secondary-btn"
@@ -657,20 +776,24 @@
 						</button>
 					</div>
 					<div class="batch-control">
+						<span class="control-title">Photo crop</span>
 						<label>
-							Image position
-							<select bind:value={bulkObjectPosition}>
-								{#each PHOTO_OBJECT_POSITIONS as position}
-									<option value={position}>{position}</option>
-								{/each}
-							</select>
+							Horizontal / left %
+							<input type="number" min="0" max="100" bind:value={bulkPositionX} />
+						</label>
+						<label>
+							Vertical / top %
+							<input type="number" min="0" max="100" bind:value={bulkPositionY} />
+						</label>
+						<label>
+							Scale %
+							<input type="number" min="1" max="100" bind:value={bulkScalePercent} />
 						</label>
 						<button
 							type="button"
 							class="secondary-btn"
 							disabled={selectedExistingSlugs.size === 0}
-							onclick={() =>
-								bulkUpdateExistingVisual({ objectPosition: bulkObjectPosition })}
+							onclick={bulkUpdateExistingView}
 						>
 							Apply to selected
 						</button>
@@ -701,9 +824,11 @@
 			<p>Loading…</p>
 		{:else if displayOrder.length === 0}
 			<p>No photos yet. Upload your first photos above.</p>
+		{:else if sectionPhotos.length === 0}
+			<p>No photos in {activeSectionTitle}.</p>
 		{:else}
 			<div class="photo-grid">
-				{#each displayOrder as photo, index (photo.id)}
+				{#each sectionPhotos as photo, index (photo.id)}
 					<div class="photo-card" class:row-selected={selectedExistingSlugs.has(photo.slug)}>
 						<input
 							type="checkbox"
@@ -711,9 +836,14 @@
 							checked={selectedExistingSlugs.has(photo.slug)}
 							onchange={() => toggleExistingSlug(photo.slug)}
 						/>
-						<img src={imgUrl(photo.thumb)} alt={photo.title} class="card-thumb" />
+						<div
+							class="card-preview"
+							style={`--preview-position: ${photo.positionX}% ${photo.positionY}%; --preview-scale: ${scaleFactor(photo.scalePercent)};`}
+						>
+							<img src={imgUrl(photo.thumb)} alt={photo.title} class="card-thumb" />
+						</div>
 						<div class="card-body">
-							<span class="order-num">#{index + 1}</span>
+							<span class="order-num">{activeSectionTitle} #{index + 1} / global #{photo.order}</span>
 							<label>
 								Title
 								<input
@@ -739,18 +869,43 @@
 								</select>
 							</label>
 							<label>
-								Image position
-								<select
-									value={photo.objectPosition}
+								Horizontal / left %
+								<input
+									type="number"
+									min="0"
+									max="100"
+									value={photo.positionX}
 									onchange={(e) =>
 										updatePhoto(photo.slug, {
-											objectPosition: e.currentTarget.value
+											positionX: Number(e.currentTarget.value)
 										})}
-								>
-									{#each PHOTO_OBJECT_POSITIONS as position}
-										<option value={position}>{position}</option>
-									{/each}
-								</select>
+								/>
+							</label>
+							<label>
+								Vertical / top %
+								<input
+									type="number"
+									min="0"
+									max="100"
+									value={photo.positionY}
+									onchange={(e) =>
+										updatePhoto(photo.slug, {
+											positionY: Number(e.currentTarget.value)
+										})}
+								/>
+							</label>
+							<label>
+								Scale %
+								<input
+									type="number"
+									min="1"
+									max="100"
+									value={photo.scalePercent}
+									onchange={(e) =>
+										updatePhoto(photo.slug, {
+											scalePercent: Number(e.currentTarget.value)
+										})}
+								/>
 							</label>
 							<label>
 								Reveal side
@@ -770,15 +925,15 @@
 								<button
 									type="button"
 									disabled={index === 0}
-									onclick={() => moveUp(index)}
+									onclick={() => moveWithinSection(index, -1)}
 									aria-label="Move up"
 								>
 									↑
 								</button>
 								<button
 									type="button"
-									disabled={index === displayOrder.length - 1}
-									onclick={() => moveDown(index)}
+									disabled={index === sectionPhotos.length - 1}
+									onclick={() => moveWithinSection(index, 1)}
 									aria-label="Move down"
 								>
 									↓
@@ -910,6 +1065,12 @@
 		font-weight: 600;
 	}
 
+	.control-title {
+		font-size: 0.82rem;
+		font-weight: 700;
+		color: #333;
+	}
+
 	.batch-control .strip-row {
 		flex-direction: row;
 		align-items: center;
@@ -941,11 +1102,26 @@
 		flex-shrink: 0;
 	}
 
-	.stage-thumb {
+	.stage-preview,
+	.card-preview {
+		overflow: hidden;
+		border-radius: 4px;
+		background: #ddd;
+		flex-shrink: 0;
+	}
+
+	.stage-preview {
 		width: 80px;
 		height: 60px;
+	}
+
+	.stage-thumb {
+		width: 100%;
+		height: 100%;
 		object-fit: cover;
-		border-radius: 4px;
+		object-position: var(--preview-position);
+		transform: scale(var(--preview-scale));
+		transform-origin: var(--preview-position);
 	}
 
 	.stage-fields {
@@ -965,10 +1141,14 @@
 	}
 
 	.stage-fields input[type='text'],
-	.card-body input[type='text'] {
+	.stage-fields input[type='number'],
+	.card-body input[type='text'],
+	.card-body input[type='number'],
+	.batch-control input[type='number'] {
 		padding: 0.5rem;
 		border: 1px solid #ddd;
 		border-radius: 4px;
+		max-width: 10rem;
 	}
 
 	.stage-fields select,
@@ -1056,6 +1236,28 @@
 		margin-bottom: 1rem;
 	}
 
+	.section-tabs {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.45rem;
+		margin-bottom: 1rem;
+	}
+
+	.section-tabs button {
+		padding: 0.45rem 0.75rem;
+		border: 1px solid #ddd;
+		border-radius: 999px;
+		background: #fff;
+		cursor: pointer;
+		font-size: 0.85rem;
+	}
+
+	.section-tabs button.active {
+		border-color: #f6ae2d;
+		background: #f6ae2d;
+		color: #111;
+	}
+
 	.existing-bulk {
 		display: flex;
 		flex-wrap: wrap;
@@ -1088,11 +1290,18 @@
 		border: 2px solid transparent;
 	}
 
-	.card-thumb {
+	.card-preview {
 		width: 100px;
 		height: 75px;
+	}
+
+	.card-thumb {
+		width: 100%;
+		height: 100%;
 		object-fit: cover;
-		border-radius: 4px;
+		object-position: var(--preview-position);
+		transform: scale(var(--preview-scale));
+		transform-origin: var(--preview-position);
 	}
 
 	.card-body {

@@ -4,8 +4,9 @@ import { loadManifest, saveManifest, sortByOrder } from '$lib/photos-server';
 import {
 	isPhotoCollectionYear,
 	isPhotoObjectPosition,
+	isPhotoPositionPercent,
 	isPhotoRevealDirection,
-	type PhotoObjectPosition,
+	isPhotoScalePercent,
 	type PhotoRevealDirection
 } from '../../../../shared/types';
 import type { RequestHandler } from './$types';
@@ -23,7 +24,9 @@ export const PATCH: RequestHandler = async ({ request }) => {
 			const slugSet = new Set(slugs);
 			const updates: {
 				collectionNumber?: number;
-				objectPosition?: PhotoObjectPosition;
+				positionX?: number;
+				positionY?: number;
+				scalePercent?: number;
 				revealFrom?: PhotoRevealDirection;
 			} = {};
 
@@ -37,7 +40,34 @@ export const PATCH: RequestHandler = async ({ request }) => {
 				if (!isPhotoObjectPosition(body.objectPosition)) {
 					return json({ error: 'Invalid image position' }, { status: 400 });
 				}
-				updates.objectPosition = body.objectPosition;
+				updates.positionX = body.objectPosition.includes('left')
+					? 0
+					: body.objectPosition.includes('right')
+						? 100
+						: 50;
+				updates.positionY = body.objectPosition.includes('top')
+					? 0
+					: body.objectPosition.includes('bottom')
+						? 100
+						: 50;
+			}
+			if (body.positionX !== undefined) {
+				if (!isPhotoPositionPercent(body.positionX)) {
+					return json({ error: 'Invalid horizontal position' }, { status: 400 });
+				}
+				updates.positionX = Math.round(body.positionX);
+			}
+			if (body.positionY !== undefined) {
+				if (!isPhotoPositionPercent(body.positionY)) {
+					return json({ error: 'Invalid vertical position' }, { status: 400 });
+				}
+				updates.positionY = Math.round(body.positionY);
+			}
+			if (body.scalePercent !== undefined) {
+				if (!isPhotoScalePercent(body.scalePercent)) {
+					return json({ error: 'Invalid scale percent' }, { status: 400 });
+				}
+				updates.scalePercent = Math.round(body.scalePercent);
 			}
 			if (body.revealFrom !== undefined) {
 				if (!isPhotoRevealDirection(body.revealFrom)) {
@@ -59,7 +89,7 @@ export const PATCH: RequestHandler = async ({ request }) => {
 		}
 
 		// Single photo update
-		const { slug, title, collectionNumber, objectPosition, revealFrom } = body;
+		const { slug, title, collectionNumber, objectPosition, positionX, positionY, scalePercent, revealFrom } = body;
 		if (!slug || typeof slug !== 'string') {
 			return json({ error: 'Missing slug' }, { status: 400 });
 		}
@@ -85,6 +115,34 @@ export const PATCH: RequestHandler = async ({ request }) => {
 				return json({ error: 'Invalid image position' }, { status: 400 });
 			}
 			entry.objectPosition = objectPosition;
+			entry.positionX = objectPosition.includes('left')
+				? 0
+				: objectPosition.includes('right')
+					? 100
+					: 50;
+			entry.positionY = objectPosition.includes('top')
+				? 0
+				: objectPosition.includes('bottom')
+					? 100
+					: 50;
+		}
+		if (positionX !== undefined) {
+			if (!isPhotoPositionPercent(positionX)) {
+				return json({ error: 'Invalid horizontal position' }, { status: 400 });
+			}
+			entry.positionX = Math.round(positionX);
+		}
+		if (positionY !== undefined) {
+			if (!isPhotoPositionPercent(positionY)) {
+				return json({ error: 'Invalid vertical position' }, { status: 400 });
+			}
+			entry.positionY = Math.round(positionY);
+		}
+		if (scalePercent !== undefined) {
+			if (!isPhotoScalePercent(scalePercent)) {
+				return json({ error: 'Invalid scale percent' }, { status: 400 });
+			}
+			entry.scalePercent = Math.round(scalePercent);
 		}
 		if (revealFrom !== undefined) {
 			if (!isPhotoRevealDirection(revealFrom)) {

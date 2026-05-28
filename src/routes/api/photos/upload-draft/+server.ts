@@ -8,7 +8,9 @@ import {
 	defaultCollectionNumber,
 	isPhotoCollectionYear,
 	isPhotoObjectPosition,
+	isPhotoPositionPercent,
 	isPhotoRevealDirection,
+	isPhotoScalePercent,
 	type PhotoManifestEntry
 } from '../../../../shared/types';
 import type { RequestHandler } from './$types';
@@ -38,6 +40,9 @@ export const POST: RequestHandler = async ({ request }) => {
 		const stripExif = formData.get('stripExif') !== 'false';
 		const collectionRaw = formData.get('collectionNumber');
 		const objectPositionRaw = formData.get('objectPosition');
+		const positionXRaw = formData.get('positionX');
+		const positionYRaw = formData.get('positionY');
+		const scalePercentRaw = formData.get('scalePercent');
 		const revealFromRaw = formData.get('revealFrom');
 
 		let collectionNumber = defaultCollectionNumber();
@@ -52,7 +57,20 @@ export const POST: RequestHandler = async ({ request }) => {
 		const objectPosition = isPhotoObjectPosition(objectPositionRaw)
 			? objectPositionRaw
 			: 'center center';
+		const positionX = Number(positionXRaw ?? 50);
+		const positionY = Number(positionYRaw ?? 50);
+		const scalePercent = Number(scalePercentRaw ?? 1);
 		const revealFrom = isPhotoRevealDirection(revealFromRaw) ? revealFromRaw : 'bottom';
+
+		if (!isPhotoPositionPercent(positionX)) {
+			return json({ error: 'Invalid horizontal position' }, { status: 400 });
+		}
+		if (!isPhotoPositionPercent(positionY)) {
+			return json({ error: 'Invalid vertical position' }, { status: 400 });
+		}
+		if (!isPhotoScalePercent(scalePercent)) {
+			return json({ error: 'Invalid scale percent' }, { status: 400 });
+		}
 
 		if (!(file instanceof File)) {
 			return json({ error: 'Missing file' }, { status: 400 });
@@ -99,6 +117,9 @@ export const POST: RequestHandler = async ({ request }) => {
 			width: meta.width ?? 0,
 			height: meta.height ?? 0,
 			objectPosition,
+			positionX: Math.round(positionX),
+			positionY: Math.round(positionY),
+			scalePercent: Math.round(scalePercent),
 			revealFrom,
 			uploadedAt: new Date().toISOString()
 		};

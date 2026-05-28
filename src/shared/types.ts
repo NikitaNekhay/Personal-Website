@@ -230,10 +230,23 @@ export interface PhotoManifestEntry {
     height: number;
     /** CSS object-position value used to tune the visible crop on the home gallery */
     objectPosition: PhotoObjectPosition;
+    /** Horizontal focal point percentage, 0 = left, 100 = right */
+    positionX: number;
+    /** Vertical focal point percentage, 0 = top, 100 = bottom */
+    positionY: number;
+    /** Extra zoom/crop strength. 1 = natural cover, 100 = strongest zoom. */
+    scalePercent: number;
     /** Desktop/tablet scroll reveal direction. Mobile always reveals from bottom. */
     revealFrom: PhotoRevealDirection;
     uploadedAt: string;
 }
+
+export const PHOTO_POSITION_MIN = 0;
+export const PHOTO_POSITION_MAX = 100;
+export const PHOTO_SCALE_MIN = 1;
+export const PHOTO_SCALE_MAX = 100;
+export const DEFAULT_PHOTO_POSITION = 50;
+export const DEFAULT_PHOTO_SCALE = 1;
 
 export function defaultCollectionNumber(): number {
     const year = new Date().getFullYear();
@@ -251,6 +264,8 @@ export function normalizePhotoEntry(
             ? entry.collectionNumber
             : defaultCollectionNumber();
 
+    const fallbackPosition = getPercentsFromObjectPosition(entry.objectPosition);
+
     return {
         id: entry.id,
         slug: entry.slug,
@@ -264,6 +279,24 @@ export function normalizePhotoEntry(
         objectPosition: isPhotoObjectPosition(entry.objectPosition)
             ? entry.objectPosition
             : 'center center',
+        positionX: normalizeRangeNumber(
+            entry.positionX,
+            fallbackPosition.x,
+            PHOTO_POSITION_MIN,
+            PHOTO_POSITION_MAX
+        ),
+        positionY: normalizeRangeNumber(
+            entry.positionY,
+            fallbackPosition.y,
+            PHOTO_POSITION_MIN,
+            PHOTO_POSITION_MAX
+        ),
+        scalePercent: normalizeRangeNumber(
+            entry.scalePercent,
+            DEFAULT_PHOTO_SCALE,
+            PHOTO_SCALE_MIN,
+            PHOTO_SCALE_MAX
+        ),
         revealFrom: isPhotoRevealDirection(entry.revealFrom) ? entry.revealFrom : 'bottom',
         uploadedAt: entry.uploadedAt ?? new Date().toISOString()
     };
@@ -285,4 +318,38 @@ export function isPhotoObjectPosition(value: unknown): value is PhotoObjectPosit
         typeof value === 'string' &&
         (PHOTO_OBJECT_POSITIONS as readonly string[]).includes(value)
     );
+}
+
+export function isPhotoPositionPercent(value: unknown): value is number {
+    return isRangeNumber(value, PHOTO_POSITION_MIN, PHOTO_POSITION_MAX);
+}
+
+export function isPhotoScalePercent(value: unknown): value is number {
+    return isRangeNumber(value, PHOTO_SCALE_MIN, PHOTO_SCALE_MAX);
+}
+
+function isRangeNumber(value: unknown, min: number, max: number): value is number {
+    return typeof value === 'number' && Number.isFinite(value) && value >= min && value <= max;
+}
+
+function normalizeRangeNumber(
+    value: unknown,
+    fallback: number,
+    min: number,
+    max: number
+): number {
+    if (!isRangeNumber(value, min, max)) return fallback;
+    return Math.round(value);
+}
+
+function getPercentsFromObjectPosition(value: unknown): { x: number; y: number } {
+    if (!isPhotoObjectPosition(value)) {
+        return { x: DEFAULT_PHOTO_POSITION, y: DEFAULT_PHOTO_POSITION };
+    }
+
+    const [horizontal, vertical] = value.split(' ');
+    const x = horizontal === 'left' ? 0 : horizontal === 'right' ? 100 : 50;
+    const y = vertical === 'top' ? 0 : vertical === 'bottom' ? 100 : 50;
+
+    return { x, y };
 }

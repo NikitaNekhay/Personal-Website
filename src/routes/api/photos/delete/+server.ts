@@ -27,7 +27,7 @@ export const DELETE: RequestHandler = async ({ request }) => {
 			try {
 				const file = await ghGetOptional(path);
 				if (file) {
-					await ghDelete(path, `Delete photo file: ${slug}`, file.sha);
+					await ghDelete(path, `[photos skip deploy] Delete photo file: ${slug}`, file.sha);
 				}
 			} catch (e) {
 				console.warn(`Could not delete ${path}:`, e);

@@ -26,6 +26,11 @@
 		return photo.original.split('/').pop() ?? `${photo.slug}.webp`;
 	}
 
+	function scaleFactor(photo: PhotoManifestEntry): string {
+		const value = Number.isFinite(photo.scalePercent) ? photo.scalePercent : 1;
+		return (1 + (Math.max(1, Math.min(100, value)) - 1) / 100).toFixed(3);
+	}
+
 	function sectionNodes(): HTMLElement[] {
 		if (!rootEl) return [];
 		return Array.from(rootEl.querySelectorAll<HTMLElement>('[data-photo-section]'));
@@ -152,7 +157,7 @@
 				data-photo-section
 				data-index={index}
 				data-slug={photo.slug}
-				style={`--object-position: ${photo.objectPosition};`}
+				style={`--object-position: ${photo.positionX}% ${photo.positionY}%; --photo-scale: ${scaleFactor(photo)};`}
 			>
 				<button
 					type="button"
@@ -261,6 +266,8 @@
 		display: block;
 		object-fit: cover;
 		object-position: var(--object-position);
+		transform: scale(var(--photo-scale));
+		transform-origin: var(--object-position);
 		pointer-events: none;
 	}
 

@@ -5,7 +5,9 @@ import { loadManifest, MANIFEST_PATH, sortByOrder } from '$lib/photos-server';
 import {
 	isPhotoCollectionYear,
 	isPhotoObjectPosition,
+	isPhotoPositionPercent,
 	isPhotoRevealDirection,
+	isPhotoScalePercent,
 	normalizePhotoEntry,
 	type PhotoManifestEntry
 } from '../../../../shared/types';
@@ -29,6 +31,9 @@ function isValidPendingPhoto(value: unknown): value is PendingPhotoCommit {
 		typeof item.thumbBlobSha === 'string' &&
 		isPhotoCollectionYear(entry.collectionNumber) &&
 		isPhotoObjectPosition(entry.objectPosition) &&
+		isPhotoPositionPercent(entry.positionX) &&
+		isPhotoPositionPercent(entry.positionY) &&
+		isPhotoScalePercent(entry.scalePercent) &&
 		isPhotoRevealDirection(entry.revealFrom)
 	);
 }
