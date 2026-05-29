@@ -15,11 +15,14 @@
 </span>
 
 <style>
+	/* Базовые (телефон): палочки длиннее, чем были (+~7px). */
 	.burger {
+		color:#241e4e;
 		position: relative;
 		display: inline-block;
-		width: 26px;
-		height: 20px;
+		width: 40px;
+		height: 22px;
+		right: 4px;
 	}
 
 	.line {
@@ -38,32 +41,32 @@
 
 	/* Закрытое состояние — «align-right»-бургер с разной длиной линий. */
 	.line-0 {
-		top: 2px;
-		width: 26px;
+		top: 3px;
+		width: 33px;
 	}
 	.line-1 {
-		top: 9px;
-		width: 17px;
+		top: 10px;
+		width: 24px;
 	}
 	.line-2 {
-		top: 16px;
-		width: 22px;
+		top: 17px;
+		width: 29px;
 	}
 
 	/* Случайная линия чуть длиннее (растёт влево, т.к. выровнено по правому краю). */
 	.line-0.wide {
-		width: 30px;
+		width: 37px;
 	}
 	.line-1.wide {
-		width: 21px;
+		width: 28px;
 	}
 	.line-2.wide {
-		width: 26px;
+		width: 33px;
 	}
 
-	/* Открытое состояние — крестик. */
+	/* Открытое состояние — аккуратный крестик (короче закрытых палочек). */
 	.burger.open .line-0 {
-		top: 9px;
+		top: 10px;
 		width: 26px;
 		transform: rotate(45deg);
 	}
@@ -73,9 +76,44 @@
 		transform: scaleX(0.2);
 	}
 	.burger.open .line-2 {
-		top: 9px;
+		top: 10px;
 		width: 26px;
 		transform: rotate(-45deg);
+	}
+
+	/* ── ПК (≥1024px): палочки ещё длиннее (+~15px к исходным). ── */
+	@media (min-width: 1024px) {
+		.burger {
+			width: 48px;
+			height: 24px;
+		}
+		.line-0 {
+			top: 3px;
+			width: 41px;
+		}
+		.line-1 {
+			top: 11px;
+			width: 32px;
+		}
+		.line-2 {
+			top: 19px;
+			width: 37px;
+		}
+		.line-0.wide {
+			width: 45px;
+		}
+		.line-1.wide {
+			width: 36px;
+		}
+		.line-2.wide {
+			width: 41px;
+		}
+		.burger.open .line-0,
+		.burger.open .line-1,
+		.burger.open .line-2 {
+			top: 11px;
+			width: 30px;
+		}
 	}
 
 	@media (prefers-reduced-motion: reduce) {

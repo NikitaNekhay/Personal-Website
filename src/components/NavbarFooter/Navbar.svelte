@@ -5,6 +5,7 @@
 
 	import { authStore, isAdmin, authHandlers } from "../../store/store";
 	import Menu from "./Menu.svelte";
+	import LavaBorder from "./LavaBorder.svelte";
 	import { clickOutside } from "../../services/clickOutside";
 
 	import { addMessages, locale, t } from "svelte-i18n";
@@ -39,14 +40,50 @@
 	// ── Открытый/закрытый хедер ───────────────────────────────────────────────
 	let headerOpen = false;
 
+	// ── «Лава» на бордюре: лево ↔ home, право ↔ страницы бургера ───────────────
+	// Движение появляется только после клика и живёт ~3с (в т.ч. на новой
+	// странице — через sessionStorage, т.к. переходы перезагружают страницу),
+	// затем гаснет и не возвращается.
+	const LAVA_KEY = "hdrLava";
+	const LAVA_MS = 3000;
+	let lavaSide = null; // 'left' | 'right' | null
+	let lavaOn = false;
+	let lavaTimer;
+
+	function triggerLava(side) {
+		lavaSide = side;
+		lavaOn = true;
+		clearTimeout(lavaTimer);
+		lavaTimer = setTimeout(() => {
+			lavaOn = false; // плавно гаснет; сторона остаётся для fade-out
+		}, LAVA_MS);
+	}
+
+	// помечаем переход, чтобы целевая (перезагруженная) страница показала лаву
+	function persistLava(side) {
+		try {
+			if (typeof window !== "undefined") sessionStorage.setItem(LAVA_KEY, side);
+		} catch (_) {}
+	}
+
 	function toggleHeader(e) {
 		e?.stopPropagation?.();
 		e?.preventDefault?.();
 		headerOpen = !headerOpen;
+		// открытие бургера — всплеск лавы на правом бордюре прямо на месте
+		if (headerOpen) triggerLava("right");
 	}
 
 	function closeHeader() {
 		headerOpen = false;
+	}
+
+	// клик по «бургерной» ссылке (профиль/фото/создать/логин/корзина и т.п.)
+	// помечаем переход — целевая страница покажет лаву на правом бордюре
+	function goBurgerLink() {
+		persistLava("right");
+		triggerLava("right");
+		closeHeader();
 	}
 
 	function handleWindowKeydown(e) {
@@ -79,11 +116,20 @@
 				resetTimer = setTimeout(() => {
 					jumpingIndex = -1;
 					scheduleJump();
-				}, 760);
+				}, 1150);
 			}, delay);
 		};
 
 		if (!prefersReduced) scheduleJump();
+
+		// пришли по клику home/бургер-ссылки — показываем лаву ~3с и стираем метку
+		try {
+			const pending = sessionStorage.getItem(LAVA_KEY);
+			if (pending === "left" || pending === "right") {
+				triggerLava(pending);
+				sessionStorage.removeItem(LAVA_KEY);
+			}
+		} catch (_) {}
 
 		window.addEventListener("keydown", handleWindowKeydown);
 
@@ -91,6 +137,7 @@
 			unsubscribe();
 			clearTimeout(jumpTimer);
 			clearTimeout(resetTimer);
+			clearTimeout(lavaTimer);
 			window.removeEventListener("keydown", handleWindowKeydown);
 		};
 	});
@@ -110,16 +157,28 @@
 			use:clickOutside
 			on:clickoutside={() => headerOpen && closeHeader()}
 		>
+			<!-- «Лава» на бордюрах: лево ↔ home, право ↔ бургер -->
+			<LavaBorder side="left" active={lavaSide === "left" && lavaOn} />
+			<LavaBorder side="right" active={lavaSide === "right" && lavaOn} />
+
 			<!-- ── Верхний ряд: лого · центральные ссылки (ПК, закрытый) · корзина+бургер ── -->
 			<div class="header-row mx-2 flex w-full items-center justify-between">
 				<!-- Логотип -->
 				<div
 					class="logo {currentPage === '/' || currentPage === `${base}/`
-						? 'text-yellow-0 animate-pulse'
+						? 'text-yellow-0 logo-glow'
 						: 'text-black'}
-					text-2xl transition duration-300 delay-100 hover:text-yellow-0 hover:animate-pulse"
+					text-2xl transition duration-300 delay-100 hover:text-yellow-0"
 				>
-					<a target="_self" href="{base}/" on:click={closeHeader}>
+					<a
+						target="_self"
+						href="{base}/"
+						on:click={() => {
+							persistLava("left");
+							triggerLava("left");
+							closeHeader();
+						}}
+					>
 						<h1 class="logo-type">
 							<span class="logo-word">
 								{#each word1 as ch, i}
@@ -240,13 +299,13 @@
 						<nav class="nav-account">
 							{#if !isUser}
 								<a
-									class="acc-link {isActive('/login')
+									class="exp-link {isActive('/login')
 										? 'is-active'
 										: ''}"
 									style="--d: 300ms"
 									target="_self"
 									href="{base}/login"
-									on:click={closeHeader}>{$t("Login")}</a
+									on:click={goBurgerLink}>{$t("Login")}</a
 								>
 							{:else}
 								<a
@@ -257,7 +316,7 @@
 									style="--d: 300ms"
 									target="_self"
 									href="{base}/profile"
-									on:click={closeHeader}>{$t("Profile")}</a
+									on:click={goBurgerLink}>{$t("Profile")}</a
 								>
 								{#if $isAdmin.value}
 									<a
@@ -267,7 +326,7 @@
 										style="--d: 340ms"
 										target="_self"
 										href="{base}/create"
-										on:click={closeHeader}>{$t("Create")}</a
+										on:click={goBurgerLink}>{$t("Create")}</a
 									>
 									<a
 										class="acc-link {isActive('/photos-dashboard')
@@ -276,7 +335,7 @@
 										style="--d: 380ms"
 										target="_self"
 										href="{base}/photos-dashboard"
-										on:click={closeHeader}>{$t("Photos")}</a
+										on:click={goBurgerLink}>{$t("Photos")}</a
 									>
 								{/if}
 								<a
@@ -285,6 +344,7 @@
 									target="_self"
 									href="{base}/login"
 									on:click={(e) => {
+										persistLava("right");
 										closeHeader();
 										authHandlers.logout(e);
 									}}>{$t("Logout")}</a
@@ -305,11 +365,14 @@
 	}
 
 	.header-shell {
+		position: relative;
 		display: flex;
 		flex-direction: column;
 	}
 
 	.header-row {
+		position: relative;
+		z-index: 2;
 		min-height: 3.5rem;
 	}
 
@@ -325,29 +388,61 @@
 	}
 	.logo-char {
 		display: inline-block;
+		transform-origin: 50% 100%;
 		will-change: transform;
 	}
 	.logo-char.jump {
-		animation: letterJump 0.74s cubic-bezier(0.22, 1, 0.36, 1);
+		animation: letterJump 1.1s cubic-bezier(0.3, 0.9, 0.4, 1);
 	}
 
+	/* Прыжок «как у лампы Pixar»: присед-подготовка → вылет с растяжением →
+	   приземление-сквош → лёгкое покачивание и устаканивание. */
 	@keyframes letterJump {
 		0% {
-			transform: translateY(0);
+			transform: translateY(0) scale(1, 1) rotate(0deg);
 		}
-		35% {
-			transform: translateY(-0.5em) scale(1.06);
+		14% {
+			/* подготовка: присед + расплющивание */
+			transform: translateY(0.07em) scale(1.12, 0.82) rotate(0deg);
+		}
+		38% {
+			/* вылет вверх с вытягиванием */
+			transform: translateY(-0.58em) scale(0.92, 1.16) rotate(0deg);
 		}
 		60% {
-			transform: translateY(0.04em);
+			/* приземление: сквош */
+			transform: translateY(0) scale(1.1, 0.88) rotate(-2deg);
+		}
+		74% {
+			/* отскок + качок в другую сторону */
+			transform: translateY(-0.09em) scale(0.98, 1.04) rotate(1.6deg);
+		}
+		87% {
+			transform: translateY(0) scale(1.03, 0.98) rotate(-0.8deg);
 		}
 		100% {
-			transform: translateY(0);
+			transform: translateY(0) scale(1, 1) rotate(0deg);
+		}
+	}
+
+	/* Сияние логотипа на главной — мягче, тусклее и медленнее, чем animate-pulse. */
+	.logo-glow {
+		animation: logoGlow 4.5s ease-in-out infinite;
+	}
+	@keyframes logoGlow {
+		0%,
+		100% {
+			opacity: 1;
+		}
+		50% {
+			opacity: 0.86;
 		}
 	}
 
 	/* ── Раскрытый хедер ──────────────────────────────────────────────────── */
 	.header-expanded {
+		position: relative;
+		z-index: 2;
 		width: 100%;
 		border-top: 2px solid rgba(36, 11, 54, 0.12);
 		overflow-y: auto;
@@ -427,28 +522,33 @@
 		}
 
 		.header-expanded {
-			height: 82vh;
+			height: 68vh;
 		}
 
 		.exp-inner {
 			flex-direction: column;
 			justify-content: flex-start;
-			gap: 1.75rem;
+			align-items: flex-end;
+			text-align: right;
+			gap: 1rem;
 		}
 
 		.nav-main {
 			flex-direction: column;
-			gap: 1.25rem;
+			align-items: flex-end;
+			gap: 0.9rem;
 		}
 
 		.nav-group {
-			gap: 1rem;
+			align-items: flex-end;
+			gap: 0.8rem;
 		}
 
 		/* На телефоне разделители-рамки между группами не нужны вертикально */
 		.nav-group-a,
 		.nav-group-b {
 			border: none;
+			padding: 0;
 		}
 
 		.exp-link {
@@ -460,9 +560,11 @@
 			color: #241e4e;
 		}
 
+		/* Доп. ссылки сразу под основными — небольшой отступ, не у самого низа */
 		.nav-account {
-			margin-top: auto;
-			padding-top: 1.25rem;
+			align-items: flex-end;
+			margin-top: 0.6rem;
+			padding-top: 0.85rem;
 			border-top: 1px solid rgba(36, 11, 54, 0.12);
 		}
 	}
@@ -478,25 +580,35 @@
 			height: 30vh;
 		}
 
+		/* Основная навигация — по центру (как закрытый ряд), доп.ссылки — справа */
 		.exp-inner {
-			align-items: stretch;
-			justify-content: space-between;
+			position: relative;
+			align-items: center;
+			justify-content: center;
 			padding: 1.75rem 2.5rem;
 		}
 
+		/* Ссылки в один ряд, группы по бокам от вертикального разделителя */
 		.nav-main {
-			flex: 0 1 auto;
-			align-items: stretch;
+			flex: 0 0 auto;
+			flex-direction: row;
+			align-items: center;
+		}
+
+		.nav-group {
+			flex-direction: row;
+			align-items: center;
+			gap: 2rem;
 		}
 
 		/* Разделители r-2 / l-2 — выше (на всю высоту панели), суммарно 4px */
 		.nav-group-a {
 			border-right: 2px solid #240b36;
-			padding-right: 3.5rem;
+			padding-right: 3rem;
 		}
 		.nav-group-b {
 			border-left: 2px solid #240b36;
-			padding-left: 3.5rem;
+			padding-left: 3rem;
 		}
 
 		/* центральные ссылки чуть крупнее */
@@ -510,16 +622,20 @@
 			text-align: right;
 		}
 
+		/* Доп.ссылки прижаты к правому краю, по вертикали — по центру панели */
 		.nav-account {
+			position: absolute;
+			right: 2.5rem;
+			top: 50%;
+			transform: translateY(-50%);
 			justify-content: center;
 			align-items: flex-end;
-			padding-left: 2rem;
-			border-left: 1px solid rgba(36, 11, 54, 0.12);
 		}
 	}
 
 	@media (prefers-reduced-motion: reduce) {
-		.logo-char.jump {
+		.logo-char.jump,
+		.logo-glow {
 			animation: none;
 		}
 		.exp-link,
