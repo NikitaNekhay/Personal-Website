@@ -13,9 +13,10 @@
 	let { photos }: Props = $props();
 
 	// Сколько фото вперёд «разогревать», когда пользователь вовлечён.
-	// Тонкие thumbs тянем дальше (дёшево), тяжёлые оригиналы — только ближайшие.
-	const THUMB_LOOKAHEAD = 4;
-	const ORIGINAL_LOOKAHEAD = 2;
+	// Тонкие thumbs тянем дальше (дёшево), тяжёлые оригиналы — ближайшие, но с запасом,
+	// чтобы при активном скролле оригинал успевал прийти до показа секции.
+	const THUMB_LOOKAHEAD = 6;
+	const ORIGINAL_LOOKAHEAD = 3;
 
 	let rootEl: HTMLDivElement | undefined = $state();
 	let activeIndex = $state(0);
@@ -164,6 +165,9 @@
 		// (залип на видимой вкладке ~3.5с либо начал скроллить). Так первый,
 		// видимый кадр не конкурирует за сеть с предзагрузкой следующих.
 		const stopEngagement = trackEngagement({
+			// При скролле включаем предзагрузку почти сразу (скролл = явное намерение
+			// смотреть дальше), пассивный зритель — через несколько секунд залипания.
+			scrollEngageMs: 400,
 			onEngaged: () => {
 				engaged = true;
 			}
@@ -336,11 +340,11 @@
 	}
 
 	/* Полный кадр проявляется плавно поверх размытого превью.
-	   Длинный мягкий ease-out — появление неспешное, без резкого «щелчка». */
+	   Короткий мягкий ease-out: плавно, но без «залипания» в полупрозрачном виде. */
 	.photo-image {
 		z-index: 2;
 		opacity: 0;
-		transition: opacity 900ms cubic-bezier(0.22, 1, 0.36, 1);
+		transition: opacity 500ms cubic-bezier(0.22, 1, 0.36, 1);
 		will-change: opacity;
 	}
 
@@ -350,16 +354,16 @@
 
 	/* Размытое превью под оригиналом.
 	   - умеренный блюр (не «каша»), scale прячет прозрачные поля object-contain;
-	   - mask-image мягко растушёвывает края, чтобы блюр не обрывался жёсткой
-	     рамкой о белый фон. */
+	   - mask-image едва растушёвывает самый край, чтобы блюр не обрывался жёсткой
+	     рамкой о белый фон (без эффекта виньетки). */
 	.photo-thumb {
 		z-index: 1;
-		filter: blur(9px);
-		transform: translate(var(--photo-offset-x), var(--photo-offset-y)) scale(1.08);
-		-webkit-mask-image: radial-gradient(ellipse 90% 90% at 50% 50%, #000 72%, transparent 100%);
-		mask-image: radial-gradient(ellipse 90% 90% at 50% 50%, #000 72%, transparent 100%);
-		/* Превью гаснет дольше и с задержкой → мягкий кросс-фейд с оригиналом. */
-		transition: opacity 1100ms ease 120ms;
+		filter: blur(8px);
+		transform: translate(var(--photo-offset-x), var(--photo-offset-y)) scale(1.06);
+		-webkit-mask-image: radial-gradient(ellipse 98% 98% at 50% 50%, #000 90%, transparent 100%);
+		mask-image: radial-gradient(ellipse 98% 98% at 50% 50%, #000 90%, transparent 100%);
+		/* Простой быстрый кросс-фейд с оригиналом, без задержки. */
+		transition: opacity 500ms ease;
 	}
 
 	/* Когда оригинал проявился — прячем превью (после кросс-фейда). */

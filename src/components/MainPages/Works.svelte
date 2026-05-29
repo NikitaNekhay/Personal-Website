@@ -1,17 +1,68 @@
 <script>
   import { base } from "$app/paths";
+  import { onMount } from "svelte";
   import { t } from "svelte-i18n";
   import { currentLanguagee } from "../../store/store_";
+  import { fadeInImage } from "../../services/fadeInImage";
+  import { trackEngagement } from "../../services/engagement";
+  import { prefetchImages } from "../../services/imagePreload";
   let innerWidth = 0;
   let innerHeight = 0;
   let reverseDisplay = "w-[100%] w-screen mb-44";
   if (innerHeight < 600) {
     reverseDisplay = "w-[100%] w-screen mb-44";
   }
+
+  let root; // обёртка страницы — через неё находим все <img> для fade-in
+
+  onMount(() => {
+    if (!root) return;
+
+    // Картинки здесь захардкожены внешними URL (без системы thumbs), поэтому
+    // вместо blur-up применяем общий плавный fade-in ко всем <img>.
+    // Мобильная/десктопная сетки рендерятся по innerWidth, который обновляется
+    // уже после mount → набор <img> в DOM меняется. Поэтому ловим и текущие,
+    // и будущие картинки через MutationObserver, помечая обработанные data-флагом.
+    const cleanups = [];
+
+    const apply = (img) => {
+      if (img.dataset.fadeBound) return;
+      img.dataset.fadeBound = "1";
+      img.loading = "lazy";
+      img.decoding = "async";
+      const handle = fadeInImage(img);
+      if (handle?.destroy) cleanups.push(handle.destroy);
+    };
+
+    const scan = () => root.querySelectorAll("img").forEach(apply);
+
+    scan();
+
+    const mo = new MutationObserver(scan);
+    mo.observe(root, { childList: true, subtree: true });
+
+    // Предзагрузка по вовлечённости — та же логика, что на главной и в магазине.
+    const stopEngagement = trackEngagement({
+      scrollEngageMs: 400,
+      onEngaged: () => {
+        const urls = Array.from(root.querySelectorAll("img"))
+          .map((img) => img.currentSrc || img.src)
+          .filter(Boolean);
+        prefetchImages(urls);
+      },
+    });
+
+    return () => {
+      mo.disconnect();
+      cleanups.forEach((destroy) => destroy());
+      stopEngagement();
+    };
+  });
 </script>
 
 <svelte:window bind:innerWidth bind:innerHeight />
 
+<div bind:this={root}>
 <section class="h-screen">
   <div
     class="grid h-[100%] px-4 bg-white place-content-center lg:mb-0 md:mb-48 sm:mb-48"
@@ -253,3 +304,4 @@
     </div>
   </div>
 </section>
+</div>

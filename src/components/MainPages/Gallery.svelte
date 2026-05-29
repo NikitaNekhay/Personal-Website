@@ -10,6 +10,9 @@
 
   import NoPosts from "../Shared/NoPosts.svelte";
   import LoadingSpinner from "../Shared/LoadingSpinner.svelte";
+  import { fadeInImage } from "../../services/fadeInImage";
+  import { trackEngagement } from "../../services/engagement";
+  import { prefetchImages } from "../../services/imagePreload";
   import {
     Errors,
     type AuthStoreType,
@@ -58,6 +61,25 @@
         }, 2000);
       }
     } catch (error) {}
+  });
+
+  // Умная предзагрузка фото товаров: ждём, пока пользователь вовлечётся
+  // (залип/скроллит), и только потом «разогреваем» превью всех карточек, чтобы
+  // при скролле сетки они появлялись мгновенно и плавно. Логика общая с главной.
+  onMount(() => {
+    const stopEngagement = trackEngagement({
+      scrollEngageMs: 400,
+      onEngaged: () => {
+        const urls = (tempProductStore ?? [])
+          .map((p) => p.images?.[0])
+          .filter((url): url is string => Boolean(url));
+        prefetchImages(urls);
+      },
+    });
+
+    return () => {
+      stopEngagement();
+    };
   });
 
   function handleClick(id: string) {
@@ -192,6 +214,9 @@
                       src={post.images[0]}
                       alt="Blog Post"
                       class="object-cover w-[100%] h-[620px] "
+                      loading="lazy"
+                      decoding="async"
+                      use:fadeInImage
                     />
                   </div>
                   <div
