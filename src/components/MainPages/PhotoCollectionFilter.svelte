@@ -300,7 +300,10 @@
 		filter:
 			drop-shadow(-10px 12px 18px rgba(120, 75, 5, 0.3))
 			drop-shadow(-3px 3px 3px rgba(0, 0, 0, 0.2));
-		animation: tailSwayOpen 5.5s ease-in-out infinite;
+		/* Не раскачка, а спокойное «дыхание»: лента словно только что развернулась
+		   и мягко всплывает-оседает с едва заметным микромасштабом. */
+		transform-origin: center center;
+		animation: panelBreathe 5s ease-in-out infinite;
 	}
 
 	.collection-nav {
@@ -363,14 +366,14 @@
 		}
 	}
 
-	/* Лёгкое покачивание раскрытой панели. */
-	@keyframes tailSwayOpen {
+	/* «Дыхание» раскрытой панели: мягкое всплытие-оседание + микромасштаб. */
+	@keyframes panelBreathe {
 		0%,
 		100% {
-			transform: rotate(-0.8deg);
+			transform: translateY(0) scale(1);
 		}
 		50% {
-			transform: rotate(0.9deg);
+			transform: translateY(-3px) scale(1.008);
 		}
 	}
 
