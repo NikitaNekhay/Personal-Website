@@ -13,211 +13,240 @@
 
 	let { selectedCollection, onSelect }: Props = $props();
 
+	// tabVisible — закладка выехала из-за края экрана.
+	// swaying — лёгкое покачивание «на ветру», пока закладка просто висит.
+	// menuOpen — закладка развёрнута в панель меню.
+	let tabVisible = $state(false);
+	let swaying = $state(false);
 	let menuOpen = $state(false);
-	let dropVisible = $state(false);
-	let dropAnimating = $state(false);
 
-	let intervalId: ReturnType<typeof setInterval> | undefined;
-	let animationTimer: ReturnType<typeof setTimeout> | undefined;
+	let cycleTimer: ReturnType<typeof setTimeout> | undefined;
 	let hideTimer: ReturnType<typeof setTimeout> | undefined;
+	let swayTimer: ReturnType<typeof setTimeout> | undefined;
 	let menuHideTimer: ReturnType<typeof setTimeout> | undefined;
-	let touchStartY = 0;
 
 	function clearTimer(timer: ReturnType<typeof setTimeout> | undefined) {
 		if (timer) clearTimeout(timer);
 	}
 
-	function revealDrop() {
-		clearTimer(animationTimer);
+	// Закладка видна 5 секунд: выезжает, чуть качается, затем прячется.
+	function reveal() {
+		if (menuOpen) {
+			scheduleNext();
+			return;
+		}
+		tabVisible = true;
+
+		// Покачивание включаем после того, как закладка доехала (entrance не конфликтует со sway).
+		clearTimer(swayTimer);
+		swayTimer = setTimeout(() => {
+			if (!menuOpen) swaying = true;
+		}, 650);
+
 		clearTimer(hideTimer);
-		dropVisible = true;
-		dropAnimating = false;
+		hideTimer = setTimeout(hide, 5000);
+	}
 
-		requestAnimationFrame(() => {
-			dropAnimating = true;
-		});
+	function hide() {
+		if (menuOpen) return;
+		swaying = false;
+		tabVisible = false;
+		scheduleNext();
+	}
 
-		animationTimer = setTimeout(() => {
-			dropAnimating = false;
-		}, 2600);
-
-		hideTimer = setTimeout(() => {
-			if (!menuOpen) dropVisible = false;
-		}, 3600);
+	// Следующее появление — через случайные 5–15 секунд.
+	function scheduleNext() {
+		clearTimer(cycleTimer);
+		const delay = 5000 + Math.random() * 10000;
+		cycleTimer = setTimeout(reveal, delay);
 	}
 
 	function openMenu() {
-		clearTimer(menuHideTimer);
+		if (menuOpen) return;
 		clearTimer(hideTimer);
-		dropVisible = true;
-		dropAnimating = false;
+		clearTimer(cycleTimer);
+		clearTimer(swayTimer);
+		swaying = false;
+		tabVisible = true;
 		menuOpen = true;
+	}
+
+	function handleTabKeydown(e: KeyboardEvent) {
+		if (menuOpen) return;
+		if (e.key === 'Enter' || e.key === ' ') {
+			e.preventDefault();
+			openMenu();
+		}
 	}
 
 	function selectCollection(collection: PhotoCollectionKey) {
 		onSelect(collection);
+		// Скрытие — как и раньше: после выбора панель сама закрывается.
 		clearTimer(menuHideTimer);
 		menuHideTimer = setTimeout(() => {
 			menuOpen = false;
-			dropVisible = false;
-		}, 2000);
-	}
-
-	function handleWheel(e: WheelEvent) {
-		if (window.scrollY <= 2 && e.deltaY < -12) {
-			revealDrop();
-		}
-	}
-
-	function handleTouchStart(e: TouchEvent) {
-		if (window.scrollY <= 2) {
-			touchStartY = e.touches[0]?.clientY ?? 0;
-		}
-	}
-
-	function handleTouchMove(e: TouchEvent) {
-		const currentY = e.touches[0]?.clientY ?? 0;
-		if (window.scrollY <= 2 && touchStartY > 0 && currentY - touchStartY > 28) {
-			revealDrop();
-			touchStartY = 0;
-		}
+			tabVisible = false;
+			scheduleNext();
+		}, 1200);
 	}
 
 	onMount(() => {
-		const firstTimer = setTimeout(revealDrop, 900);
-		intervalId = setInterval(revealDrop, 20000);
-
-		window.addEventListener('wheel', handleWheel, { passive: true });
-		window.addEventListener('touchstart', handleTouchStart, { passive: true });
-		window.addEventListener('touchmove', handleTouchMove, { passive: true });
+		// Появляется при первой загрузке / переходе на страницу.
+		const firstTimer = setTimeout(reveal, 600);
 
 		return () => {
 			clearTimeout(firstTimer);
-			if (intervalId) clearInterval(intervalId);
-			clearTimer(animationTimer);
+			clearTimer(cycleTimer);
 			clearTimer(hideTimer);
+			clearTimer(swayTimer);
 			clearTimer(menuHideTimer);
-			window.removeEventListener('wheel', handleWheel);
-			window.removeEventListener('touchstart', handleTouchStart);
-			window.removeEventListener('touchmove', handleTouchMove);
 		};
 	});
 </script>
 
-<header class="collection-header" aria-label="Filter by collection year">
-	<button
-		type="button"
-		class="drop-trigger"
-		class:is-visible={dropVisible || menuOpen}
-		class:is-animating={dropAnimating}
+<div class="bookmark-wrap" class:is-in={tabVisible || menuOpen}>
+	<!-- Единый морфящийся элемент: из узкой закладки разворачивается в панель.
+	     Свёрнутый — кликабелен (role=button); раскрытый — контейнер с пилюлями. -->
+	<div
+		class="bookmark"
+		class:swaying={swaying && !menuOpen}
+		class:open={menuOpen}
+		role={menuOpen ? undefined : 'button'}
+		tabindex={menuOpen ? -1 : 0}
 		aria-label="Open collection year filter"
 		aria-expanded={menuOpen}
 		onclick={openMenu}
+		onkeydown={handleTabKeydown}
 	>
-		<span></span>
-	</button>
-
-	{#if menuOpen}
-		<nav class="collection-nav" aria-label="Collection years">
-			<button
-				type="button"
-				class="collection-pill"
-				class:active={selectedCollection === PHOTO_SELECTION_COLLECTION}
-				onclick={() => selectCollection(PHOTO_SELECTION_COLLECTION)}
-			>
-				Selection
-			</button>
-			{#each PHOTO_COLLECTION_YEARS as year}
+		{#if menuOpen}
+			<nav class="collection-nav" aria-label="Collection years">
 				<button
 					type="button"
 					class="collection-pill"
-					class:active={selectedCollection === year}
-					onclick={() => selectCollection(year)}
+					class:active={selectedCollection === PHOTO_SELECTION_COLLECTION}
+					onclick={(e) => {
+						e.stopPropagation();
+						selectCollection(PHOTO_SELECTION_COLLECTION);
+					}}
 				>
-					{year}
+					Selection
 				</button>
-			{/each}
-		</nav>
-	{/if}
-</header>
+				{#each PHOTO_COLLECTION_YEARS as year}
+					<button
+						type="button"
+						class="collection-pill"
+						class:active={selectedCollection === year}
+						onclick={(e) => {
+							e.stopPropagation();
+							selectCollection(year);
+						}}
+					>
+						{year}
+					</button>
+				{/each}
+			</nav>
+		{:else}
+			<!-- Декоративная «насечка»-хват, намекает что закладку можно нажать. -->
+			<span class="grip" aria-hidden="true"></span>
+		{/if}
+	</div>
+</div>
 
 <style>
-	.collection-header {
+	/* Контейнер закреплён у правого края, ниже хедера + зазор от него. */
+	.bookmark-wrap {
 		position: fixed;
-		top: var(--site-header-height);
-		left: 0;
+		top: calc(var(--site-header-height) + 0.9rem);
 		right: 0;
 		z-index: 20;
-		display: flex;
-		justify-content: center;
 		pointer-events: none;
-		padding: 0.75rem;
+		/* Спрятана за правым краем; играющий въезд с лёгким перелётом (хвост лисы). */
+		transform: translateX(115%);
+		transition: transform 540ms cubic-bezier(0.34, 1.4, 0.5, 1);
 	}
 
-	.drop-trigger {
-		position: absolute;
-		top: 0;
-		left: 50%;
-		width: 2.25rem;
-		height: 3.1rem;
+	.bookmark-wrap.is-in {
+		transform: translateX(0);
+	}
+
+	/* Свёрнутая закладка: жёлтый «язычок» с раздвоенным низом (как у книжной ленты). */
+	.bookmark {
+		pointer-events: auto;
+		position: relative;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 2.7rem;
+		height: 4.6rem;
 		padding: 0;
 		border: 0;
-		background: transparent;
+		background: #f6ae2d;
+		color: #1a1a1a;
 		cursor: pointer;
-		opacity: 0;
-		pointer-events: none;
-		transform: translateX(-50%) translateY(-1.8rem);
-		transition: opacity 180ms ease;
-	}
-
-	.drop-trigger.is-visible {
-		opacity: 1;
-		pointer-events: auto;
-	}
-
-	.drop-trigger span {
-		position: absolute;
-		top: 0;
-		left: 50%;
-		display: block;
-		width: 2px;
-		height: 1.45rem;
-		border-radius: 999px;
-		background: rgba(246, 174, 45, 0.9);
-		box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
-		transform: translateX(-50%);
+		box-shadow: -7px 9px 22px rgba(0, 0, 0, 0.18);
+		/* Раздвоённый «ласточкин хвост» снизу. 5 точек — столько же, сколько у
+		   раскрытого состояния, чтобы clip-path плавно морфился при разворачивании. */
+		clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 78%, 0 100%);
 		transform-origin: top center;
+		transition:
+			width 380ms cubic-bezier(0.16, 1, 0.3, 1),
+			height 380ms cubic-bezier(0.16, 1, 0.3, 1),
+			clip-path 380ms cubic-bezier(0.16, 1, 0.3, 1),
+			box-shadow 380ms ease,
+			padding 380ms ease;
 	}
 
-	.drop-trigger.is-animating span {
-		animation: filterDrop 2600ms cubic-bezier(0.22, 1, 0.36, 1) both;
+	/* Покачивание «на лёгком ветре»: качается низ-«хвост», пивот сверху.
+	   Движения выверенные, амплитуда небольшая. */
+	.bookmark.swaying {
+		animation: tailSway 3.8s ease-in-out infinite;
+	}
+
+	/* Хват: пара тёмных штрихов по центру язычка. */
+	.grip {
+		width: 0.95rem;
+		height: 2px;
+		border-radius: 999px;
+		background: rgba(26, 26, 26, 0.55);
+		box-shadow:
+			0 -5px 0 rgba(26, 26, 26, 0.55),
+			0 5px 0 rgba(26, 26, 26, 0.55);
+		/* приподнимем над развилкой хвоста */
+		margin-bottom: 0.7rem;
+	}
+
+	/* Раскрытая панель: резко, но плавно вырастает влево от правого края. */
+	.bookmark.open {
+		width: 75vw;
+		height: auto;
+		min-height: 4.6rem;
+		padding: 0.95rem 1.2rem;
+		cursor: default;
+		box-shadow: -12px 14px 34px rgba(0, 0, 0, 0.26);
+		/* Плоский низ (та же 5-точечная схема, развилка «расправлена»). */
+		clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 100%, 0 100%);
+		animation: none;
 	}
 
 	.collection-nav {
 		display: flex;
 		flex-wrap: wrap;
 		justify-content: center;
-		gap: 0.35rem 0.5rem;
-		margin-top: 0.4rem;
-		padding: 0.4rem 0.65rem;
-		background: rgba(0, 0, 0, 0.45);
-		backdrop-filter: blur(8px);
-		border: 1px solid rgba(255, 255, 255, 0.18);
-		border-radius: 999px;
-		pointer-events: auto;
-		animation: menuIn 260ms ease both;
+		align-items: center;
+		gap: 0.45rem 0.6rem;
+		width: 100%;
 	}
 
 	.collection-pill {
 		font-family: 'Anonymous Pro', monospace;
-		font-size: 0.75rem;
+		font-size: 0.78rem;
 		letter-spacing: 0.06em;
 		text-transform: uppercase;
-		padding: 0.35rem 0.75rem;
-		border: 1px solid rgba(255, 255, 255, 0.35);
+		padding: 0.4rem 0.9rem;
+		border: 1px solid rgba(26, 26, 26, 0.45);
 		border-radius: 999px;
 		background: transparent;
-		color: rgba(255, 255, 255, 0.85);
+		color: #1a1a1a;
 		cursor: pointer;
 		transition:
 			background 0.2s ease,
@@ -226,85 +255,52 @@
 	}
 
 	.collection-pill:hover {
-		border-color: #f6ae2d;
+		background: #1a1a1a;
 		color: #f6ae2d;
+		border-color: #1a1a1a;
 	}
 
 	.collection-pill.active {
-		background: #f6ae2d;
-		border-color: #f6ae2d;
-		color: #1a1a1a;
+		background: #1a1a1a;
+		color: #f6ae2d;
+		border-color: #1a1a1a;
 	}
 
-	@keyframes filterDrop {
-		0% {
-			width: 2px;
-			height: 1.3rem;
-			border-radius: 999px;
-			transform: translateX(-50%) translateY(-1.45rem) scaleY(0.75);
-			opacity: 0;
-		}
-		16% {
-			width: 2px;
-			height: 2.4rem;
-			border-radius: 999px;
-			transform: translateX(-50%) translateY(-0.4rem) scaleY(1);
-			opacity: 1;
-		}
-		42% {
-			width: 1.35rem;
-			height: 1.9rem;
-			border-radius: 999px 999px 999px 0.28rem;
-			transform: translateX(-50%) translateY(0.2rem) rotate(-45deg) scale(1);
-			opacity: 1;
-		}
-		54% {
-			transform: translateX(-50%) translateY(0.02rem) rotate(-45deg) scale(1.04);
-		}
-		66% {
-			transform: translateX(-50%) translateY(0.15rem) rotate(-45deg) scale(0.985);
-		}
-		78% {
-			width: 1.35rem;
-			height: 1.9rem;
-			border-radius: 999px 999px 999px 0.28rem;
-			transform: translateX(-50%) translateY(0.08rem) rotate(-45deg) scale(1);
-			opacity: 1;
-		}
+	@keyframes tailSway {
+		0%,
 		100% {
-			width: 2px;
-			height: 1.25rem;
-			border-radius: 999px;
-			transform: translateX(-50%) translateY(-1.55rem) rotate(0deg) scaleY(0.7);
-			opacity: 0;
+			transform: rotate(0deg);
+		}
+		25% {
+			transform: rotate(2.4deg);
+		}
+		55% {
+			transform: rotate(-1.6deg);
+		}
+		80% {
+			transform: rotate(1.1deg);
 		}
 	}
 
-	@keyframes menuIn {
-		from {
-			opacity: 0;
-			transform: translateY(-0.35rem);
-		}
-		to {
-			opacity: 1;
-			transform: translateY(0);
-		}
-	}
-
+	/* Телефоны: панель на всю ширину экрана. */
 	@media (max-width: 768px) {
-		.collection-header {
-			padding-inline: 0.55rem;
+		.bookmark.open {
+			width: 100vw;
 		}
 
 		.collection-pill {
-			font-size: 0.65rem;
-			padding: 0.3rem 0.55rem;
+			font-size: 0.7rem;
+			padding: 0.35rem 0.7rem;
 		}
 	}
 
+	/* Уважаем «меньше движения»: без покачивания и перелёта. */
 	@media (prefers-reduced-motion: reduce) {
-		.drop-trigger.is-animating span,
-		.collection-nav {
+		.bookmark-wrap {
+			transition: transform 240ms ease;
+		}
+
+		.bookmark.swaying {
 			animation: none;
 		}
 	}
