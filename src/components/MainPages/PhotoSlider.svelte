@@ -335,23 +335,31 @@
 		pointer-events: none;
 	}
 
-	/* Полный кадр проявляется плавно поверх размытого превью. */
+	/* Полный кадр проявляется плавно поверх размытого превью.
+	   Длинный мягкий ease-out — появление неспешное, без резкого «щелчка». */
 	.photo-image {
 		z-index: 2;
 		opacity: 0;
-		transition: opacity 420ms ease;
+		transition: opacity 900ms cubic-bezier(0.22, 1, 0.36, 1);
+		will-change: opacity;
 	}
 
 	.photo-image.is-loaded {
 		opacity: 1;
 	}
 
-	/* Размытое превью под оригиналом. scale прячет «прозрачные» края блюра. */
+	/* Размытое превью под оригиналом.
+	   - умеренный блюр (не «каша»), scale прячет прозрачные поля object-contain;
+	   - mask-image мягко растушёвывает края, чтобы блюр не обрывался жёсткой
+	     рамкой о белый фон. */
 	.photo-thumb {
 		z-index: 1;
-		filter: blur(14px);
-		transform: translate(var(--photo-offset-x), var(--photo-offset-y)) scale(1.06);
-		transition: opacity 420ms ease;
+		filter: blur(9px);
+		transform: translate(var(--photo-offset-x), var(--photo-offset-y)) scale(1.08);
+		-webkit-mask-image: radial-gradient(ellipse 90% 90% at 50% 50%, #000 72%, transparent 100%);
+		mask-image: radial-gradient(ellipse 90% 90% at 50% 50%, #000 72%, transparent 100%);
+		/* Превью гаснет дольше и с задержкой → мягкий кросс-фейд с оригиналом. */
+		transition: opacity 1100ms ease 120ms;
 	}
 
 	/* Когда оригинал проявился — прячем превью (после кросс-фейда). */
