@@ -22,7 +22,7 @@
 		display: inline-block;
 		width: 40px;
 		height: 22px;
-		right: 4px;
+		right: 3px;
 	}
 
 	.line {
