@@ -2,6 +2,8 @@
 	import { onMount } from 'svelte';
 	import { browser } from '$app/environment';
 	import { base } from '$app/paths';
+	import { trackEngagement } from '../../services/engagement';
+	import { prefetchImages } from '../../services/imagePreload';
 	import type { PhotoManifestEntry } from '../../shared/types';
 
 	interface Props {
@@ -10,9 +12,18 @@
 
 	let { photos }: Props = $props();
 
+	// Сколько фото вперёд «разогревать», когда пользователь вовлечён.
+	// Тонкие thumbs тянем дальше (дёшево), тяжёлые оригиналы — только ближайшие.
+	const THUMB_LOOKAHEAD = 4;
+	const ORIGINAL_LOOKAHEAD = 2;
+
 	let rootEl: HTMLDivElement | undefined = $state();
 	let activeIndex = $state(0);
 	let visibleSlugs = $state<Set<string>>(new Set());
+	// Пользователь залип/скроллит → можно начинать фоновую предзагрузку.
+	let engaged = $state(false);
+	// slug'и фото, у которых оригинал уже загрузился — для плавного fade-in.
+	let loadedSlugs = $state<Set<string>>(new Set());
 
 	const sorted = $derived([...photos].sort((a, b) => a.order - b.order));
 
@@ -20,6 +31,47 @@
 		const photoPath = path.replace(/^\/?photos\//, '');
 		return `${base}/api/photos/image/${photoPath}`;
 	}
+
+	function markLoaded(slug: string) {
+		if (loadedSlugs.has(slug)) return;
+		const next = new Set(loadedSlugs);
+		next.add(slug);
+		loadedSlugs = next;
+	}
+
+	// Action: помечает фото загруженным, чтобы запустить fade-in.
+	// Учитывает кэш: если картинка уже готова (complete), событие load не придёт —
+	// проверяем синхронно.
+	function fadeInOnLoad(node: HTMLImageElement, slug: string) {
+		const done = () => markLoaded(slug);
+		if (node.complete && node.naturalWidth > 0) {
+			done();
+		} else {
+			node.addEventListener('load', done, { once: true });
+		}
+		return {
+			destroy() {
+				node.removeEventListener('load', done);
+			}
+		};
+	}
+
+	// Предзагрузка окна вперёд относительно текущего активного фото.
+	// Перезапускается при вовлечении и при каждой смене activeIndex.
+	$effect(() => {
+		if (!engaged || sorted.length === 0) return;
+
+		const start = activeIndex + 1;
+		const thumbs = sorted
+			.slice(start, start + THUMB_LOOKAHEAD)
+			.map((p) => imgUrl(p.thumb));
+		const originals = sorted
+			.slice(start, start + ORIGINAL_LOOKAHEAD)
+			.map((p) => imgUrl(p.original));
+
+		// thumbs первыми (лёгкие, дают мгновенное превью), затем ближайшие оригиналы
+		prefetchImages([...thumbs, ...originals]);
+	});
 
 	function fileName(photo: PhotoManifestEntry): string {
 		return photo.original.split('/').pop() ?? `${photo.slug}.webp`;
@@ -108,8 +160,18 @@
 
 		sections.forEach((section) => observer.observe(section));
 
+		// Начинаем фоновую предзагрузку только когда пользователь реально вовлечён
+		// (залип на видимой вкладке ~3.5с либо начал скроллить). Так первый,
+		// видимый кадр не конкурирует за сеть с предзагрузкой следующих.
+		const stopEngagement = trackEngagement({
+			onEngaged: () => {
+				engaged = true;
+			}
+		});
+
 		return () => {
 			observer.disconnect();
+			stopEngagement();
 		};
 	});
 </script>
@@ -147,14 +209,28 @@
 					aria-label="Show next photo"
 					onclick={goNext}
 				>
+					<!-- Лёгкое размытое превью (thumb) под оригиналом: показывается мгновенно,
+					     пока грузится полный кадр. Декоративное → aria-hidden. -->
+					<img
+						src={imgUrl(photo.thumb)}
+						alt=""
+						aria-hidden="true"
+						class="photo-thumb"
+						class:is-hidden={loadedSlugs.has(photo.slug)}
+						loading="lazy"
+						decoding="async"
+						draggable="false"
+					/>
 					<img
 						src={imgUrl(photo.original)}
 						alt={photo.title}
 						class="photo-image"
+						class:is-loaded={loadedSlugs.has(photo.slug)}
 						loading={index === 0 ? 'eager' : 'lazy'}
 						decoding="async"
 						fetchpriority={index === 0 ? 'high' : 'auto'}
 						draggable="false"
+						use:fadeInOnLoad={photo.slug}
 					/>
 				</button>
 				<p class="file-name">{fileName(photo)}</p>
@@ -244,7 +320,10 @@
 		outline-offset: -1px;
 	}
 
-	.photo-image {
+	/* Оригинал и thumb позиционируются одинаково (через CSS-переменные кадра),
+	   поэтому при загрузке оригинал точно перекрывает превью. */
+	.photo-image,
+	.photo-thumb {
 		position: absolute;
 		left: var(--photo-x);
 		top: var(--photo-y);
@@ -254,6 +333,41 @@
 		object-fit: contain;
 		transform: translate(var(--photo-offset-x), var(--photo-offset-y));
 		pointer-events: none;
+	}
+
+	/* Полный кадр проявляется плавно поверх размытого превью. */
+	.photo-image {
+		z-index: 2;
+		opacity: 0;
+		transition: opacity 420ms ease;
+	}
+
+	.photo-image.is-loaded {
+		opacity: 1;
+	}
+
+	/* Размытое превью под оригиналом. scale прячет «прозрачные» края блюра. */
+	.photo-thumb {
+		z-index: 1;
+		filter: blur(14px);
+		transform: translate(var(--photo-offset-x), var(--photo-offset-y)) scale(1.06);
+		transition: opacity 420ms ease;
+	}
+
+	/* Когда оригинал проявился — прячем превью (после кросс-фейда). */
+	.photo-thumb.is-hidden {
+		opacity: 0;
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.photo-image {
+			opacity: 1;
+			transition: none;
+		}
+
+		.photo-thumb {
+			transition: none;
+		}
 	}
 
 	.file-name {
