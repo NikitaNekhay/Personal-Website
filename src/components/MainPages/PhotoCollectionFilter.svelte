@@ -181,6 +181,9 @@
 		{:else}
 			<!-- Декоративный «хват»: вертикальные штрихи, намёк что закладку можно нажать. -->
 			<span class="grip" aria-hidden="true"></span>
+			<!-- При наведении закладка чуть подрастает и из-за края выглядывает
+			     первая селекция — намёк на спрятанное меню. -->
+			<span class="peek" aria-hidden="true">Selection</span>
 		{/if}
 	</div>
 </div>
@@ -252,6 +255,38 @@
 			-6px 0 0 rgba(26, 26, 26, 0.5),
 			6px 0 0 rgba(26, 26, 26, 0.5);
 		margin-left: 0.7rem;
+		transition: opacity 180ms ease;
+	}
+
+	/* Выглядывающая первая селекция — видна только при наведении. */
+	.peek {
+		position: absolute;
+		left: 1.35rem;
+		top: 50%;
+		transform: translateY(-50%);
+		font-family: 'Anonymous Pro', monospace;
+		font-size: 0.64rem;
+		letter-spacing: 0.05em;
+		text-transform: uppercase;
+		white-space: nowrap;
+		color: rgba(26, 26, 26, 0.85);
+		opacity: 0;
+		pointer-events: none;
+		transition: opacity 200ms ease;
+	}
+
+	/* Наведение на свёрнутую закладку: чуть подрастает, грип прячется,
+	   проявляется краешек первой селекции. */
+	.bookmark:not(.open):hover {
+		width: 6.6rem;
+	}
+
+	.bookmark:not(.open):hover .grip {
+		opacity: 0;
+	}
+
+	.bookmark:not(.open):hover .peek {
+		opacity: 1;
 	}
 
 	/* Раскрытая панель: резко, но плавно вырастает влево; острый конец слева
