@@ -459,6 +459,7 @@
 	.nav-main {
 		display: flex;
 		flex: 1 1 auto;
+		width: 100%;
 	}
 
 	.nav-group {
@@ -513,6 +514,7 @@
 		display: flex;
 		flex-direction: column;
 		gap: 0.6rem;
+		width: 100%;
 	}
 
 	/* ── Телефоны (≤1023px): вертикально, высокий раскрытый хедер ──────────── */

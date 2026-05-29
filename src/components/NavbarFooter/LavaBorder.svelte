@@ -1,22 +1,34 @@
 <script lang="ts">
 	// «Пиксельная лава» ПОВЕРХ самого тёмно-синего бордюра хедера.
-	// Идея — как лава в Minecraft: сетка квадратных «блоков» стоит на месте,
-	// а сквозь неё ОЧЕНЬ медленно перетекает яркий цвет (вверх-вниз, с инерцией,
-	// ease-in-out alternate) — это не «ручей», а медленное бурление.
-	//
-	// Привязка к бордюру:
-	//  • ширина полосы = ширине border (4px на ПК, 6px на ≤1023) и она смещена
-	//    отрицательно (left/right: -bw), чтобы лечь ИМЕННО на синюю кромку,
-	//    а не внутрь паддинга.
-	//  • квадратики делаются через пересечение двух масок (mask-composite),
-	//    размер ячейки фиксированный в px → «пиксели» крошечные и привязаны к полосе.
-	// Анимация работает ТОЛЬКО при active — в покое ничего не композитится.
+	// Не сплошная сетка, а отдельные квадратики РАЗНОГО размера, разреженные,
+	// только в средней части полосы (по краям их нет), одного жёлтого цвета
+	// (#f6ae2d — как подсветка активной ссылки). Каждый медленно «дышит»
+	// со своим периодом/задержкой → несинхронное бурление, не ручей.
+	// Полоса лежит ИМЕННО на синей кромке (отрицательное смещение на толщину
+	// бордюра) и по ширине равна ему (4px ПК / 6px ≤1023).
 	export let side: 'left' | 'right' = 'left';
 	export let active = false;
+
+	// t — позиция по высоте (%), l — сдвиг по ширине полосы (px),
+	// s — размер квадрата (px), dur/delay — период и фаза «дыхания».
+	const dots = [
+		{ t: 26, l: 0, s: 3, dur: 7.5, delay: 0 },
+		{ t: 34, l: 2, s: 2, dur: 9, delay: 1.3 },
+		{ t: 43, l: 1, s: 5, dur: 11, delay: 0.6 },
+		{ t: 50, l: 3, s: 2, dur: 6.5, delay: 2.1 },
+		{ t: 57, l: 0, s: 4, dur: 10, delay: 0.2 },
+		{ t: 66, l: 2, s: 3, dur: 8.5, delay: 1.7 },
+		{ t: 73, l: 1, s: 2, dur: 7, delay: 0.9 }
+	];
 </script>
 
 <span class="lava {side}" class:active aria-hidden="true">
-	<span class="lava-fill"></span>
+	{#each dots as d}
+		<span
+			class="pix"
+			style="--t:{d.t}%;--l:{d.l}px;--s:{d.s}px;--dur:{d.dur}s;--delay:{d.delay}s"
+		></span>
+	{/each}
 </span>
 
 <style>
@@ -30,21 +42,6 @@
 		overflow: hidden;
 		opacity: 0;
 		transition: opacity 600ms ease;
-		/* видна только серединка по высоте, у концов растворяется */
-		-webkit-mask-image: linear-gradient(
-			to bottom,
-			transparent 0%,
-			#000 32%,
-			#000 68%,
-			transparent 100%
-		);
-		mask-image: linear-gradient(
-			to bottom,
-			transparent 0%,
-			#000 32%,
-			#000 68%,
-			transparent 100%
-		);
 	}
 
 	/* лечь НА бордюр (отрицательное смещение на его толщину) */
@@ -72,88 +69,45 @@
 		opacity: 1;
 	}
 
-	.lava-fill,
-	.lava-fill::after {
-		content: '';
+	.pix {
 		position: absolute;
-		inset: 0;
-		/* === КВАДРАТНЫЕ ПИКСЕЛИ ===
-		   пересечение вертикальных и горизонтальных полос даёт сетку
-		   квадратиков 1px на шаге 2px (≈25% заполнения). */
-		-webkit-mask-image:
-			repeating-linear-gradient(to right, #000 0 1px, transparent 1px 2px),
-			repeating-linear-gradient(to bottom, #000 0 1px, transparent 1px 2px);
-		mask-image:
-			repeating-linear-gradient(to right, #000 0 1px, transparent 1px 2px),
-			repeating-linear-gradient(to bottom, #000 0 1px, transparent 1px 2px);
-		-webkit-mask-composite: source-in;
-		mask-composite: intersect;
+		top: var(--t);
+		left: var(--l);
+		width: var(--s);
+		height: var(--s);
+		background: #f6ae2d;
+		border-radius: 0; /* строго квадрат */
 		image-rendering: pixelated;
+		transform: scale(0.6);
+		opacity: 0.12;
+		will-change: transform, opacity;
 	}
 
-	/* нижний слой: яркая лавовая «лента» цвета, бесшовно зацикленная по вертикали */
-	.lava-fill {
-		background-image: repeating-linear-gradient(
-			to bottom,
-			#7a1f00 0%,
-			#ff5e00 16%,
-			#ffae00 30%,
-			#ffe85c 42%,
-			#ffae00 54%,
-			#ff5e00 70%,
-			#7a1f00 88%
-		);
-		background-size: 100% 240%;
-		background-position: 0 0;
-		filter: saturate(1.25) brightness(1.12);
+	/* медленное несинхронное «дыхание» — только пока active */
+	.lava.active .pix {
+		animation: lavaPix var(--dur) ease-in-out var(--delay) infinite;
 	}
 
-	/* верхний слой: бело-жёлтые «искры», другой период → биения = псевдослучайное мерцание */
-	.lava-fill::after {
-		background-image: repeating-linear-gradient(
-			to bottom,
-			#fff6c0 0%,
-			transparent 38%,
-			#ffd24a 58%,
-			transparent 100%
-		);
-		background-size: 100% 175%;
-		background-position: 0 1px;
-		mix-blend-mode: screen;
-		opacity: 0.4;
-	}
-
-	/* движение только пока активно: медленное бурление вверх-вниз с инерцией */
-	.lava.active .lava-fill {
-		animation: lavaChurn 11s ease-in-out infinite alternate;
-	}
-	.lava.active .lava-fill::after {
-		animation: lavaTwinkle 7.5s ease-in-out infinite alternate;
-	}
-
-	@keyframes lavaChurn {
-		from {
-			background-position: 0 0;
+	@keyframes lavaPix {
+		0% {
+			opacity: 0.12;
+			transform: translateY(1px) scale(0.6);
 		}
-		to {
-			background-position: 0 -140%;
+		50% {
+			opacity: 1;
+			transform: translateY(0) scale(1);
 		}
-	}
-	@keyframes lavaTwinkle {
-		from {
-			background-position: 0 1px;
-			opacity: 0.22;
-		}
-		to {
-			background-position: 0 -95%;
-			opacity: 0.62;
+		100% {
+			opacity: 0.12;
+			transform: translateY(-1px) scale(0.6);
 		}
 	}
 
 	@media (prefers-reduced-motion: reduce) {
-		.lava.active .lava-fill,
-		.lava.active .lava-fill::after {
+		.lava.active .pix {
 			animation: none;
+			opacity: 0.85;
+			transform: none;
 		}
 	}
 </style>
