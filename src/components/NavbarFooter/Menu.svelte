@@ -18,13 +18,6 @@
 			onToggle(e);
 		}
 	}
-
-	// корзина — «бургерная» страница: помечаем переход для лавы на правом бордюре
-	function markCartNav() {
-		try {
-			sessionStorage.setItem('hdrLava', 'right');
-		} catch (_) {}
-	}
 </script>
 
 <div class="menu relative z-[60] ml-2 flex items-center gap-4 sm:gap-3 md:gap-3">
@@ -34,7 +27,6 @@
 		class:cart-hidden={!isOpen}
 		target="_self"
 		href="{base}/profile/shoppingcart"
-		onclick={markCartNav}
 	>
 		<svg
 			class="feather feather-shopping-cart relative top-1.5 transition duration-300 delay-100 group-hover:text-yellow-0 group-hover:animate-pulse {currentPage.includes(

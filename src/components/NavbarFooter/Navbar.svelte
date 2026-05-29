@@ -5,7 +5,6 @@
 
 	import { authStore, isAdmin, authHandlers } from "../../store/store";
 	import Menu from "./Menu.svelte";
-	import LavaBorder from "./LavaBorder.svelte";
 	import { clickOutside } from "../../services/clickOutside";
 
 	import { addMessages, locale, t } from "svelte-i18n";
@@ -40,38 +39,10 @@
 	// ── Открытый/закрытый хедер ───────────────────────────────────────────────
 	let headerOpen = false;
 
-	// ── «Лава» на бордюре: лево ↔ home, право ↔ страницы бургера ───────────────
-	// Движение появляется только после клика и живёт ~3с (в т.ч. на новой
-	// странице — через sessionStorage, т.к. переходы перезагружают страницу),
-	// затем гаснет и не возвращается.
-	const LAVA_KEY = "hdrLava";
-	const LAVA_MS = 3000;
-	let lavaSide = null; // 'left' | 'right' | null
-	let lavaOn = false;
-	let lavaTimer;
-
-	function triggerLava(side) {
-		lavaSide = side;
-		lavaOn = true;
-		clearTimeout(lavaTimer);
-		lavaTimer = setTimeout(() => {
-			lavaOn = false; // плавно гаснет; сторона остаётся для fade-out
-		}, LAVA_MS);
-	}
-
-	// помечаем переход, чтобы целевая (перезагруженная) страница показала лаву
-	function persistLava(side) {
-		try {
-			if (typeof window !== "undefined") sessionStorage.setItem(LAVA_KEY, side);
-		} catch (_) {}
-	}
-
 	function toggleHeader(e) {
 		e?.stopPropagation?.();
 		e?.preventDefault?.();
 		headerOpen = !headerOpen;
-		// открытие бургера — всплеск лавы на правом бордюре прямо на месте
-		if (headerOpen) triggerLava("right");
 	}
 
 	function closeHeader() {
@@ -79,10 +50,7 @@
 	}
 
 	// клик по «бургерной» ссылке (профиль/фото/создать/логин/корзина и т.п.)
-	// помечаем переход — целевая страница покажет лаву на правом бордюре
 	function goBurgerLink() {
-		persistLava("right");
-		triggerLava("right");
 		closeHeader();
 	}
 
@@ -122,22 +90,12 @@
 
 		if (!prefersReduced) scheduleJump();
 
-		// пришли по клику home/бургер-ссылки — показываем лаву ~3с и стираем метку
-		try {
-			const pending = sessionStorage.getItem(LAVA_KEY);
-			if (pending === "left" || pending === "right") {
-				triggerLava(pending);
-				sessionStorage.removeItem(LAVA_KEY);
-			}
-		} catch (_) {}
-
 		window.addEventListener("keydown", handleWindowKeydown);
 
 		return () => {
 			unsubscribe();
 			clearTimeout(jumpTimer);
 			clearTimeout(resetTimer);
-			clearTimeout(lavaTimer);
 			window.removeEventListener("keydown", handleWindowKeydown);
 		};
 	});
@@ -157,10 +115,6 @@
 			use:clickOutside
 			on:clickoutside={() => headerOpen && closeHeader()}
 		>
-			<!-- «Лава» на бордюрах: лево ↔ home, право ↔ бургер -->
-			<LavaBorder side="left" active={lavaSide === "left" && lavaOn} />
-			<LavaBorder side="right" active={lavaSide === "right" && lavaOn} />
-
 			<!-- ── Верхний ряд: лого · центральные ссылки (ПК, закрытый) · корзина+бургер ── -->
 			<div class="header-row mx-2 flex w-full items-center justify-between">
 				<!-- Логотип -->
@@ -173,11 +127,7 @@
 					<a
 						target="_self"
 						href="{base}/"
-						on:click={() => {
-							persistLava("left");
-							triggerLava("left");
-							closeHeader();
-						}}
+						on:click={closeHeader}
 					>
 						<h1 class="logo-type">
 							<span class="logo-word">
@@ -344,7 +294,6 @@
 									target="_self"
 									href="{base}/login"
 									on:click={(e) => {
-										persistLava("right");
 										closeHeader();
 										authHandlers.logout(e);
 									}}>{$t("Logout")}</a

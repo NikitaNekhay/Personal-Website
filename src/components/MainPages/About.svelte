@@ -21,7 +21,7 @@
 
     <!-- 2 columns -->
     <div
-        class="grid grid-cols-2 gap-x-[7%] mt-[3%] mb-[20%] sm:mb-[42%] lg:mb-[35%] {innerWidth <
+        class="top-cards grid grid-cols-2 gap-x-[7%] mt-[3%] mb-[20%] sm:mb-[42%] lg:mb-[35%] {innerWidth <
             1023 && innerWidth > 775
             ? 'md:mb-[0%]'
             : innerWidth <= 775 && innerWidth >= 610
@@ -29,9 +29,9 @@
               : 'md:mb-[38%]'}"
     >
         <!-- 1 column -->
-        <div class="grid grid-flow-row">
-            <div class="">
-                <div class="h-[40%] sm:h-[20%] md:h-[30%] flex justify-center">
+        <div class="col grid grid-flow-row">
+            <div class="col-inner">
+                <div class="about-photo h-[40%] sm:h-[20%] md:h-[30%] flex justify-center">
                     <!-- {#key innerWidth}
                     <Authorphoto bind:innerWidth/>
                     {/key} -->
@@ -44,10 +44,10 @@
                     />
                 </div>
 
-                <div class="z-10 grid gap-y-[10%] mx-auto mt-6">
+                <div class="card-stack z-10 grid gap-y-[10%] mx-auto mt-6">
                     <!-- What i sew -->
                     <div
-                        class="py-5 shadow-xl border-b-2 border-navy-2 bg-white-1"
+                        class="about-card card-left py-5 shadow-xl border-b-2 border-navy-2 bg-white-1"
                     >
                         <details class="group" open>
                             <summary
@@ -83,7 +83,7 @@
                     </div>
 
                     <!-- small space for small text -->
-                    <div class="mt-[40%] sm:mt-[10%]">
+                    <div class="joke-text mt-[40%] sm:mt-[10%]">
                         <p class="relative -bottom-60 sm:-bottom-[75vh]">
                             {$t("aaaam I digiiitilizedd?")}
                         </p>
@@ -92,12 +92,12 @@
             </div>
         </div>
         <!-- 2 column -->
-        <div class="grid grid-flow-row">
-            <div class="">
-                <div class=" grid gap-y-[10%] mt-6">
+        <div class="col grid grid-flow-row">
+            <div class="col-inner">
+                <div class="card-stack grid gap-y-[10%] mt-6">
                     <!-- who am i -->
                     <div
-                        class="py-5 shadow-xl bg-white-1 border-navy-2 border-x-2"
+                        class="about-card card-right py-5 shadow-xl bg-white-1 border-navy-2 border-x-2"
                     >
                         <details class="group" open>
                             <summary
@@ -155,7 +155,7 @@
                     </div>
                     <!-- what i do -->
                     <div
-                        class="py-5 shadow-xl bg-white-1 border-navy-2 border-x-2"
+                        class="about-card card-left py-5 shadow-xl bg-white-1 border-navy-2 border-x-2"
                     >
                         <details class="group" open>
                             <summary
@@ -194,7 +194,7 @@
                         </details>
                     </div>
                     <!-- small space for small text -->
-                    <div class="mt-[40%] sm:mt-[30%] md:mt-[35%]">
+                    <div class="joke-text mt-[40%] sm:mt-[30%] md:mt-[35%]">
                         <p class="relative bottom-10">
                             {$t("guesss what else?..")}
                         </p>
@@ -202,7 +202,7 @@
 
                     <!-- what i suggest -->
                     <div
-                        class="py-5 shadow-xl bg-white-1 border-navy-2 border-t-2"
+                        class="about-card card-right py-5 shadow-xl bg-white-1 border-navy-2 border-t-2"
                     >
                         <details class="group" open>
                             <summary
@@ -246,7 +246,7 @@
                         </details>
                     </div>
                     <!-- where are photos -->
-                    <div></div>
+                    <div class="card-empty"></div>
                 </div>
             </div>
         </div>
@@ -262,7 +262,7 @@
               ? 'md:mt-[26%]'
               : 'md:mt-[35%]'}"
     >
-        <div class="grid grid-flow-row">
+        <div class="col grid grid-flow-row">
             <div>
                 <!-- where to read -->
                 <div class="py-5 shadow-xl bg-white-1 border-navy-2 border-b-2">
@@ -321,7 +321,7 @@
                 </div>
             </div>
         </div>
-        <div class="grid grid-flow-row">
+        <div class="col grid grid-flow-row">
             <div>
                 <!-- where to see my photos -->
                 <div class="py-5 shadow-xl bg-white-1 border-navy-2 border-b-2">
@@ -381,5 +381,57 @@
 <style>
     ul {
         @apply list-disc pl-4;
+    }
+
+    /* ── Телефоны/планшеты (≤1023px): чиним наезжание карточек ──────────────
+       Раскладку «по бокам, как на ПК» сохраняем: верхние карточки идут
+       половиной ширины и чередуются лево/право — две в один ряд не попадают.
+       На остальных дисплеях (≥1024px) ничего не меняется. */
+    @media (max-width: 1023px) {
+        /* сплющиваем две колонки в один поток, чтобы карточки можно было
+           чередовать по сторонам, а не держать жёстко в 2 столбца */
+        .top-cards {
+            display: flex;
+            flex-direction: column;
+            gap: 2.5rem;
+        }
+        .top-cards :global(.col),
+        .top-cards :global(.col-inner),
+        .top-cards :global(.card-stack) {
+            display: contents;
+        }
+
+        /* фото — на всю ширину сверху */
+        .top-cards :global(.about-photo) {
+            width: 100%;
+        }
+
+        /* верхние карточки: половина ширины, чередуем стороны */
+        .top-cards :global(.about-card) {
+            width: 50%;
+            box-sizing: border-box;
+        }
+        .top-cards :global(.card-left) {
+            margin-right: auto;
+        }
+        .top-cards :global(.card-right) {
+            margin-left: auto;
+        }
+
+        /* мелкие текстовые приписки — на всю ширину, без «вылетов» вверх/вниз,
+           которые и устраивали наезжание */
+        .top-cards :global(.joke-text) {
+            width: 100%;
+            margin-top: 0;
+            text-align: center;
+        }
+        .top-cards :global(.joke-text p) {
+            position: static;
+            bottom: auto;
+        }
+
+        .top-cards :global(.card-empty) {
+            display: none;
+        }
     }
 </style>
