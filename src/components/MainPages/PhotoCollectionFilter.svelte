@@ -14,7 +14,7 @@
 	let { selectedCollection, onSelect }: Props = $props();
 
 	// tabVisible — закладка выехала из-за края экрана.
-	// swaying — лёгкое покачивание «на ветру», пока закладка просто висит.
+	// swaying — закладка развевается «на ветру», пока просто висит.
 	// menuOpen — закладка развёрнута в панель меню.
 	let tabVisible = $state(false);
 	let swaying = $state(false);
@@ -25,11 +25,15 @@
 	let swayTimer: ReturnType<typeof setTimeout> | undefined;
 	let menuHideTimer: ReturnType<typeof setTimeout> | undefined;
 
+	// Зона «правый верхний угол, но не хедер» — для появления по наведению/клику.
+	let headerPx = 88;
+	let inCorner = false;
+
 	function clearTimer(timer: ReturnType<typeof setTimeout> | undefined) {
 		if (timer) clearTimeout(timer);
 	}
 
-	// Закладка видна 5 секунд: выезжает, чуть качается, затем прячется.
+	// Закладка видна 5 секунд: выезжает, развевается, затем прячется.
 	function reveal() {
 		if (menuOpen) {
 			scheduleNext();
@@ -37,11 +41,11 @@
 		}
 		tabVisible = true;
 
-		// Покачивание включаем после того, как закладка доехала (entrance не конфликтует со sway).
+		// Развевание включаем после того, как закладка доехала (entrance не конфликтует со sway).
 		clearTimer(swayTimer);
 		swayTimer = setTimeout(() => {
 			if (!menuOpen) swaying = true;
-		}, 650);
+		}, 600);
 
 		clearTimer(hideTimer);
 		hideTimer = setTimeout(hide, 5000);
@@ -90,9 +94,35 @@
 		}, 1200);
 	}
 
+	// Точка в правом верхнем углу, ниже хедера (узкая полоса под ним).
+	function pointInCorner(x: number, y: number): boolean {
+		return x >= window.innerWidth * 0.7 && y > headerPx && y < headerPx + 300;
+	}
+
+	function handleMouseMove(e: MouseEvent) {
+		const now = pointInCorner(e.clientX, e.clientY);
+		// Появляемся при ВХОДЕ в зону (а не на каждое движение), чтобы не сбрасывать таймеры.
+		if (now && !inCorner) reveal();
+		inCorner = now;
+	}
+
+	function handleClick(e: MouseEvent) {
+		if (pointInCorner(e.clientX, e.clientY)) reveal();
+	}
+
 	onMount(() => {
+		// Высота хедера из CSS-переменной (для зоны «угла»).
+		const rootStyles = getComputedStyle(document.documentElement);
+		const rem = parseFloat(rootStyles.fontSize) || 16;
+		const headerVar = rootStyles.getPropertyValue('--site-header-height').trim();
+		if (headerVar.endsWith('rem')) headerPx = parseFloat(headerVar) * rem;
+		else if (headerVar.endsWith('px')) headerPx = parseFloat(headerVar);
+
 		// Появляется при первой загрузке / переходе на страницу.
 		const firstTimer = setTimeout(reveal, 600);
+
+		window.addEventListener('mousemove', handleMouseMove, { passive: true });
+		window.addEventListener('click', handleClick);
 
 		return () => {
 			clearTimeout(firstTimer);
@@ -100,13 +130,16 @@
 			clearTimer(hideTimer);
 			clearTimer(swayTimer);
 			clearTimer(menuHideTimer);
+			window.removeEventListener('mousemove', handleMouseMove);
+			window.removeEventListener('click', handleClick);
 		};
 	});
 </script>
 
 <div class="bookmark-wrap" class:is-in={tabVisible || menuOpen}>
-	<!-- Единый морфящийся элемент: из узкой закладки разворачивается в панель.
-	     Свёрнутый — кликабелен (role=button); раскрытый — контейнер с пилюлями. -->
+	<!-- Горизонтальная закладка (как повёрнутая на 90° по часовой): раздвоённый
+	     острый конец смотрит влево, правый край прижат к краю экрана.
+	     Единый морфящийся элемент — из узкого язычка вырастает в панель меню. -->
 	<div
 		class="bookmark"
 		class:swaying={swaying && !menuOpen}
@@ -146,7 +179,7 @@
 				{/each}
 			</nav>
 		{:else}
-			<!-- Декоративная «насечка»-хват, намекает что закладку можно нажать. -->
+			<!-- Декоративный «хват»: вертикальные штрихи, намёк что закладку можно нажать. -->
 			<span class="grip" aria-hidden="true"></span>
 		{/if}
 	</div>
@@ -160,72 +193,79 @@
 		right: 0;
 		z-index: 20;
 		pointer-events: none;
-		/* Спрятана за правым краем; играющий въезд с лёгким перелётом (хвост лисы). */
-		transform: translateX(115%);
-		transition: transform 540ms cubic-bezier(0.34, 1.4, 0.5, 1);
+		/* Спрятана за правым краем; играющий въезд с лёгким перелётом. */
+		transform: translateX(118%);
+		transition: transform 560ms cubic-bezier(0.34, 1.45, 0.5, 1);
 	}
 
 	.bookmark-wrap.is-in {
 		transform: translateX(0);
 	}
 
-	/* Свёрнутая закладка: жёлтый «язычок» с раздвоенным низом (как у книжной ленты). */
+	/* Свёрнутая закладка: горизонтальный жёлтый язычок с раздвоённым острым
+	   концом слева. Фикс. глубина развилки (1.15rem) → острый конец сохраняется
+	   и в раскрытом состоянии, и при любой ширине. */
 	.bookmark {
 		pointer-events: auto;
 		position: relative;
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		width: 2.7rem;
-		height: 4.6rem;
-		padding: 0;
+		width: 4.8rem;
+		height: 2.8rem;
+		padding: 0 0 0 1.15rem;
 		border: 0;
-		background: #f6ae2d;
+		/* «Живой» материал: верхний блик + объёмный жёлтый градиент. */
+		background:
+			linear-gradient(180deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0) 22%),
+			linear-gradient(135deg, #ffd071 0%, #f6ae2d 52%, #e0900d 100%);
 		color: #1a1a1a;
 		cursor: pointer;
-		box-shadow: -7px 9px 22px rgba(0, 0, 0, 0.18);
-		/* Раздвоённый «ласточкин хвост» снизу. 5 точек — столько же, сколько у
-		   раскрытого состояния, чтобы clip-path плавно морфился при разворачивании. */
-		clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 78%, 0 100%);
-		transform-origin: top center;
+		/* clip-path обрезает box-shadow, поэтому тень даём через filter — она
+		   повторяет форму язычка. Двойная тень = мягкая + контактная. */
+		filter:
+			drop-shadow(-6px 7px 10px rgba(120, 75, 5, 0.28))
+			drop-shadow(-2px 2px 2px rgba(0, 0, 0, 0.18));
+		clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%, 1.15rem 50%);
+		transform-origin: right center;
 		transition:
-			width 380ms cubic-bezier(0.16, 1, 0.3, 1),
-			height 380ms cubic-bezier(0.16, 1, 0.3, 1),
-			clip-path 380ms cubic-bezier(0.16, 1, 0.3, 1),
-			box-shadow 380ms ease,
-			padding 380ms ease;
+			width 400ms cubic-bezier(0.16, 1, 0.3, 1),
+			height 400ms cubic-bezier(0.16, 1, 0.3, 1),
+			padding 400ms cubic-bezier(0.16, 1, 0.3, 1),
+			filter 300ms ease,
+			transform 320ms ease;
 	}
 
-	/* Покачивание «на лёгком ветре»: качается низ-«хвост», пивот сверху.
-	   Движения выверенные, амплитуда небольшая. */
+	/* Развевание «на ветру»: пивот у правого (закреплённого) края, свободный
+	   левый конец-хвост размашисто колышется. Игриво и сильно. */
 	.bookmark.swaying {
-		animation: tailSway 3.8s ease-in-out infinite;
+		animation: tailSway 2.4s ease-in-out infinite;
 	}
 
-	/* Хват: пара тёмных штрихов по центру язычка. */
+	/* Хват: три вертикальных штриха по центру тела (правее острого конца). */
 	.grip {
-		width: 0.95rem;
-		height: 2px;
+		width: 2px;
+		height: 1rem;
 		border-radius: 999px;
-		background: rgba(26, 26, 26, 0.55);
+		background: rgba(26, 26, 26, 0.5);
 		box-shadow:
-			0 -5px 0 rgba(26, 26, 26, 0.55),
-			0 5px 0 rgba(26, 26, 26, 0.55);
-		/* приподнимем над развилкой хвоста */
-		margin-bottom: 0.7rem;
+			-6px 0 0 rgba(26, 26, 26, 0.5),
+			6px 0 0 rgba(26, 26, 26, 0.5);
+		margin-left: 0.7rem;
 	}
 
-	/* Раскрытая панель: резко, но плавно вырастает влево от правого края. */
+	/* Раскрытая панель: резко, но плавно вырастает влево; острый конец слева
+	   сохраняется (та же clip-path). В раскрытом виде — лёгкое покачивание. */
 	.bookmark.open {
 		width: 75vw;
 		height: auto;
-		min-height: 4.6rem;
-		padding: 0.95rem 1.2rem;
+		min-height: 3.1rem;
+		padding: 0.95rem 1.2rem 0.95rem 2.2rem;
 		cursor: default;
-		box-shadow: -12px 14px 34px rgba(0, 0, 0, 0.26);
-		/* Плоский низ (та же 5-точечная схема, развилка «расправлена»). */
-		clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 100%, 0 100%);
-		animation: none;
+		filter:
+			drop-shadow(-10px 12px 18px rgba(120, 75, 5, 0.3))
+			drop-shadow(-3px 3px 3px rgba(0, 0, 0, 0.2));
+		animation: tailSwayOpen 5.5s ease-in-out infinite;
 	}
 
 	.collection-nav {
@@ -266,19 +306,36 @@
 		border-color: #1a1a1a;
 	}
 
+	/* Сильный «ветер» для свёрнутой закладки. */
 	@keyframes tailSway {
-		0%,
+		0% {
+			transform: rotate(0deg);
+		}
+		18% {
+			transform: rotate(7deg);
+		}
+		38% {
+			transform: rotate(-5deg);
+		}
+		58% {
+			transform: rotate(4deg);
+		}
+		78% {
+			transform: rotate(-2.4deg);
+		}
 		100% {
 			transform: rotate(0deg);
 		}
-		25% {
-			transform: rotate(2.4deg);
+	}
+
+	/* Лёгкое покачивание раскрытой панели. */
+	@keyframes tailSwayOpen {
+		0%,
+		100% {
+			transform: rotate(-0.8deg);
 		}
-		55% {
-			transform: rotate(-1.6deg);
-		}
-		80% {
-			transform: rotate(1.1deg);
+		50% {
+			transform: rotate(0.9deg);
 		}
 	}
 
@@ -294,13 +351,14 @@
 		}
 	}
 
-	/* Уважаем «меньше движения»: без покачивания и перелёта. */
+	/* Уважаем «меньше движения»: без развевания и перелёта. */
 	@media (prefers-reduced-motion: reduce) {
 		.bookmark-wrap {
 			transition: transform 240ms ease;
 		}
 
-		.bookmark.swaying {
+		.bookmark.swaying,
+		.bookmark.open {
 			animation: none;
 		}
 	}
