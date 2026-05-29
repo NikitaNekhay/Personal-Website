@@ -1334,7 +1334,7 @@
   {
     "id": "4e53b830",
     "slug": "img-3889",
-    "title": "IMG_3889",
+    "title": "basic_vibes_of_outskirts",
     "order": 75,
     "collectionNumber": 2026,
     "collectionKey": "selection",
@@ -1343,10 +1343,10 @@
     "width": 1920,
     "height": 1440,
     "objectPosition": "center center",
-    "positionX": 50,
-    "positionY": 50,
+    "positionX": 20,
+    "positionY": 10,
     "scalePercent": 100,
-    "revealFrom": "bottom",
+    "revealFrom": "left",
     "uploadedAt": "2026-05-29T16:00:32.122Z"
   }
 ]
