@@ -180,7 +180,7 @@
 				>
 					{$t('Create')}
 				</a>
-				<a
+				<!-- <a
 					class="col-span-full grid-row-auto transition duration-300 delay-100 hover:text-yellow-0 hover:animate-pulse {currentPage.includes(
 						'/dashboard'
 					)
@@ -212,7 +212,7 @@
 					href="{base}/slider-dashboard"
 				>
 					{$t('Slider')}
-				</a>
+				</a> -->
 				<a
 					class="col-span-full grid-row-auto transition duration-300 delay-100 hover:text-yellow-0 hover:animate-pulse {currentPage.includes(
 						'/photos-dashboard'
