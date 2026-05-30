@@ -1308,9 +1308,9 @@
     "height": 2560,
     "objectPosition": "center center",
     "positionX": 50,
-    "positionY": 50,
+    "positionY": 70,
     "scalePercent": 100,
-    "revealFrom": "bottom",
+    "revealFrom": "right",
     "uploadedAt": "2026-05-29T16:00:22.175Z"
   },
   {
