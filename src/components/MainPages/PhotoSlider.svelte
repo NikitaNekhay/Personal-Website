@@ -12,11 +12,10 @@
 
 	let { photos }: Props = $props();
 
-	// Сколько фото вперёд «разогревать», когда пользователь вовлечён.
-	// Тонкие thumbs тянем дальше (дёшево), тяжёлые оригиналы — ближайшие, но с запасом,
-	// чтобы при активном скролле оригинал успевал прийти до показа секции.
-	const THUMB_LOOKAHEAD = 6;
-	const ORIGINAL_LOOKAHEAD = 3;
+	// Adjusted in onMount based on device type — mobile gets lower values to avoid
+	// bandwidth competition with the hero photo's original.
+	let thumbLookahead = 6;
+	let originalLookahead = 3;
 
 	let rootEl: HTMLDivElement | undefined = $state();
 	let activeIndex = $state(0);
@@ -25,8 +24,30 @@
 	let engaged = $state(false);
 	// slug'и фото, у которых оригинал уже загрузился — для плавного fade-in.
 	let loadedSlugs = $state<Set<string>>(new Set());
+	// slug'и фото, у которых превью (thumb) уже загрузился — скрывает скелетон.
+	let thumbLoadedSlugs = $state<Set<string>>(new Set());
 
 	const sorted = $derived([...photos].sort((a, b) => a.order - b.order));
+
+	// Photo N's original only cross-fades once photo N-1 is also ready,
+	// unless the user has actively scrolled to photo N (i <= activeIndex override).
+	// Prevents photo 2 appearing sharp while photo 1 (the hero) is still blurry.
+	const displayReadySlugs = $derived.by(() => {
+		const ready = new Set<string>();
+		let seqOk = true;
+		for (let i = 0; i < sorted.length; i++) {
+			const photo = sorted[i];
+			const loaded = loadedSlugs.has(photo.slug);
+			const userHere = i <= activeIndex;
+			if (loaded && (seqOk || userHere)) {
+				ready.add(photo.slug);
+				seqOk = true;
+			} else if (!loaded) {
+				seqOk = false;
+			}
+		}
+		return ready;
+	});
 
 	function imgUrl(path: string): string {
 		const photoPath = path.replace(/^\/?photos\//, '');
@@ -57,20 +78,49 @@
 		};
 	}
 
+	function markThumbLoaded(slug: string) {
+		if (thumbLoadedSlugs.has(slug)) return;
+		const next = new Set(thumbLoadedSlugs);
+		next.add(slug);
+		thumbLoadedSlugs = next;
+	}
+
+	// Mirrors fadeInOnLoad but for the thumbnail — only needed to dismiss the skeleton.
+	function thumbFadeInOnLoad(node: HTMLImageElement, slug: string) {
+		const done = () => markThumbLoaded(slug);
+		if (node.complete && node.naturalWidth > 0) {
+			done();
+		} else {
+			node.addEventListener('load', done, { once: true });
+		}
+		return {
+			destroy() {
+				node.removeEventListener('load', done);
+			}
+		};
+	}
+
+	function checkSlowConn(): boolean {
+		type NavConn = Navigator & { connection?: { effectiveType?: string; saveData?: boolean } };
+		const conn = (navigator as NavConn).connection;
+		if (!conn) return false;
+		return conn.saveData === true || conn.effectiveType === '2g' || conn.effectiveType === 'slow-2g';
+	}
+
 	// Предзагрузка окна вперёд относительно текущего активного фото.
 	// Перезапускается при вовлечении и при каждой смене activeIndex.
 	$effect(() => {
 		if (!engaged || sorted.length === 0) return;
 
 		const start = activeIndex + 1;
-		const thumbs = sorted
-			.slice(start, start + THUMB_LOOKAHEAD)
-			.map((p) => imgUrl(p.thumb));
-		const originals = sorted
-			.slice(start, start + ORIGINAL_LOOKAHEAD)
-			.map((p) => imgUrl(p.original));
+		const thumbs = sorted.slice(start, start + thumbLookahead).map((p) => imgUrl(p.thumb));
+		// On confirmed slow connections (Network Information API, Chrome/Android only)
+		// skip original prefetch — let the first photo finish downloading first.
+		const originals = checkSlowConn()
+			? []
+			: sorted.slice(start, start + originalLookahead).map((p) => imgUrl(p.original));
 
-		// thumbs первыми (лёгкие, дают мгновенное превью), затем ближайшие оригиналы
+		// thumbs first (tiny, instant placeholder), then nearest originals
 		prefetchImages([...thumbs, ...originals]);
 	});
 
@@ -137,6 +187,19 @@
 
 		const sections = sectionNodes();
 		visibleSlugs = new Set([sorted[0].slug]);
+
+		// Reduce prefetch aggressiveness on touch devices to avoid bandwidth competition
+		// with the hero photo's original loading.
+		const isTouchDevice = window.matchMedia('(hover: none)').matches;
+		if (isTouchDevice) {
+			thumbLookahead = 4;
+			originalLookahead = 1;
+		}
+
+		// Warm the first few thumbs immediately — they're tiny and don't compete
+		// with the hero's original. Ensures thumb appears instantly when user scrolls.
+		const earlyThumbs = sorted.slice(1, isTouchDevice ? 3 : 4).map((p) => imgUrl(p.thumb));
+		if (earlyThumbs.length > 0) prefetchImages(earlyThumbs, 3);
 
 		const observer = new IntersectionObserver(
 			(entries) => {
@@ -205,7 +268,8 @@
 
 <svelte:head>
 	{#if sorted.length > 0}
-		<link rel="preload" as="image" href={imgUrl(sorted[0].original)} />
+		<link rel="preload" as="image" href={imgUrl(sorted[0].thumb)} />
+		<link rel="preload" as="image" href={imgUrl(sorted[0].original)} fetchpriority="high" />
 	{/if}
 </svelte:head>
 
@@ -222,7 +286,7 @@
 		{#each sorted as photo, index (photo.id)}
 			<section
 				class="photo-section from-{photo.revealFrom}"
-				class:is-visible={visibleSlugs.has(photo.slug)}
+				class:is-visible={index === 0 || visibleSlugs.has(photo.slug)}
 				data-photo-section
 				data-index={index}
 				data-slug={photo.slug}
@@ -234,6 +298,13 @@
 					aria-label="Show next photo"
 					onclick={goNext}
 				>
+					<!-- Shimmer skeleton: shown while neither thumb nor original has loaded.
+					     Prevents the section from looking empty (only filename) on slow connections. -->
+					<span
+						class="photo-skeleton"
+						class:is-loaded={thumbLoadedSlugs.has(photo.slug) || displayReadySlugs.has(photo.slug)}
+						aria-hidden="true"
+					></span>
 					<!-- Лёгкое размытое превью (thumb) под оригиналом: показывается мгновенно,
 					     пока грузится полный кадр. Декоративное → aria-hidden. -->
 					<img
@@ -241,16 +312,18 @@
 						alt=""
 						aria-hidden="true"
 						class="photo-thumb"
-						class:is-hidden={loadedSlugs.has(photo.slug)}
-						loading="lazy"
+						class:is-hidden={displayReadySlugs.has(photo.slug)}
+						loading={index === 0 ? 'eager' : 'lazy'}
+						fetchpriority={index === 0 ? 'high' : 'auto'}
 						decoding="async"
 						draggable="false"
+						use:thumbFadeInOnLoad={photo.slug}
 					/>
 					<img
 						src={imgUrl(photo.original)}
 						alt={photo.title}
 						class="photo-image"
-						class:is-loaded={loadedSlugs.has(photo.slug)}
+						class:is-loaded={displayReadySlugs.has(photo.slug)}
 						loading={index === 0 ? 'eager' : 'lazy'}
 						decoding="async"
 						fetchpriority={index === 0 ? 'high' : 'auto'}
@@ -413,6 +486,34 @@
 		}
 	}
 
+	/* Shimmer placeholder shown while the first image (thumb or original) hasn't loaded.
+	   Occupies the same slot as the images using the same CSS variables. */
+	.photo-skeleton {
+		position: absolute;
+		left: var(--photo-x);
+		top: var(--photo-y);
+		width: var(--photo-size);
+		height: var(--photo-size);
+		transform: translate(var(--photo-offset-x), var(--photo-offset-y));
+		z-index: 0;
+		border-radius: 2px;
+		background: linear-gradient(90deg, #eeeeee 25%, #e4e4e4 50%, #eeeeee 75%);
+		background-size: 200% 100%;
+		animation: photo-slider-shimmer 1.8s ease-in-out infinite;
+		transition: opacity 300ms ease;
+	}
+
+	.photo-skeleton.is-loaded {
+		opacity: 0;
+		pointer-events: none;
+		animation: none;
+	}
+
+	@keyframes photo-slider-shimmer {
+		0% { background-position: 200% 0; }
+		100% { background-position: -200% 0; }
+	}
+
 	.file-name {
 		margin: 0;
 		padding: 0 1rem;
@@ -501,6 +602,11 @@
 			opacity: 1;
 			transform: none;
 			transition: none;
+		}
+
+		.photo-skeleton {
+			animation: none;
+			background: #eeeeee;
 		}
 	}
 </style>
