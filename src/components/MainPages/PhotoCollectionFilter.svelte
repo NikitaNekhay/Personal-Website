@@ -199,6 +199,9 @@
 		/* Спрятана за правым краем; играющий въезд с лёгким перелётом. */
 		transform: translateX(118%);
 		transition: transform 560ms cubic-bezier(0.34, 1.45, 0.5, 1);
+		/* Pre-allocate compositor layer for the entrance slide animation. */
+		will-change: transform;
+		contain: layout style;
 	}
 
 	.bookmark-wrap.is-in {
@@ -231,12 +234,12 @@
 			drop-shadow(-2px 2px 2px rgba(0, 0, 0, 0.18));
 		clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%, 1.15rem 50%);
 		transform-origin: right center;
+		/* Only animate width and padding — both cheap layout props on a fixed element.
+		   height/filter/transform removed: height:auto can't tween, filter repaints
+		   the clip-path shape every frame (very expensive), transform-origin flip glitches. */
 		transition:
-			width 400ms cubic-bezier(0.16, 1, 0.3, 1),
-			height 400ms cubic-bezier(0.16, 1, 0.3, 1),
-			padding 400ms cubic-bezier(0.16, 1, 0.3, 1),
-			filter 300ms ease,
-			transform 320ms ease;
+			width 380ms cubic-bezier(0.16, 1, 0.3, 1),
+			padding 380ms cubic-bezier(0.16, 1, 0.3, 1);
 	}
 
 	/* Развевание «на ветру»: пивот у правого (закреплённого) края, свободный
@@ -289,21 +292,17 @@
 		opacity: 1;
 	}
 
-	/* Раскрытая панель: резко, но плавно вырастает влево; острый конец слева
-	   сохраняется (та же clip-path). В раскрытом виде — лёгкое покачивание. */
+	/* Раскрытая панель: плавно вырастает влево; острый конец слева сохраняется. */
 	.bookmark.open {
 		width: 75vw;
-		height: auto;
 		min-height: 3.1rem;
 		padding: 0.95rem 1.2rem 0.95rem 2.2rem;
 		cursor: default;
 		filter:
 			drop-shadow(-10px 12px 18px rgba(120, 75, 5, 0.3))
 			drop-shadow(-3px 3px 3px rgba(0, 0, 0, 0.2));
-		/* Не раскачка, а спокойное «дыхание»: лента словно только что развернулась
-		   и мягко всплывает-оседает с едва заметным микромасштабом. */
-		transform-origin: center center;
-		animation: panelBreathe 5s ease-in-out infinite;
+		/* No panelBreathe: a moving target is bad UX and interferes with clicks. */
+		transform-origin: right center;
 	}
 
 	.collection-nav {
@@ -313,6 +312,8 @@
 		align-items: center;
 		gap: 0.45rem 0.6rem;
 		width: 100%;
+		/* Fade + slide in after the width expansion is mostly complete. */
+		animation: navFadeIn 240ms ease 260ms both;
 	}
 
 	.collection-pill {
@@ -366,14 +367,15 @@
 		}
 	}
 
-	/* «Дыхание» раскрытой панели: мягкое всплытие-оседание + микромасштаб. */
-	@keyframes panelBreathe {
-		0%,
-		100% {
-			transform: translateY(0) scale(1);
+	/* Nav content fades in from the right once the panel has expanded. */
+	@keyframes navFadeIn {
+		from {
+			opacity: 0;
+			transform: translateX(10px);
 		}
-		50% {
-			transform: translateY(-8px) scale(1.008);
+		to {
+			opacity: 1;
+			transform: translateX(0);
 		}
 	}
 
@@ -395,8 +397,11 @@
 			transition: transform 240ms ease;
 		}
 
-		.bookmark.swaying,
-		.bookmark.open {
+		.bookmark.swaying {
+			animation: none;
+		}
+
+		.collection-nav {
 			animation: none;
 		}
 	}
