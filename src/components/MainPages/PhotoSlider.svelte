@@ -103,7 +103,14 @@
 	}
 
 	function backToTop() {
-		scrollToIndex(0);
+		// On touch devices, smooth-scrolling back through many sections fires
+		// IntersectionObserver callbacks + CSS transitions for every section passed,
+		// compounding iOS jank. An instant jump sidesteps all of that.
+		if (browser && window.matchMedia('(hover: none)').matches) {
+			window.scrollTo({ top: 0, behavior: 'instant' });
+		} else {
+			scrollToIndex(0);
+		}
 	}
 
 	function handleKeydown(e: KeyboardEvent) {
@@ -134,12 +141,16 @@
 		const observer = new IntersectionObserver(
 			(entries) => {
 				let mostVisible: IntersectionObserverEntry | undefined;
-				const nextVisible = new Set(visibleSlugs);
+				// Only allocate a new Set when we actually have new slugs to add.
+				// visibleSlugs is append-only (once visible = keep loading), so we skip
+				// the copy entirely when nothing changes — avoids Svelte re-renders on
+				// every scroll event, which is the main source of mobile jank.
+				let hasNewSlug = false;
 
 				for (const entry of entries) {
 					const slug = (entry.target as HTMLElement).dataset.slug;
-					if (entry.isIntersecting && slug) {
-						nextVisible.add(slug);
+					if (entry.isIntersecting && slug && !visibleSlugs.has(slug)) {
+						hasNewSlug = true;
 					}
 					if (
 						entry.isIntersecting &&
@@ -149,14 +160,24 @@
 					}
 				}
 
-				visibleSlugs = nextVisible;
+				if (hasNewSlug) {
+					const nextVisible = new Set(visibleSlugs);
+					for (const entry of entries) {
+						const slug = (entry.target as HTMLElement).dataset.slug;
+						if (entry.isIntersecting && slug) nextVisible.add(slug);
+					}
+					visibleSlugs = nextVisible;
+				}
 
 				if (mostVisible) {
 					const nextIndex = Number((mostVisible.target as HTMLElement).dataset.index);
-					if (!Number.isNaN(nextIndex)) activeIndex = nextIndex;
+					if (!Number.isNaN(nextIndex) && nextIndex !== activeIndex) activeIndex = nextIndex;
 				}
 			},
-			{ threshold: [0.35, 0.55, 0.75] }
+			// Single threshold: one callback per section per scroll direction.
+			// Three thresholds fired 3× per section — during scroll-back through 10+
+			// sections that was 30+ callbacks/s triggering Svelte reactivity on iOS.
+			{ threshold: 0.5 }
 		);
 
 		sections.forEach((section) => observer.observe(section));
@@ -254,24 +275,32 @@
 <style>
 	.gallery-root {
 		width: 100%;
-		min-height: calc(100dvh - var(--site-header-height));
+		/* svh = small viewport height: stable on iOS regardless of address-bar visibility.
+		   dvh changes on every scroll frame when the iOS toolbar shows/hides, causing
+		   continuous layout reflow on all visible sections simultaneously. */
+		min-height: calc(100vh - var(--site-header-height));
+		min-height: calc(100svh - var(--site-header-height));
 		background: #ffffff;
 		color: #111111;
 		user-select: none;
+		/* Tell iOS to handle vertical panning natively without waiting for JS. */
+		touch-action: pan-y;
 	}
 
 	.empty {
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		min-height: calc(100dvh - var(--site-header-height));
+		min-height: calc(100vh - var(--site-header-height));
+		min-height: calc(100svh - var(--site-header-height));
 		background: #ffffff;
 		color: #111111;
 		font-size: 1rem;
 	}
 
 	.photo-section {
-		min-height: calc(100dvh - var(--site-header-height));
+		min-height: calc(100vh - var(--site-header-height));
+		min-height: calc(100svh - var(--site-header-height));
 		display: grid;
 		grid-template-rows: minmax(0, 1fr) auto;
 		gap: 0.7rem;
@@ -283,7 +312,8 @@
 			opacity 260ms ease,
 			transform 360ms cubic-bezier(0.22, 1, 0.36, 1);
 		content-visibility: auto;
-		contain-intrinsic-size: calc(100dvh - var(--site-header-height)) 100vw;
+		/* Match svh so contain-intrinsic-size stays stable when iOS toolbar toggles. */
+		contain-intrinsic-size: calc(100svh - var(--site-header-height)) 100vw;
 	}
 
 	.photo-section.from-left {
@@ -311,7 +341,8 @@
 		position: relative;
 		width: 100%;
 		height: 100%;
-		min-height: calc(100dvh - var(--site-header-height) - 3rem);
+		min-height: calc(100vh - var(--site-header-height) - 3rem);
+		min-height: calc(100svh - var(--site-header-height) - 3rem);
 		border: 0;
 		padding: 0;
 		background: transparent;
@@ -358,7 +389,7 @@
 	     рамкой о белый фон (без эффекта виньетки). */
 	.photo-thumb {
 		z-index: 1;
-		filter: blur(8px);
+		filter: blur(5px);
 		transform: translate(var(--photo-offset-x), var(--photo-offset-y)) scale(1.06);
 		-webkit-mask-image: radial-gradient(ellipse 98% 98% at 50% 50%, #000 90%, transparent 100%);
 		mask-image: radial-gradient(ellipse 98% 98% at 50% 50%, #000 90%, transparent 100%);
@@ -432,6 +463,12 @@
 			transition:
 				opacity 220ms ease,
 				transform 300ms ease;
+			/* content-visibility: auto can cause scroll-position jumps on iOS when
+			   previously-skipped sections re-render during scroll-back. The browser's
+			   intrinsic-size estimate may not match the real painted height, causing
+			   the scroll anchor to shift. On mobile the sections are full-screen anyway
+			   so the paint-skip benefit is minimal. */
+			content-visibility: visible;
 		}
 
 		.photo-section.is-visible {
@@ -439,7 +476,8 @@
 		}
 
 		.image-trigger {
-			min-height: calc(100dvh - var(--site-header-height) - 2.75rem);
+			min-height: calc(100vh - var(--site-header-height) - 2.75rem);
+			min-height: calc(100svh - var(--site-header-height) - 2.75rem);
 		}
 
 		.file-name {
