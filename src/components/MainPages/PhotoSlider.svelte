@@ -133,6 +133,26 @@
 		return `${Math.max(1, Math.min(100, Math.round(value)))}%`;
 	}
 
+	// Стартовое смещение для scroll-reveal (только ПК/планшет; на телефонах CSS
+	// принудительно делает «снизу»). Возвращаем пару "x, y" для translate3d().
+	// Раньше направление задавалось динамическим классом from-{revealFrom}, но
+	// Svelte вырезал такие селекторы как «неиспользуемые» (имя класса собиралось
+	// в рантайме) — поэтому reveal-сторона не применялась. Через CSS-переменную
+	// проблема исчезает: никаких динамических классов.
+	function revealFromVar(dir: PhotoManifestEntry['revealFrom']): string {
+		switch (dir) {
+			case 'left':
+				return '-9vw, 0';
+			case 'right':
+				return '9vw, 0';
+			case 'top':
+				return '0, -7vh';
+			case 'bottom':
+			default:
+				return '0, 7vh';
+		}
+	}
+
 	function sectionNodes(): HTMLElement[] {
 		if (!rootEl) return [];
 		return Array.from(rootEl.querySelectorAll<HTMLElement>('[data-photo-section]'));
@@ -285,12 +305,12 @@
 	>
 		{#each sorted as photo, index (photo.id)}
 			<section
-				class="photo-section from-{photo.revealFrom}"
+				class="photo-section"
 				class:is-visible={index === 0 || visibleSlugs.has(photo.slug)}
 				data-photo-section
 				data-index={index}
 				data-slug={photo.slug}
-				style={`--photo-x: ${photo.positionX}%; --photo-y: ${photo.positionY}%; --photo-offset-x: -${photo.positionX}%; --photo-offset-y: -${photo.positionY}%; --photo-size: ${photoSize(photo)};`}
+				style={`--photo-x: ${photo.positionX}%; --photo-y: ${photo.positionY}%; --photo-offset-x: -${photo.positionX}%; --photo-offset-y: -${photo.positionY}%; --photo-size: ${photoSize(photo)}; --reveal-from: ${revealFromVar(photo.revealFrom)};`}
 			>
 				<button
 					type="button"
@@ -380,29 +400,15 @@
 		padding: 0 0 1rem;
 		scroll-snap-align: start;
 		opacity: 0;
-		transform: translate3d(0, 40px, 0);
+		/* Сторона reveal приходит инлайном через --reveal-from ("x, y").
+		   Fallback "0, 40px" — на случай отсутствия переменной. */
+		transform: translate3d(var(--reveal-from, 0, 40px), 0);
 		transition:
 			opacity 260ms ease,
 			transform 360ms cubic-bezier(0.22, 1, 0.36, 1);
 		content-visibility: auto;
 		/* Match svh so contain-intrinsic-size stays stable when iOS toolbar toggles. */
 		contain-intrinsic-size: calc(100svh - var(--site-header-height)) 100vw;
-	}
-
-	.photo-section.from-left {
-		transform: translate3d(-9vw, 0, 0);
-	}
-
-	.photo-section.from-right {
-		transform: translate3d(9vw, 0, 0);
-	}
-
-	.photo-section.from-top {
-		transform: translate3d(0, -7vh, 0);
-	}
-
-	.photo-section.from-bottom {
-		transform: translate3d(0, 7vh, 0);
 	}
 
 	.photo-section.is-visible {
@@ -439,6 +445,11 @@
 		height: var(--photo-size);
 		display: block;
 		object-fit: contain;
+		/* object-position двигает сам кадр внутри «контейн»-бокса (letterbox).
+		   Это и есть рабочая композиция: при scale=100 бокс совпадает с секцией,
+		   и только object-position способен сместить картинку влево/вправо/вверх/вниз.
+		   translate ниже доводит композицию для уменьшенных кадров (scale<100). */
+		object-position: var(--photo-x) var(--photo-y);
 		transform: translate(var(--photo-offset-x), var(--photo-offset-y));
 		pointer-events: none;
 	}
@@ -555,11 +566,8 @@
 	}
 
 	@media (max-width: 767px) {
-		.photo-section,
-		.photo-section.from-left,
-		.photo-section.from-right,
-		.photo-section.from-top,
-		.photo-section.from-bottom {
+		.photo-section {
+			/* Телефоны: reveal всегда «снизу» (игнорируем --reveal-from). */
 			transform: translate3d(0, 30px, 0);
 			transition:
 				opacity 220ms ease,
@@ -574,6 +582,22 @@
 
 		.photo-section.is-visible {
 			transform: translate3d(0, 0, 0);
+		}
+
+		/* На телефонах композиция (Horizontal/Vertical) НЕ применяется — кадр всегда
+		   по центру (как и reveal, который на телефонах всегда «снизу»). Масштаб
+		   (--photo-size) сохраняем. */
+		.photo-image,
+		.photo-thumb,
+		.photo-skeleton {
+			left: 50%;
+			top: 50%;
+			object-position: center center;
+			transform: translate(-50%, -50%);
+		}
+
+		.photo-thumb {
+			transform: translate(-50%, -50%) scale(1.06);
 		}
 
 		.image-trigger {
@@ -594,11 +618,7 @@
 	}
 
 	@media (prefers-reduced-motion: reduce) {
-		.photo-section,
-		.photo-section.from-left,
-		.photo-section.from-right,
-		.photo-section.from-top,
-		.photo-section.from-bottom {
+		.photo-section {
 			opacity: 1;
 			transform: none;
 			transition: none;

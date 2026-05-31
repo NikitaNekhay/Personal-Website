@@ -2,6 +2,7 @@
     import { t } from "svelte-i18n";
 
     import { base } from "$app/paths";
+    import { smoothDetails } from "../../services/smoothDetails";
 
     let innerWidth = 0;
     let innerHeight = 0;
@@ -49,7 +50,7 @@
                     <div
                         class="about-card card-left py-5 shadow-xl border-b-2 border-navy-2 bg-white-1"
                     >
-                        <details class="group" open>
+                        <details class="group" open use:smoothDetails>
                             <summary
                                 class="flex justify-between mx-2 items-center font-medium cursor-pointer list-none"
                             >
@@ -73,7 +74,7 @@
                             </summary>
 
                             <ul
-                                class="text-gray-700 font-anonymous mx-4 mt-3 group-open:animate-fadeIn"
+                                class="text-gray-700 font-anonymous mx-4 mt-3"
                             >
                                 <li>
                                     <p>{$t("my ideas")}</p>
@@ -99,7 +100,7 @@
                     <div
                         class="about-card card-right py-5 shadow-xl bg-white-1 border-navy-2 border-x-2"
                     >
-                        <details class="group" open>
+                        <details class="group" open use:smoothDetails>
                             <summary
                                 class="flex mx-2 justify-between items-center font-medium cursor-pointer list-none"
                             >
@@ -123,7 +124,7 @@
                             </summary>
 
                             <ul
-                                class="text-gray-700 font-anonymous mx-4 mt-3 group-open:animate-fadeIn"
+                                class="text-gray-700 font-anonymous mx-4 mt-3"
                             >
                                 <li>
                                     <p>
@@ -157,7 +158,7 @@
                     <div
                         class="about-card card-left py-5 shadow-xl bg-white-1 border-navy-2 border-x-2"
                     >
-                        <details class="group" open>
+                        <details class="group" open use:smoothDetails>
                             <summary
                                 class="flex justify-between mx-2 items-center font-medium cursor-pointer list-none"
                             >
@@ -181,7 +182,7 @@
                             </summary>
 
                             <ul
-                                class="text-gray-700 font-anonymous mx-4 mt-3 group-open:animate-fadeIn"
+                                class="text-gray-700 font-anonymous mx-4 mt-3"
                             >
                                 <li>
                                     <p>
@@ -204,7 +205,7 @@
                     <div
                         class="about-card card-right py-5 shadow-xl bg-white-1 border-navy-2 border-t-2"
                     >
-                        <details class="group" open>
+                        <details class="group" open use:smoothDetails>
                             <summary
                                 class="flex justify-between mx-2 items-center font-medium cursor-pointer list-none"
                             >
@@ -228,7 +229,7 @@
                             </summary>
 
                             <ul
-                                class="text-gray-700 font-anonymous mx-4 mt-3 group-open:animate-fadeIn"
+                                class="text-gray-700 font-anonymous mx-4 mt-3"
                             >
                                 <li>
                                     <p>
@@ -266,7 +267,7 @@
             <div>
                 <!-- where to read -->
                 <div class="py-5 shadow-xl bg-white-1 border-navy-2 border-b-2">
-                    <details class="group" open>
+                    <details class="group" open use:smoothDetails>
                         <summary
                             class="flex justify-between mx-2 items-center font-medium cursor-pointer list-none"
                         >
@@ -290,7 +291,7 @@
                         </summary>
 
                         <ul
-                            class="text-gray-700 font-anonymous mx-4 mt-3 group-open:animate-fadeIn"
+                            class="text-gray-700 font-anonymous mx-4 mt-3"
                         >
                             <li>
                                 <p>
@@ -325,7 +326,7 @@
             <div>
                 <!-- where to see my photos -->
                 <div class="py-5 shadow-xl bg-white-1 border-navy-2 border-b-2">
-                    <details class="group" open>
+                    <details class="group" open use:smoothDetails>
                         <summary
                             class="flex justify-between mx-2 items-center font-medium cursor-pointer list-none"
                         >
@@ -349,7 +350,7 @@
                         </summary>
 
                         <ul
-                            class="text-gray-700 font-anonymous mx-4 mt-3 group-open:animate-fadeIn"
+                            class="text-gray-700 font-anonymous mx-4 mt-3"
                         >
                             <li>
                                 <p>

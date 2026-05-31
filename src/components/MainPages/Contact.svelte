@@ -1,12 +1,13 @@
 <script>
     import { t } from "svelte-i18n";
+    import { smoothDetails } from "../../services/smoothDetails";
 </script>
 
 
 <div class="flex flex-col h-auto ml-[2%] mr-[5%] ">
     <div class="mt-[20%] sm:mt-[30%] w-[75%] sm:w-[100%] ">
         <div class="py-5 shadow-xl bg-white-1 border-navy-2 border-b-2 ">
-            <details class="group" open>
+            <details class="group" open use:smoothDetails>
                 <summary
                     class="flex justify-between mx-2 items-center font-medium cursor-pointer list-none"
                 >
@@ -29,7 +30,7 @@
                     </span>
                 </summary>
         
-                <ul class="text-gray-700 font-anonymous mx-4 mt-3 group-open:animate-fadeIn">
+                <ul class="text-gray-700 font-anonymous mx-4 mt-3">
                     <li >
                         {$t("email")}:
                         <a

@@ -117,17 +117,19 @@
                 on:change={handleImageUpload}
                 title=""
             />
+            <!-- Гайд в правом верхнем углу и НАД инпутом (z-[60] > z-50),
+                 иначе невидимый file-input перехватывает наведение и клик. -->
+            <span class="absolute top-1 right-1 z-[60]">
+                <InfoGuide text="Product images are uploaded to Firebase Storage immediately. The first image becomes the shop card cover; drag thumbnails below to change order." />
+            </span>
             <div
                 class="flex flex-col items-center justify-center py-10 text-center"
             >
                 <img src="{base}/media/cloud-upload.svg" alt="upload icon" />
                 <div>
-                    <p class="mb-2 text-sm text-gray-00 inline-flex items-center justify-center gap-2">
-                        <span>
-                            <span class="font-semibold">Click to upload</span> or drag
-                            and drop
-                        </span>
-                        <InfoGuide text="Product images are uploaded to Firebase Storage immediately. The first image becomes the shop card cover; drag thumbnails below to change order." />
+                    <p class="mb-2 text-sm text-gray-00">
+                        <span class="font-semibold">Click to upload</span> or drag
+                        and drop
                     </p>
                     <p class="text-xs text-gray-00">
                         SVG, PNG, JPG or GIF (MAX. 800x400px)

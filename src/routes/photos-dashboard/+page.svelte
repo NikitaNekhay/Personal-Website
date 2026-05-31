@@ -1537,6 +1537,9 @@
 		width: var(--preview-size);
 		height: var(--preview-size);
 		object-fit: contain;
+		/* Совпадает с домашним слайдером: object-position двигает кадр внутри
+		   contain-бокса, поэтому композиция видна даже при scale=100. */
+		object-position: var(--preview-x) var(--preview-y);
 		transform: translate(var(--preview-offset-x), var(--preview-offset-y));
 	}
 
@@ -1685,6 +1688,8 @@
 		width: var(--preview-size);
 		height: var(--preview-size);
 		object-fit: contain;
+		/* Совпадает с домашним слайдером (см. .stage-thumb). */
+		object-position: var(--preview-x) var(--preview-y);
 		transform: translate(var(--preview-offset-x), var(--preview-offset-y));
 	}
 
