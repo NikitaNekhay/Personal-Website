@@ -624,11 +624,15 @@
 			text-align: right;
 		}
 
-		/* Доп.ссылки прижаты к правому краю, по вертикали — по центру панели */
+		/* Доп.ссылки прижаты к правому краю, по вертикали — по центру панели.
+		   width:auto критично: базовое правило задаёт width:100%, и при
+		   position:absolute такой бокс растягивается на всю панель поверх
+		   центральных ссылок .nav-main, перехватывая по ним клики. */
 		.nav-account {
 			position: absolute;
 			right: 2.5rem;
 			top: 50%;
+			width: auto;
 			transform: translateY(-50%);
 			justify-content: center;
 			align-items: flex-end;

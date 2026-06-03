@@ -86,6 +86,13 @@
 	let displayOrder = $state<PhotoManifestEntry[]>([]);
 	let selectedExistingSlugs = $state<Set<string>>(new Set());
 	let activeSection = $state<ManagementSection>('all');
+	// ── Smart filter for the "Manage Photos" list ──────────────────────────────
+	// Collection group is handled by the section tabs; these refine WITHIN the
+	// active section by reveal side / layer, plus an optional sort.
+	type SortMode = 'order' | 'layer-asc' | 'layer-desc' | 'reveal';
+	let filterRevealFrom = $state<'all' | string>('all');
+	let filterLayer = $state<'all' | number>('all');
+	let sortMode = $state<SortMode>('order');
 	let photoDrafts = $state<Record<string, PhotoEditDraft>>({});
 	let savingAction = $state<string | null>(null);
 	let popupChanged = $state(false);
@@ -299,13 +306,59 @@
 	}
 
 	const sectionPhotos = $derived.by(() => getPhotosForSection(activeSection));
+
+	// Distinct layer values present in the active section (for the Layer filter).
+	const sectionLayers = $derived.by(() => {
+		const set = new Set<number>();
+		for (const photo of sectionPhotos) set.add(photo.layer);
+		return [...set].sort((a, b) => a - b);
+	});
+
+	const filterActive = $derived(
+		filterRevealFrom !== 'all' || filterLayer !== 'all' || sortMode !== 'order'
+	);
+
+	// The list actually rendered: section photos narrowed by reveal/layer and
+	// optionally re-sorted. 'order' keeps the manual section order untouched.
+	const visiblePhotos = $derived.by(() => {
+		let list = sectionPhotos.filter(
+			(photo) =>
+				(filterRevealFrom === 'all' || photo.revealFrom === filterRevealFrom) &&
+				(filterLayer === 'all' || photo.layer === filterLayer)
+		);
+		if (sortMode === 'layer-asc') {
+			list = [...list].sort((a, b) => a.layer - b.layer || a.order - b.order);
+		} else if (sortMode === 'layer-desc') {
+			list = [...list].sort((a, b) => b.layer - a.layer || a.order - b.order);
+		} else if (sortMode === 'reveal') {
+			list = [...list].sort(
+				(a, b) => a.revealFrom.localeCompare(b.revealFrom) || a.order - b.order
+			);
+		}
+		return list;
+	});
+
+	// Select-all and the bulk panel act on what's visible (post-filter).
 	const allSectionSelected = $derived(
-		sectionPhotos.length > 0 &&
-			sectionPhotos.every((photo) => selectedExistingSlugs.has(photo.slug))
+		visiblePhotos.length > 0 &&
+			visiblePhotos.every((photo) => selectedExistingSlugs.has(photo.slug))
 	);
 	const activeSectionTitle = $derived(
 		collectionLabel(activeSection)
 	);
+
+	function resetFilters() {
+		filterRevealFrom = 'all';
+		filterLayer = 'all';
+		sortMode = 'order';
+	}
+
+	// Switching collection tab clears refinements that may not apply to the new
+	// section (e.g. a layer value that doesn't exist there).
+	function selectSection(section: ManagementSection) {
+		activeSection = section;
+		resetFilters();
+	}
 
 	function toggleSelectAllStaged() {
 		const next = !allStagedSelected;
@@ -315,9 +368,9 @@
 	function toggleSelectSection() {
 		const next = new Set(selectedExistingSlugs);
 		if (allSectionSelected) {
-			for (const photo of sectionPhotos) next.delete(photo.slug);
+			for (const photo of visiblePhotos) next.delete(photo.slug);
 		} else {
-			for (const photo of sectionPhotos) next.add(photo.slug);
+			for (const photo of visiblePhotos) next.add(photo.slug);
 		}
 		selectedExistingSlugs = next;
 	}
@@ -1156,14 +1209,14 @@
 				<button
 					type="button"
 					class:active={activeSection === 'all'}
-					onclick={() => (activeSection = 'all')}
+					onclick={() => selectSection('all')}
 				>
 					All ({displayOrder.length})
 				</button>
 				<button
 					type="button"
 					class:active={activeSection === 'selection'}
-					onclick={() => (activeSection = 'selection')}
+					onclick={() => selectSection('selection')}
 				>
 					Selection ({displayOrder.filter((photo) => photo.collectionKey === PHOTO_SELECTION_COLLECTION).length})
 				</button>
@@ -1171,11 +1224,56 @@
 					<button
 						type="button"
 						class:active={activeSection === year}
-						onclick={() => (activeSection = year)}
+						onclick={() => selectSection(year)}
 					>
 						{year} ({displayOrder.filter((photo) => photo.collectionKey === year).length})
 					</button>
 				{/each}
+			</div>
+
+			<div class="filter-bar" role="group" aria-label="Filter photos">
+				<span class="filter-title">
+					Filter
+					<InfoGuide text="Refines the list within the selected collection tab. Filter by reveal side or layer, and sort by layer or reveal side. Sorting/filters are view-only and do not change the saved order." />
+				</span>
+				<label class="filter-field">
+					<span class="label-row">Reveal side</span>
+					<select bind:value={filterRevealFrom}>
+						<option value="all">All</option>
+						{#each PHOTO_REVEAL_DIRECTIONS as direction}
+							<option value={direction}>{direction}</option>
+						{/each}
+					</select>
+				</label>
+				<label class="filter-field">
+					<span class="label-row">Layer</span>
+					<select
+						value={filterLayer}
+						onchange={(e) =>
+							(filterLayer =
+								e.currentTarget.value === 'all' ? 'all' : Number(e.currentTarget.value))}
+					>
+						<option value="all">All</option>
+						{#each sectionLayers as layer}
+							<option value={layer}>{layer}</option>
+						{/each}
+					</select>
+				</label>
+				<label class="filter-field">
+					<span class="label-row">Sort by</span>
+					<select bind:value={sortMode}>
+						<option value="order">Manual order</option>
+						<option value="layer-asc">Layer ↑</option>
+						<option value="layer-desc">Layer ↓</option>
+						<option value="reveal">Reveal side</option>
+					</select>
+				</label>
+				{#if filterActive}
+					<span class="filter-count">{visiblePhotos.length} / {sectionPhotos.length} shown</span>
+					<button type="button" class="fancy-btn small neutral" onclick={resetFilters}>
+						Clear filters
+					</button>
+				{/if}
 			</div>
 
 			<div class="existing-bulk">
@@ -1183,10 +1281,10 @@
 					<input
 						type="checkbox"
 						checked={allSectionSelected}
-						disabled={sectionPhotos.length === 0}
+						disabled={visiblePhotos.length === 0}
 						onchange={toggleSelectSection}
 					/>
-					Select all in {activeSectionTitle} ({sectionPhotos.length})
+					Select all in {activeSectionTitle} ({visiblePhotos.length})
 				</label>
 				<button
 					type="button"
@@ -1307,9 +1405,12 @@
 			<p>No photos yet. Upload your first photos above.</p>
 		{:else if sectionPhotos.length === 0}
 			<p>No photos in {activeSectionTitle}.</p>
+		{:else if visiblePhotos.length === 0}
+			<p>No photos match the current filter. <button type="button" class="link-btn" onclick={resetFilters}>Clear filters</button></p>
 		{:else}
 			<div class="photo-grid">
-				{#each sectionPhotos as photo, index (photo.id)}
+				{#each visiblePhotos as photo (photo.id)}
+					{@const index = sectionPhotos.findIndex((p) => p.slug === photo.slug)}
 					<div class="photo-card" class:row-selected={selectedExistingSlugs.has(photo.slug)}>
 						<input
 							type="checkbox"
@@ -1324,7 +1425,12 @@
 							<img src={imgUrl(photo.thumb)} alt={photo.title} class="card-thumb" />
 						</div>
 						<div class="card-body">
-							<span class="order-num">{activeSectionTitle} #{index + 1} / global #{photo.order}</span>
+							<div class="card-meta">
+								<span class="order-num">{activeSectionTitle} #{index + 1} / global #{photo.order}</span>
+								<span class="meta-chip">{collectionLabel(photo.collectionKey)}</span>
+								<span class="meta-chip">reveal: {photo.revealFrom}</span>
+								<span class="meta-chip">layer {photo.layer}</span>
+							</div>
 							<label>
 								<span class="label-row">
 									Title
@@ -1480,7 +1586,8 @@
 								<button
 									type="button"
 									class="fancy-btn small neutral"
-									disabled={index === 0}
+									disabled={index === 0 || filterActive}
+									title={filterActive ? 'Clear filters to reorder' : 'Move up'}
 									onclick={() => moveWithinSection(index, -1)}
 									aria-label="Move up"
 								>
@@ -1492,7 +1599,10 @@
 									min="1"
 									max={sectionPhotos.length}
 									value={index + 1}
-									title="Position in {activeSectionTitle}"
+									disabled={filterActive}
+									title={filterActive
+										? 'Clear filters to reorder'
+										: `Position in ${activeSectionTitle}`}
 									aria-label="Position in {activeSectionTitle}"
 									onchange={(e) => {
 										const raw = e.currentTarget.value.trim();
@@ -1506,7 +1616,8 @@
 								<button
 									type="button"
 									class="fancy-btn small neutral"
-									disabled={index === sectionPhotos.length - 1}
+									disabled={index === sectionPhotos.length - 1 || filterActive}
+									title={filterActive ? 'Clear filters to reorder' : 'Move down'}
 									onclick={() => moveWithinSection(index, 1)}
 									aria-label="Move down"
 								>
@@ -1927,6 +2038,83 @@
 		border-color: #f6ae2d;
 		background: #f6ae2d;
 		color: #111;
+	}
+
+	.filter-bar {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: flex-end;
+		gap: 0.75rem;
+		padding: 0.75rem 0.9rem;
+		margin-bottom: 1rem;
+		background: #fff;
+		border: 1px solid #eee;
+		border-radius: 8px;
+	}
+
+	.filter-title {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.35rem;
+		font-size: 0.8rem;
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
+		color: #555;
+		align-self: center;
+	}
+
+	.filter-field {
+		display: flex;
+		flex-direction: column;
+		gap: 0.25rem;
+		font-size: 0.78rem;
+		font-weight: 600;
+		color: #444;
+	}
+
+	.filter-field select {
+		padding: 0.4rem 0.5rem;
+		border: 1px solid #ddd;
+		border-radius: 6px;
+		font-size: 0.85rem;
+		min-width: 8rem;
+	}
+
+	.filter-count {
+		align-self: center;
+		font-size: 0.8rem;
+		font-weight: 600;
+		color: #777;
+	}
+
+	.link-btn {
+		background: none;
+		border: none;
+		padding: 0;
+		color: #f6ae2d;
+		font: inherit;
+		font-weight: 600;
+		text-decoration: underline;
+		cursor: pointer;
+	}
+
+	.card-meta {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 0.4rem;
+	}
+
+	.meta-chip {
+		display: inline-block;
+		padding: 0.1rem 0.45rem;
+		border-radius: 999px;
+		background: #efeaf7;
+		color: #241e4e;
+		font-size: 0.72rem;
+		font-weight: 600;
+		white-space: nowrap;
 	}
 
 	.existing-bulk {
