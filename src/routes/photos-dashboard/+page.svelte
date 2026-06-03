@@ -863,7 +863,7 @@
 		confirmfunction={confirmRemoveStaged}
 	/>
 
-	<h1>Photos Dashboard</h1>
+	<h1 class="font-abril text-4xl text-blue-0 hyphens-auto">Photos Dashboard</h1>
 
 	<section class="global-settings">
 		<div class="parallax-control">
@@ -910,7 +910,7 @@
 	</section>
 
 	<section class="upload-section">
-		<h2>Add New Photos</h2>
+		<h2 class="font-medium">Add New Photos</h2>
 		<div
 			class="drop-zone"
 			class:drag-over={dragOver}

@@ -104,10 +104,16 @@
 
 	async function initMap() {
 		if (!mapEl || map) return;
-		const L = await import('leaflet');
-		// leaflet.markercluster augments the Leaflet instance it finds; some bundler
-		// setups need it on window before the plugin module evaluates.
+		const leaflet = await import('leaflet');
+		// `await import('leaflet')` yields an ES module namespace, which is SEALED —
+		// leaflet.markercluster can't attach `MarkerClusterGroup` to it ("Object is not
+		// extensible"). Use the real Leaflet object (`.default`, exposed by Vite); fall
+		// back to a shallow extensible copy if only the namespace is available.
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		const base: any = (leaflet as any).default ?? leaflet;
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		const L: any = Object.isExtensible(base) ? base : { ...base };
+		// The plugin augments the global `L` when present — point it at our extensible one.
 		(window as any).L = L;
 		await import('leaflet.markercluster');
 
@@ -118,8 +124,7 @@
 				'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 		}).addTo(map);
 
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		const cluster = (L as any).markerClusterGroup({ showCoverageOnHover: false });
+		const cluster = L.markerClusterGroup({ showCoverageOnHover: false });
 		for (const it of items) {
 			const icon = L.divIcon({
 				className: 'memory-pin',
