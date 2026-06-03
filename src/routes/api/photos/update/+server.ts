@@ -8,6 +8,8 @@ import {
 	isPhotoPositionPercent,
 	isPhotoRevealDirection,
 	isPhotoScalePercent,
+	isPhotoSpacing,
+	isPhotoLayer,
 	normalizePhotoCollectionKey,
 	type PhotoCollectionKey,
 	type PhotoRevealDirection
@@ -32,6 +34,8 @@ export const PATCH: RequestHandler = async ({ request }) => {
 				positionY?: number;
 				scalePercent?: number;
 				revealFrom?: PhotoRevealDirection;
+				spacing?: number;
+				layer?: number;
 			} = {};
 
 			if (body.collectionNumber !== undefined) {
@@ -88,6 +92,18 @@ export const PATCH: RequestHandler = async ({ request }) => {
 				}
 				updates.revealFrom = body.revealFrom;
 			}
+			if (body.spacing !== undefined) {
+				if (!isPhotoSpacing(body.spacing)) {
+					return json({ error: 'Invalid spacing' }, { status: 400 });
+				}
+				updates.spacing = Math.round(body.spacing);
+			}
+			if (body.layer !== undefined) {
+				if (!isPhotoLayer(body.layer)) {
+					return json({ error: 'Invalid layer' }, { status: 400 });
+				}
+				updates.layer = Math.round(body.layer);
+			}
 			if (Object.keys(updates).length === 0) {
 				return json({ error: 'No updates provided' }, { status: 400 });
 			}
@@ -111,7 +127,9 @@ export const PATCH: RequestHandler = async ({ request }) => {
 			positionX,
 			positionY,
 			scalePercent,
-			revealFrom
+			revealFrom,
+			spacing,
+			layer
 		} = body;
 		if (!slug || typeof slug !== 'string') {
 			return json({ error: 'Missing slug' }, { status: 400 });
@@ -180,6 +198,18 @@ export const PATCH: RequestHandler = async ({ request }) => {
 				return json({ error: 'Invalid reveal direction' }, { status: 400 });
 			}
 			entry.revealFrom = revealFrom;
+		}
+		if (spacing !== undefined) {
+			if (!isPhotoSpacing(spacing)) {
+				return json({ error: 'Invalid spacing' }, { status: 400 });
+			}
+			entry.spacing = Math.round(spacing);
+		}
+		if (layer !== undefined) {
+			if (!isPhotoLayer(layer)) {
+				return json({ error: 'Invalid layer' }, { status: 400 });
+			}
+			entry.layer = Math.round(layer);
 		}
 
 		const updated = [...entries];

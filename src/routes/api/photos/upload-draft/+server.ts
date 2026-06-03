@@ -13,8 +13,12 @@ import {
 	isPhotoPositionPercent,
 	isPhotoRevealDirection,
 	isPhotoScalePercent,
+	isPhotoSpacing,
+	isPhotoLayer,
 	normalizePhotoCollectionKey,
 	DEFAULT_PHOTO_SCALE,
+	DEFAULT_PHOTO_SPACING,
+	DEFAULT_PHOTO_LAYER,
 	type PhotoManifestEntry
 } from '../../../../shared/types';
 import type { RequestHandler } from './$types';
@@ -49,6 +53,8 @@ export const POST: RequestHandler = async ({ request }) => {
 		const positionYRaw = formData.get('positionY');
 		const scalePercentRaw = formData.get('scalePercent');
 		const revealFromRaw = formData.get('revealFrom');
+		const spacingRaw = formData.get('spacing');
+		const layerRaw = formData.get('layer');
 
 		let collectionNumber = defaultCollectionNumber();
 		if (collectionRaw !== null && collectionRaw !== '') {
@@ -71,6 +77,8 @@ export const POST: RequestHandler = async ({ request }) => {
 		const positionY = Number(positionYRaw ?? 50);
 		const scalePercent = Number(scalePercentRaw ?? DEFAULT_PHOTO_SCALE);
 		const revealFrom = isPhotoRevealDirection(revealFromRaw) ? revealFromRaw : 'bottom';
+		const spacing = Number(spacingRaw ?? DEFAULT_PHOTO_SPACING);
+		const layer = Number(layerRaw ?? DEFAULT_PHOTO_LAYER);
 
 		if (!isPhotoPositionPercent(positionX)) {
 			return json({ error: 'Invalid horizontal position' }, { status: 400 });
@@ -80,6 +88,12 @@ export const POST: RequestHandler = async ({ request }) => {
 		}
 		if (!isPhotoScalePercent(scalePercent)) {
 			return json({ error: 'Invalid scale percent' }, { status: 400 });
+		}
+		if (!isPhotoSpacing(spacing)) {
+			return json({ error: 'Invalid spacing' }, { status: 400 });
+		}
+		if (!isPhotoLayer(layer)) {
+			return json({ error: 'Invalid layer' }, { status: 400 });
 		}
 
 		if (!(file instanceof File)) {
@@ -132,6 +146,8 @@ export const POST: RequestHandler = async ({ request }) => {
 			positionY: Math.round(positionY),
 			scalePercent: Math.round(scalePercent),
 			revealFrom,
+			spacing: Math.round(spacing),
+			layer: Math.round(layer),
 			uploadedAt: new Date().toISOString()
 		};
 

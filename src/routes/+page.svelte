@@ -2,7 +2,7 @@
 	import { onMount } from 'svelte';
 	import { base } from '$app/paths';
 	import { t } from 'svelte-i18n';
-	import PhotoSlider from '../components/MainPages/PhotoSlider.svelte';
+	import EditorialCanvas from '../components/MainPages/EditorialCanvas.svelte';
 	import PhotoCollectionFilter from '../components/MainPages/PhotoCollectionFilter.svelte';
 	import LoadingSpinner from '../components/Shared/LoadingSpinner.svelte';
 	import {
@@ -13,6 +13,7 @@
 
 	let photos = $state<PhotoManifestEntry[]>([]);
 	let selectedCollection = $state<PhotoCollectionKey>(PHOTO_SELECTION_COLLECTION);
+	let parallaxIntensity = $state(50);
 	let isLoading = $state(true);
 	let loadError = $state<string | null>(null);
 
@@ -29,6 +30,18 @@
 			const res = await fetch(`${base}/api/photos/manifest`);
 			if (!res.ok) throw new Error('Failed to load photos');
 			photos = await res.json();
+			// Global parallax intensity is best-effort: failure falls back to default.
+			try {
+				const settingsRes = await fetch(`${base}/api/photos/settings`);
+				if (settingsRes.ok) {
+					const settings = await settingsRes.json();
+					if (typeof settings?.parallaxIntensity === 'number') {
+						parallaxIntensity = settings.parallaxIntensity;
+					}
+				}
+			} catch {
+				/* keep default parallax intensity */
+			}
 		} catch (e) {
 			loadError = e instanceof Error ? e.message : 'Failed to load photos';
 		} finally {
@@ -82,7 +95,7 @@
 			}}
 		/>
 		{#key sliderKey}
-			<PhotoSlider photos={filteredPhotos} />
+			<EditorialCanvas photos={filteredPhotos} {parallaxIntensity} />
 		{/key}
 	{/if}
 </div>

@@ -11,6 +11,25 @@ body {
     @apply font-maven
 }
 
+/* Native scrollbar is replaced site-wide by the custom one (CustomScrollbar.svelte).
+   Hide the browser scrollbar everywhere while keeping full scroll functionality. */
+html {
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* old Edge / IE */
+}
+
+* {
+    scrollbar-width: none;
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+*::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+    background: transparent;
+}
+
 .p-link {
     @apply transition duration-200 delay-100 text-blue-0 underline underline-offset-4 animate-pulse;
 }

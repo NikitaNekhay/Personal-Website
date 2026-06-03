@@ -242,6 +242,10 @@ export interface PhotoManifestEntry {
     scalePercent: number;
     /** Desktop/tablet scroll reveal direction. Mobile always reveals from bottom. */
     revealFrom: PhotoRevealDirection;
+    /** Vertical gap (in vh) before this photo on the editorial canvas. 0–100. */
+    spacing: number;
+    /** Stacking order (z-index) on the editorial canvas when photos overlap. 0–100. */
+    layer: number;
     uploadedAt: string;
 }
 
@@ -249,8 +253,14 @@ export const PHOTO_POSITION_MIN = 0;
 export const PHOTO_POSITION_MAX = 100;
 export const PHOTO_SCALE_MIN = 1;
 export const PHOTO_SCALE_MAX = 100;
+export const PHOTO_SPACING_MIN = 0;
+export const PHOTO_SPACING_MAX = 100;
+export const PHOTO_LAYER_MIN = 0;
+export const PHOTO_LAYER_MAX = 100;
 export const DEFAULT_PHOTO_POSITION = 50;
 export const DEFAULT_PHOTO_SCALE = 100;
+export const DEFAULT_PHOTO_SPACING = 40;
+export const DEFAULT_PHOTO_LAYER = 0;
 export const DEFAULT_PHOTO_COLLECTION = PHOTO_SELECTION_COLLECTION;
 
 export function defaultCollectionNumber(): number {
@@ -305,6 +315,18 @@ export function normalizePhotoEntry(
             PHOTO_SCALE_MAX
         ),
         revealFrom: isPhotoRevealDirection(entry.revealFrom) ? entry.revealFrom : 'bottom',
+        spacing: normalizeRangeNumber(
+            entry.spacing,
+            DEFAULT_PHOTO_SPACING,
+            PHOTO_SPACING_MIN,
+            PHOTO_SPACING_MAX
+        ),
+        layer: normalizeRangeNumber(
+            entry.layer,
+            DEFAULT_PHOTO_LAYER,
+            PHOTO_LAYER_MIN,
+            PHOTO_LAYER_MAX
+        ),
         uploadedAt: entry.uploadedAt ?? new Date().toISOString()
     };
 }
@@ -348,6 +370,14 @@ export function isPhotoPositionPercent(value: unknown): value is number {
 
 export function isPhotoScalePercent(value: unknown): value is number {
     return isRangeNumber(value, PHOTO_SCALE_MIN, PHOTO_SCALE_MAX);
+}
+
+export function isPhotoSpacing(value: unknown): value is number {
+    return isRangeNumber(value, PHOTO_SPACING_MIN, PHOTO_SPACING_MAX);
+}
+
+export function isPhotoLayer(value: unknown): value is number {
+    return isRangeNumber(value, PHOTO_LAYER_MIN, PHOTO_LAYER_MAX);
 }
 
 function isRangeNumber(value: unknown, min: number, max: number): value is number {

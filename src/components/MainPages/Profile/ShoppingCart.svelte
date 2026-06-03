@@ -679,7 +679,7 @@
   class="w-[100%] relative h-auto
             grid grid-flow-col
             lg:grid-cols-7 xl:grid-cols-7 2xl:grid-cols-7 3xl:grid-cols-7
-            sm:grid-flow-row md:grid-flow-row
+            max-sm:grid-flow-row max-md:grid-flow-row
             gap-x-6 sm:gap-x-0 md:gap-x-0
             py-[14%] px-[3%] sm:py-[40%] xl:mb-40pt 2xl:mb-40pt 3xl:mb-40pt"
 >

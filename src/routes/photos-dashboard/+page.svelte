@@ -12,6 +12,8 @@
 		PHOTO_SELECTION_COLLECTION,
 		DEFAULT_PHOTO_POSITION,
 		DEFAULT_PHOTO_SCALE,
+		DEFAULT_PHOTO_SPACING,
+		DEFAULT_PHOTO_LAYER,
 		type PhotoCollectionKey,
 		type PhotoManifestEntry
 	} from '../../shared/types';
@@ -40,6 +42,8 @@
 		positionY: number;
 		scalePercent: number;
 		revealFrom: string;
+		spacing: number;
+		layer: number;
 		stripExif: boolean;
 		selected: boolean;
 		status: UploadStatus;
@@ -56,6 +60,8 @@
 		positionY: number;
 		scalePercent: number;
 		revealFrom: string;
+		spacing: number;
+		layer: number;
 	}
 
 	let manifest = $state<PhotoManifestEntry[]>([]);
@@ -67,7 +73,12 @@
 	let bulkPositionX = $state(DEFAULT_PHOTO_POSITION);
 	let bulkPositionY = $state(DEFAULT_PHOTO_POSITION);
 	let bulkScalePercent = $state(DEFAULT_PHOTO_SCALE);
+	let bulkSpacing = $state(DEFAULT_PHOTO_SPACING);
+	let bulkLayer = $state(DEFAULT_PHOTO_LAYER);
 	let bulkRevealFrom = $state('bottom');
+	// Global editorial-canvas parallax intensity (0–100), persisted via /api/photos/settings.
+	let parallaxIntensity = $state(50);
+	let parallaxDirty = $state(false);
 	let showStagingBatch = $state(false);
 	let showExistingBatch = $state(false);
 	let isUploading = $state(false);
@@ -113,7 +124,9 @@
 			positionX: photo.positionX,
 			positionY: photo.positionY,
 			scalePercent: photo.scalePercent,
-			revealFrom: photo.revealFrom
+			revealFrom: photo.revealFrom,
+			spacing: photo.spacing,
+			layer: photo.layer
 		};
 	}
 
@@ -156,8 +169,49 @@
 		}
 	}
 
+	async function loadSettings() {
+		try {
+			const res = await fetch(`${base}/api/photos/settings`);
+			if (!res.ok) return;
+			const settings = await res.json();
+			if (typeof settings?.parallaxIntensity === 'number') {
+				parallaxIntensity = settings.parallaxIntensity;
+				parallaxDirty = false;
+			}
+		} catch {
+			/* keep default parallax intensity */
+		}
+	}
+
+	async function saveParallax() {
+		savingAction = 'save-parallax';
+		try {
+			const headers = {
+				...(await getAuthHeaders()),
+				'Content-Type': 'application/json'
+			};
+			const res = await fetch(`${base}/api/photos/settings`, {
+				method: 'PATCH',
+				headers,
+				body: JSON.stringify({ parallaxIntensity: clampNumber(parallaxIntensity, 0, 100) })
+			});
+			if (!res.ok) throw new Error('Save failed');
+			const settings = await res.json();
+			if (typeof settings?.parallaxIntensity === 'number') {
+				parallaxIntensity = settings.parallaxIntensity;
+			}
+			parallaxDirty = false;
+			setPopup('success', 'Success', 'Global parallax intensity saved.');
+		} catch (e) {
+			setPopup('error', 'Error', e instanceof Error ? e.message : 'Save failed');
+		} finally {
+			savingAction = null;
+		}
+	}
+
 	onMount(() => {
 		loadManifest();
+		loadSettings();
 	});
 
 	function addFiles(files: FileList | File[]) {
@@ -183,6 +237,8 @@
 			positionY: DEFAULT_PHOTO_POSITION,
 			scalePercent: DEFAULT_PHOTO_SCALE,
 			revealFrom: 'bottom',
+			spacing: DEFAULT_PHOTO_SPACING,
+			layer: DEFAULT_PHOTO_LAYER,
 			stripExif: true,
 			selected: true,
 			status: 'pending' as UploadStatus
@@ -285,7 +341,9 @@
 						...s,
 						positionX: bulkPositionX,
 						positionY: bulkPositionY,
-						scalePercent: bulkScalePercent
+						scalePercent: bulkScalePercent,
+						spacing: bulkSpacing,
+						layer: bulkLayer
 					}
 				: s
 		);
@@ -330,6 +388,8 @@
 				formData.append('positionY', String(item.positionY));
 				formData.append('scalePercent', String(item.scalePercent));
 				formData.append('revealFrom', item.revealFrom);
+				formData.append('spacing', String(item.spacing));
+				formData.append('layer', String(item.layer));
 
 				const res = await fetch(`${base}/api/photos/upload-draft`, {
 					method: 'POST',
@@ -477,6 +537,8 @@
 			positionY?: number;
 			scalePercent?: number;
 			revealFrom?: string;
+			spacing?: number;
+			layer?: number;
 		},
 		actionKey = `save-${slug}`
 	) {
@@ -527,7 +589,9 @@
 			draft.positionX !== photo.positionX ||
 			draft.positionY !== photo.positionY ||
 			draft.scalePercent !== photo.scalePercent ||
-			draft.revealFrom !== photo.revealFrom
+			draft.revealFrom !== photo.revealFrom ||
+			draft.spacing !== photo.spacing ||
+			draft.layer !== photo.layer
 		);
 	}
 
@@ -542,7 +606,9 @@
 				positionX: clampNumber(draft.positionX, 0, 100),
 				positionY: clampNumber(draft.positionY, 0, 100),
 				scalePercent: clampNumber(draft.scalePercent, 1, 100),
-				revealFrom: draft.revealFrom
+				revealFrom: draft.revealFrom,
+				spacing: clampNumber(draft.spacing, 0, 100),
+				layer: clampNumber(draft.layer, 0, 100)
 			},
 			`save-${photo.slug}`
 		);
@@ -578,7 +644,14 @@
 	}
 
 	async function bulkUpdateExistingVisual(
-		updates: { positionX?: number; positionY?: number; scalePercent?: number; revealFrom?: string },
+		updates: {
+			positionX?: number;
+			positionY?: number;
+			scalePercent?: number;
+			revealFrom?: string;
+			spacing?: number;
+			layer?: number;
+		},
 		message = 'Bulk update failed',
 		actionKey = 'bulk-visual'
 	) {
@@ -631,7 +704,9 @@
 			{
 				positionX: bulkPositionX,
 				positionY: bulkPositionY,
-				scalePercent: bulkScalePercent
+				scalePercent: bulkScalePercent,
+				spacing: bulkSpacing,
+				layer: bulkLayer
 			},
 			'Bulk update failed',
 			'bulk-view'
@@ -716,6 +791,50 @@
 	/>
 
 	<h1>Photos Dashboard</h1>
+
+	<section class="global-settings">
+		<div class="parallax-control">
+			<span class="label-row">
+				Global parallax intensity
+				<InfoGuide text="How strongly photos drift as visitors scroll the home page. 0 disables parallax, 50 is the baseline, 100 is strong. Applies to the whole editorial canvas." />
+			</span>
+			<div class="parallax-row">
+				<input
+					type="range"
+					min="0"
+					max="100"
+					step="1"
+					value={parallaxIntensity}
+					oninput={(e) => {
+						parallaxIntensity = Number(e.currentTarget.value);
+						parallaxDirty = true;
+					}}
+				/>
+				<input
+					type="number"
+					min="0"
+					max="100"
+					class="parallax-number"
+					value={parallaxIntensity}
+					oninput={(e) => {
+						parallaxIntensity = clampNumber(Number(e.currentTarget.value), 0, 100);
+						parallaxDirty = true;
+					}}
+				/>
+				<button
+					type="button"
+					class="fancy-btn small"
+					disabled={!parallaxDirty || savingAction !== null}
+					onclick={saveParallax}
+				>
+					{#if savingAction === 'save-parallax'}
+						<span class="button-spinner"></span>
+					{/if}
+					{parallaxDirty ? 'Save' : 'Saved'}
+				</button>
+			</div>
+		</div>
+	</section>
 
 	<section class="upload-section">
 		<h2>Add New Photos</h2>
@@ -811,6 +930,20 @@
 									<InfoGuide text="Visible photo size from 1 to 100 percent. 1 is very small; 100 uses the full available width and height. This does not zoom or crop the photo." />
 								</span>
 								<input type="number" min="1" max="100" bind:value={bulkScalePercent} />
+							</label>
+							<label>
+								<span class="label-row">
+									Spacing (vh)
+									<InfoGuide text="Vertical gap before each photo on the editorial home page, from 0 to 100 (screen-height percent). Larger values mean more empty space above the photo." />
+								</span>
+								<input type="number" min="0" max="100" bind:value={bulkSpacing} />
+							</label>
+							<label>
+								<span class="label-row">
+									Layer
+									<InfoGuide text="Stacking order from 0 to 100 when photos overlap on the editorial canvas. Higher values sit on top of lower ones." />
+								</span>
+								<input type="number" min="0" max="100" bind:value={bulkLayer} />
 							</label>
 							<button
 								type="button"
@@ -938,6 +1071,20 @@
 									<InfoGuide text="Visible photo size from 1 to 100 percent. 1 is tiny; 100 fills the available image area. It changes size, not zoom." />
 								</span>
 								<input type="number" min="1" max="100" bind:value={staged[i].scalePercent} />
+							</label>
+							<label>
+								<span class="label-row">
+									Spacing (vh)
+									<InfoGuide text="Vertical gap before this photo on the editorial home page, 0 to 100 (screen-height percent). Larger means more empty space above it." />
+								</span>
+								<input type="number" min="0" max="100" bind:value={staged[i].spacing} />
+							</label>
+							<label>
+								<span class="label-row">
+									Layer
+									<InfoGuide text="Stacking order 0 to 100 when photos overlap on the editorial canvas. Higher sits on top." />
+								</span>
+								<input type="number" min="0" max="100" bind:value={staged[i].layer} />
 							</label>
 							<label>
 								<span class="label-row">
@@ -1100,6 +1247,20 @@
 							</span>
 							<input type="number" min="1" max="100" bind:value={bulkScalePercent} />
 						</label>
+						<label>
+							<span class="label-row">
+								Spacing (vh)
+								<InfoGuide text="Vertical gap before checked photos on the editorial home page, 0 to 100 (screen-height percent). Larger means more empty space above them." />
+							</span>
+							<input type="number" min="0" max="100" bind:value={bulkSpacing} />
+						</label>
+						<label>
+							<span class="label-row">
+								Layer
+								<InfoGuide text="Stacking order 0 to 100 for checked photos when they overlap on the editorial canvas. Higher sits on top." />
+							</span>
+							<input type="number" min="0" max="100" bind:value={bulkLayer} />
+						</label>
 						<button
 							type="button"
 							class="fancy-btn small"
@@ -1247,6 +1408,38 @@
 							</label>
 							<label>
 								<span class="label-row">
+									Spacing (vh)
+									<InfoGuide text="Vertical gap before this photo on the editorial home page, 0 to 100 (screen-height percent). Larger means more empty space above it. Click Save changes to commit." />
+								</span>
+								<input
+									type="number"
+									min="0"
+									max="100"
+									value={photoDrafts[photo.slug]?.spacing ?? photo.spacing}
+									onchange={(e) =>
+										updateDraft(photo.slug, {
+											spacing: Number(e.currentTarget.value)
+										})}
+								/>
+							</label>
+							<label>
+								<span class="label-row">
+									Layer
+									<InfoGuide text="Stacking order 0 to 100 when photos overlap on the editorial canvas. Higher sits on top of lower. Click Save changes to commit." />
+								</span>
+								<input
+									type="number"
+									min="0"
+									max="100"
+									value={photoDrafts[photo.slug]?.layer ?? photo.layer}
+									onchange={(e) =>
+										updateDraft(photo.slug, {
+											layer: Number(e.currentTarget.value)
+										})}
+								/>
+							</label>
+							<label>
+								<span class="label-row">
 									Reveal side
 									<InfoGuide text="Desktop/tablet scroll reveal direction for this photo. Phones always use bottom reveal for simpler movement." />
 								</span>
@@ -1349,6 +1542,42 @@
 	h1 {
 		font-size: 2rem;
 		margin-bottom: 2rem;
+	}
+
+	.global-settings {
+		margin-bottom: 2rem;
+		padding: 1rem 1.25rem;
+		border: 1px solid #eee;
+		border-radius: 10px;
+		background: #fafafa;
+	}
+
+	.parallax-control {
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+	}
+
+	.parallax-row {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+		flex-wrap: wrap;
+	}
+
+	.parallax-row input[type='range'] {
+		flex: 1 1 200px;
+		min-width: 160px;
+		accent-color: #f6ae2d;
+	}
+
+	.parallax-number {
+		width: 4rem;
+		padding: 0.35rem 0.4rem;
+		text-align: center;
+		border: 1px solid #ddd;
+		border-radius: 6px;
+		font-size: 0.9rem;
 	}
 
 	h2 {
