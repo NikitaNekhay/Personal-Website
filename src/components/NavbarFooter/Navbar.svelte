@@ -154,34 +154,38 @@
 				>
 					<div class="border-r-2 border-navy-2">
 						<a
-							class="no-underline underline-offset-4 hover:underline
+							class="nav-link no-underline underline-offset-4 hover:underline
 							lg:mx-10 xl:mx-12 2xl:mx-20 3xl:mx-20
 							{isActive('/about') ? 'text-yellow-0 animate-pulse' : 'text-black'}"
+							style="--d: 0ms"
 							target="_self"
 							href="{base}/about">{$t("About")}</a
 						>
 						<a
-							class="no-underline underline-offset-4 hover:underline
+							class="nav-link no-underline underline-offset-4 hover:underline
 							lg:mx-10 xl:mx-12 2xl:mx-20 3xl:mx-20
 							{isActive('/contact') ? 'text-yellow-0 animate-pulse' : 'text-black'}"
+							style="--d: 70ms"
 							target="_self"
 							href="{base}/contact">{$t("Contacts")}</a
 						>
 					</div>
 					<div class="border-l-2 border-navy-2">
 						<a
-							class="no-underline underline-offset-4 hover:underline
+							class="nav-link no-underline underline-offset-4 hover:underline
 							lg:mx-10 xl:mx-12 2xl:mx-20 3xl:mx-20
 							{isActive('/shop') && !isActive('/shoppingcart')
 								? 'text-yellow-0 animate-pulse'
 								: 'text-black'}"
+							style="--d: 140ms"
 							target="_self"
 							href="{base}/shop">{$t("Shop")}</a
 						>
 						<a
-							class="no-underline underline-offset-4 hover:underline
+							class="nav-link no-underline underline-offset-4 hover:underline
 							lg:mx-10 xl:mx-12 2xl:mx-20 3xl:mx-20
 							{isActive('/works') ? 'text-yellow-0 animate-pulse' : 'text-black'}"
+							style="--d: 210ms"
 							target="_self"
 							href="{base}/works">{$t("Works")}</a
 						>
@@ -459,6 +463,42 @@
 		}
 	}
 
+	/* ── Верхние центральные ссылки (ПК): мягкое появление при загрузке/закрытии
+	   и зеркальное (реверс) исчезновение при раскрытии хедера — как в раскрытом
+	   меню, но наоборот. ──────────────────────────────────────────────────── */
+	.nav-inline .nav-link {
+		display: inline-block;
+		animation: navLinkIn 440ms cubic-bezier(0.22, 1, 0.36, 1) both;
+		animation-delay: var(--d, 0ms);
+	}
+
+	/* Разделители-рамки плавно гаснут/появляются вместе со ссылками. */
+	.nav-inline > div {
+		transition: border-color 320ms ease;
+	}
+
+	@keyframes navLinkIn {
+		0% {
+			opacity: 0;
+			transform: translateY(10px);
+		}
+		100% {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+
+	@keyframes navLinkOut {
+		0% {
+			opacity: 1;
+			transform: translateY(0);
+		}
+		100% {
+			opacity: 0;
+			transform: translateY(10px);
+		}
+	}
+
 	.nav-account {
 		display: flex;
 		flex-direction: column;
@@ -522,9 +562,18 @@
 
 	/* ── ПК (≥1024px): раскрытый хедер 30vh ───────────────────────────────── */
 	@media (min-width: 1024px) {
-		/* в раскрытом виде прячем горизонтальные ссылки верхнего ряда */
+		/* В раскрытом виде ссылки верхнего ряда уходят зеркально появлению
+		   раскрытого меню (staggered fade+slide вверх), а не исчезают рывком. */
 		.header-shell.is-open .nav-inline {
-			display: none;
+			pointer-events: none;
+		}
+		.header-shell.is-open .nav-inline .nav-link {
+			animation-name: navLinkOut;
+			animation-duration: 320ms;
+			animation-fill-mode: both;
+		}
+		.header-shell.is-open .nav-inline > div {
+			border-color: transparent;
 		}
 
 		.header-expanded {
@@ -598,6 +647,13 @@
 		.exp-link:hover,
 		.acc-link:hover {
 			transform: none;
+		}
+		.nav-link {
+			animation: none;
+		}
+		/* Без анимации просто прячем верхние ссылки при раскрытии (как раньше). */
+		.header-shell.is-open .nav-inline {
+			display: none;
 		}
 	}
 </style>
