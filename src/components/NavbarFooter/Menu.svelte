@@ -85,9 +85,9 @@
 	}
 
 	/* Корзина в закрытом виде скрыта только на телефонах (≤1023px). */
-	@media (max-width: 1023px) {
+	/* @media (max-width: 1023px) {
 		.cart-link.cart-hidden {
 			display: none;
 		}
-	}
+	} */
 </style>

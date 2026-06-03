@@ -172,12 +172,42 @@
 		scrollToIndex(activeIndex <= 0 ? sorted.length - 1 : activeIndex - 1);
 	}
 
+	let backToTopRaf = 0;
+
+	/**
+	 * Плавная прокрутка к верху своими руками (requestAnimationFrame).
+	 * Зачем не нативный behavior:'smooth' на тач-устройствах: iOS-Safari местами
+	 * его игнорирует (телепорт), а прокрутка через множество секций провоцирует
+	 * лавину IntersectionObserver-колбэков и CSS-переходов. Поэтому делаем
+	 * собственную анимацию с фиксированной (короткой) длительностью: одинаково
+	 * плавно во всех браузерах и достаточно быстро, чтобы не копить джанк.
+	 */
+	function smoothScrollToTop(duration = 600) {
+		if (!browser) return;
+		const startY = window.scrollY || window.pageYOffset;
+		if (startY <= 0) return;
+		const start = performance.now();
+		const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3);
+
+		if (backToTopRaf) cancelAnimationFrame(backToTopRaf);
+
+		const step = (now: number) => {
+			const progress = Math.min((now - start) / duration, 1);
+			window.scrollTo(0, Math.round(startY * (1 - easeOutCubic(progress))));
+			if (progress < 1) {
+				backToTopRaf = requestAnimationFrame(step);
+			} else {
+				backToTopRaf = 0;
+			}
+		};
+		backToTopRaf = requestAnimationFrame(step);
+	}
+
 	function backToTop() {
-		// On touch devices, smooth-scrolling back through many sections fires
-		// IntersectionObserver callbacks + CSS transitions for every section passed,
-		// compounding iOS jank. An instant jump sidesteps all of that.
+		// На тач-устройствах ведём собственную rAF-анимацию (нативный smooth там
+		// телепортит); на десктопе/планшете оставляем секционный smooth scroll.
 		if (browser && window.matchMedia('(hover: none)').matches) {
-			window.scrollTo({ top: 0, behavior: 'instant' });
+			smoothScrollToTop();
 		} else {
 			scrollToIndex(0);
 		}
@@ -280,6 +310,7 @@
 		return () => {
 			observer.disconnect();
 			stopEngagement();
+			if (backToTopRaf) cancelAnimationFrame(backToTopRaf);
 		};
 	});
 </script>

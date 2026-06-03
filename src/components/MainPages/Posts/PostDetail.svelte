@@ -19,6 +19,7 @@
     import SquareButton from "../../Shared/SquareButton.svelte";
 
     import { fly } from "svelte/transition";
+    import { smoothDetails } from "../../../services/smoothDetails";
     import { currentLanguagee } from "../../../store/store_";
     import { cart } from "../../../store/cart_store_";
 
@@ -307,7 +308,7 @@
                     <!-- DESCRIPTION -->
                     {#if post.description["bigDescription"].length !== 0}
                         <div class="py-5 shadow-xl bg-white-1">
-                            <details class="group">
+                            <details class="group" use:smoothDetails>
                                 <summary
                                     class="flex justify-between mx-2 items-center font-medium cursor-pointer list-none"
                                 >
@@ -332,7 +333,7 @@
                                     </span>
                                 </summary>
                                 <p
-                                    class="text-gray-700 mx-4 mt-3 group-open:animate-fadeIn"
+                                    class="text-gray-700 mx-4 mt-3"
                                 >
                                     {$t(post.description["bigDescription"])}
                                 </p>
@@ -342,7 +343,7 @@
                     <!-- MATERIALS -->
                     {#if post.description["materialsDescription"].length !== 0}
                         <div class="py-5 shadow-xl bg-white-1">
-                            <details class="group">
+                            <details class="group" use:smoothDetails>
                                 <summary
                                     class="flex justify-between mx-2 items-center font-medium cursor-pointer list-none"
                                 >
@@ -368,7 +369,7 @@
                                 </summary>
                                 <p
                                     in:fly={{ x: 200, duration: 700 }}
-                                    class="text-gray-700 mt-3 mx-4 group-open:animate-fadeIn"
+                                    class="text-gray-700 mt-3 mx-4"
                                 >
                                     {$t(
                                         post.description[
@@ -382,7 +383,7 @@
                     <!-- MODEL -->
                     {#if post.description["materialsDescription"].length !== 0}
                         <div class="py-5 shadow-xl bg-white-1">
-                            <details class="group">
+                            <details class="group" use:smoothDetails>
                                 <summary
                                     class="flex justify-between mx-2 items-center font-medium cursor-pointer list-none"
                                 >
@@ -407,7 +408,7 @@
                                     </span>
                                 </summary>
                                 <p
-                                    class="text-gray-700 mt-3 mx-4 group-open:animate-fadeIn"
+                                    class="text-gray-700 mt-3 mx-4"
                                 >
                                     {$t(post.description["modelDescription"])}
                                 </p>
@@ -417,7 +418,7 @@
 
                     <!-- PAYMENT METHODS AND KLARNA -->
                     <div class="py-5 shadow-xl bg-white-1">
-                        <details class="group">
+                        <details class="group" use:smoothDetails>
                             <summary
                                 class="flex justify-between mx-2 items-center font-medium cursor-pointer list-none"
                             >
@@ -440,7 +441,7 @@
                                 </span>
                             </summary>
                             <p
-                                class="text-gray-700 mt-3 mx-4 group-open:animate-fadeIn"
+                                class="text-gray-700 mt-3 mx-4"
                             >
                                 {$t(
                                     "We accept cash, cashless payments. Order is performed only with a prepayment. Return conditions vary.",
