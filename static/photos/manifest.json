@@ -1471,10 +1471,10 @@
     "width": 1920,
     "height": 2560,
     "objectPosition": "center center",
-    "positionX": 50,
+    "positionX": 10,
     "positionY": 50,
     "scalePercent": 100,
-    "revealFrom": "bottom",
+    "revealFrom": "left",
     "spacing": 20,
     "layer": 0,
     "uploadedAt": "2026-05-29T16:00:27.920Z"
