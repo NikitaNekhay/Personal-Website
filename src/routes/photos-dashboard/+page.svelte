@@ -413,6 +413,36 @@
 		orderDirty = true;
 	}
 
+	// Прыжок фото на конкретную позицию (1-based) ВНУТРИ текущей секции.
+	// Переставляем только фото секции по их же глобальным слотам, остальной
+	// порядок не трогаем — поэтому работает и в фильтре по году/Selection.
+	function moveToSectionPosition(sectionIndex: number, rawPosition: number) {
+		const scoped = sectionPhotos;
+		if (scoped.length === 0) return;
+
+		let target = Math.round(rawPosition) - 1; // 1-based -> 0-based
+		if (Number.isNaN(target)) return;
+		target = Math.max(0, Math.min(target, scoped.length - 1));
+		if (target === sectionIndex) return;
+
+		// глобальные индексы, которые занимают фото секции (в текущем порядке)
+		const slots = scoped.map((p) => displayOrder.findIndex((d) => d.slug === p.slug));
+		if (slots.some((i) => i === -1)) return;
+
+		// переставляем фото внутри секции
+		const reordered = [...scoped];
+		const [moved] = reordered.splice(sectionIndex, 1);
+		reordered.splice(target, 0, moved);
+
+		// раскладываем переставленную секцию обратно по тем же глобальным слотам
+		const arr = [...displayOrder];
+		slots.forEach((globalIndex, i) => {
+			arr[globalIndex] = reordered[i];
+		});
+		displayOrder = arr.map((photo, index) => ({ ...photo, order: index + 1 }));
+		orderDirty = true;
+	}
+
 	async function saveOrder() {
 		savingAction = 'save-order';
 		try {
@@ -1263,6 +1293,23 @@
 								>
 									↑
 								</button>
+								<input
+									type="number"
+									class="order-input"
+									min="1"
+									max={sectionPhotos.length}
+									value={index + 1}
+									title="Position in {activeSectionTitle}"
+									aria-label="Position in {activeSectionTitle}"
+									onchange={(e) => {
+										const raw = e.currentTarget.value.trim();
+										if (raw === '') {
+											e.currentTarget.value = String(index + 1);
+											return;
+										}
+										moveToSectionPosition(index, Number(raw));
+									}}
+								/>
 								<button
 									type="button"
 									class="fancy-btn small neutral"
@@ -1714,8 +1761,24 @@
 	.card-actions {
 		display: flex;
 		flex-wrap: wrap;
+		align-items: center;
 		gap: 0.5rem;
 		margin-top: 0.5rem;
+	}
+
+	/* Поле ввода точной позиции в очереди — между стрелками ↑ ↓ */
+	.order-input {
+		width: 3.25rem;
+		padding: 0.3rem 0.35rem;
+		text-align: center;
+		border: 1px solid #ddd;
+		border-radius: 6px;
+		font-size: 0.85rem;
+	}
+
+	.order-input:focus {
+		outline: none;
+		border-color: #f6ae2d;
 	}
 
 	@media (max-width: 600px) {

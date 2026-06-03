@@ -467,7 +467,7 @@
 	}
 
 	/* ── Телефоны (≤1023px): вертикально, высокий раскрытый хедер ──────────── */
-	@media (max-width: 640px) {
+	@media (max-width: 1023px) {
 		.nav-inline {
 			display: none;
 		}
