@@ -194,7 +194,8 @@
 		position: fixed;
 		top: calc(var(--site-header-height) + 0.9rem);
 		right: 0;
-		z-index: 20;
+		/* Above the custom scrollbar (z-40), below header (z-50) / menu (z-60). */
+		z-index: 45;
 		pointer-events: none;
 		/* Спрятана за правым краем; играющий въезд с лёгким перелётом. */
 		transform: translateX(118%);

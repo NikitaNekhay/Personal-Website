@@ -25,6 +25,9 @@
 	let isMobile = $state(false);
 	let reduceMotion = $state(false);
 
+	// "Back to top" button — shown once the user has scrolled down a screenful.
+	let showBackToTop = $state(false);
+
 	const sorted = $derived([...photos].sort((a, b) => a.order - b.order));
 
 	function imgUrl(path: string): string {
@@ -55,8 +58,25 @@
 		return 0.75; // sensible portrait fallback
 	}
 
-	// Inline CSS variables for a block: vertical gap, width, horizontal placement,
-	// stacking order and intrinsic aspect ratio. Mobile layout is handled in CSS.
+	// Scroll-reveal offset per manifest revealFrom direction. Returns the "x, y" pair
+	// for translate3d(). Horizontal kept smaller than vertical (minimal sideways drift).
+	function revealFromVar(dir: PhotoManifestEntry['revealFrom']): string {
+		switch (dir) {
+			case 'left':
+				return '-5vw, 0';
+			case 'right':
+				return '5vw, 0';
+			case 'top':
+				return '0, -6vh';
+			case 'bottom':
+			default:
+				return '0, 6vh';
+		}
+	}
+
+	// Inline CSS variables for a block: vertical gap, scale, horizontal placement,
+	// stacking order, intrinsic aspect ratio and reveal direction. Mobile layout
+	// is handled in CSS.
 	function blockStyle(photo: PhotoManifestEntry, index: number): string {
 		const gap = index === 0 ? Math.min(photo.spacing, 8) : photo.spacing;
 		return [
@@ -64,7 +84,8 @@
 			`--w: ${photo.scalePercent}`,
 			`--x: ${photo.positionX}`,
 			`--layer: ${photo.layer}`,
-			`--ar: ${aspectRatio(photo)}`
+			`--ar: ${aspectRatio(photo)}`,
+			`--reveal-from: ${revealFromVar(photo.revealFrom)}`
 		].join('; ');
 	}
 
@@ -119,6 +140,8 @@
 		if (!rootEl) return;
 
 		const viewportH = window.innerHeight;
+		showBackToTop = window.scrollY > viewportH * 0.6;
+
 		const intensity = Math.max(0, parallaxIntensity) / 50; // 50 = baseline ×1
 
 		if (reduceMotion || intensity === 0) return;
@@ -139,6 +162,26 @@
 		if (rafQueued) return;
 		rafQueued = true;
 		rafId = requestAnimationFrame(applyParallax);
+	}
+
+	// Custom rAF smooth-scroll to top — reliable on iOS where native
+	// scrollTo({behavior:'smooth'}) can jump instantly.
+	let backToTopRaf = 0;
+	function backToTop() {
+		if (!browser) return;
+		const startY = window.scrollY;
+		if (startY <= 0) return;
+		const duration = 600;
+		const start = performance.now();
+		const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3);
+		if (backToTopRaf) cancelAnimationFrame(backToTopRaf);
+		const step = (now: number) => {
+			const p = Math.min((now - start) / duration, 1);
+			window.scrollTo(0, Math.round(startY * (1 - easeOutCubic(p))));
+			if (p < 1) backToTopRaf = requestAnimationFrame(step);
+			else backToTopRaf = 0;
+		};
+		backToTopRaf = requestAnimationFrame(step);
 	}
 
 	onMount(() => {
@@ -183,6 +226,7 @@
 			window.removeEventListener('scroll', scheduleParallax);
 			window.removeEventListener('resize', scheduleParallax);
 			if (rafId) cancelAnimationFrame(rafId);
+			if (backToTopRaf) cancelAnimationFrame(backToTopRaf);
 		};
 	});
 </script>
@@ -198,42 +242,53 @@
 				data-speed={dataSpeed(photo.slug)}
 				style={blockStyle(photo, index)}
 			>
-				<figure
-					class="photo-reveal"
-					class:in-view={visibleSlugs.has(photo.slug) || reduceMotion}
-				>
-					<span
-						class="photo-skeleton"
-						class:is-loaded={thumbLoadedSlugs.has(photo.slug) || loadedSlugs.has(photo.slug)}
-						aria-hidden="true"
-					></span>
-					<img
-						src={imgUrl(photo.thumb)}
-						alt=""
-						aria-hidden="true"
-						class="photo-thumb"
-						class:is-hidden={loadedSlugs.has(photo.slug)}
-						loading={index < 2 ? 'eager' : 'lazy'}
-						fetchpriority={index === 0 ? 'high' : 'auto'}
-						decoding="async"
-						draggable="false"
-						use:thumbFadeInOnLoad={photo.slug}
-					/>
-					<img
-						src={imgUrl(photo.original)}
-						alt={photo.title}
-						class="photo-image"
-						class:is-loaded={loadedSlugs.has(photo.slug)}
-						loading={index < 2 ? 'eager' : 'lazy'}
-						fetchpriority={index === 0 ? 'high' : 'auto'}
-						decoding="async"
-						draggable="false"
-						use:fadeInOnLoad={photo.slug}
-					/>
-				</figure>
+				<div class="photo-place">
+					<figure
+						class="photo-reveal"
+						class:in-view={visibleSlugs.has(photo.slug) || reduceMotion}
+					>
+						<span
+							class="photo-skeleton"
+							class:is-loaded={thumbLoadedSlugs.has(photo.slug) || loadedSlugs.has(photo.slug)}
+							aria-hidden="true"
+						></span>
+						<img
+							src={imgUrl(photo.thumb)}
+							alt=""
+							aria-hidden="true"
+							class="photo-thumb"
+							class:is-hidden={loadedSlugs.has(photo.slug)}
+							loading={index < 2 ? 'eager' : 'lazy'}
+							fetchpriority={index === 0 ? 'high' : 'auto'}
+							decoding="async"
+							draggable="false"
+							use:thumbFadeInOnLoad={photo.slug}
+						/>
+						<img
+							src={imgUrl(photo.original)}
+							alt={photo.title}
+							class="photo-image"
+							class:is-loaded={loadedSlugs.has(photo.slug)}
+							loading={index < 2 ? 'eager' : 'lazy'}
+							fetchpriority={index === 0 ? 'high' : 'auto'}
+							decoding="async"
+							draggable="false"
+							use:fadeInOnLoad={photo.slug}
+						/>
+					</figure>
+				</div>
 			</div>
 		{/each}
 	</div>
+
+	<button
+		type="button"
+		class="back-to-top"
+		class:is-visible={showBackToTop}
+		onclick={backToTop}
+	>
+		Back to top
+	</button>
 {/if}
 
 <style>
@@ -255,29 +310,42 @@
 		font-size: 1rem;
 	}
 
-	/* Parallax target. Vertical gap, width, horizontal placement and stacking all
-	   come from inline CSS variables; the JS rAF loop only writes `transform`. */
+	/* Full-width row + parallax target — the JS rAF loop only writes a vertical
+	   `transform` here, so it never fights the placement/entrance transforms below. */
 	.photo-block {
 		position: relative;
+		width: 100%;
 		margin-top: calc(var(--gap, 40) * 1vh);
-		width: calc(var(--w, 60) * 1vw);
-		/* positionX maps the block across the free horizontal space:
-		   0 → flush left, 50 → centred, 100 → flush right. */
-		margin-left: calc((100 - var(--w, 60)) * var(--x, 50) / 100 * 1vw);
 		z-index: var(--layer, 0);
 		will-change: transform;
 	}
 
-	/* Entrance target — kept separate from .photo-block so the CSS entrance
-	   transform never fights the JS parallax transform. */
+	/* Horizontal placement across the free space, hugging the image:
+	   margin-left positions the left edge at x% of the row, translateX pulls back
+	   x% of the block's OWN width → 0 = flush left, 50 = centred, 100 = flush right.
+	   (Static transform; separate element from parallax + entrance.) */
+	.photo-place {
+		width: max-content;
+		max-width: 96vw;
+		margin-left: calc(var(--x, 50) * 1%);
+		transform: translateX(calc(var(--x, 50) * -1%));
+	}
+
+	/* Sizing is height-driven (like the old contain box) so default photos stay
+	   compact — about one screen tall at scale 100, never taller. The min() also
+	   bounds width so wide images don't exceed ~92vw. */
 	.photo-reveal {
 		position: relative;
 		display: block;
 		margin: 0;
-		width: 100%;
 		aspect-ratio: var(--ar, 0.75);
+		height: min(
+			calc(var(--w, 100) / 100 * (100svh - var(--site-header-height))),
+			calc(var(--w, 100) / 100 * 92vw / var(--ar, 0.75))
+		);
+		width: auto;
 		opacity: 0;
-		transform: translateY(40px);
+		transform: translate3d(var(--reveal-from, 0, 6vh), 0);
 		transition:
 			opacity 900ms cubic-bezier(0.22, 1, 0.36, 1),
 			transform 900ms cubic-bezier(0.22, 1, 0.36, 1);
@@ -286,7 +354,7 @@
 
 	.photo-reveal.in-view {
 		opacity: 1;
-		transform: translateY(0);
+		transform: translate3d(0, 0, 0);
 	}
 
 	.photo-image,
@@ -351,14 +419,64 @@
 		}
 	}
 
+	/* "Back to top" — offset clear of the right-edge custom scrollbar. */
+	.back-to-top {
+		position: fixed;
+		right: 1.75rem;
+		bottom: 0.6rem;
+		z-index: 45;
+		padding: 0;
+		border: 0;
+		background: transparent;
+		color: rgba(0, 0, 0, 0.58);
+		font-family: monospace;
+		font-size: 0.75rem;
+		line-height: 1;
+		cursor: pointer;
+		opacity: 0;
+		pointer-events: none;
+		transition:
+			opacity 240ms ease,
+			color 180ms ease;
+	}
+
+	.back-to-top.is-visible {
+		opacity: 1;
+		pointer-events: auto;
+	}
+
+	.back-to-top:hover {
+		color: #111111;
+	}
+
 	/* Phones: clean single column. No manifest composition (placement/scale/overlap);
-	   keep the vertical spacing rhythm + entrance motion + (gentler) parallax. */
+	   keep the vertical spacing rhythm + entrance motion (always from bottom). */
 	@media (max-width: 767px) {
-		.photo-block {
+		.photo-place {
 			width: 92vw;
+			max-width: 92vw;
 			margin-left: 4vw;
-			margin-right: 4vw;
+			transform: none;
+		}
+
+		.photo-reveal {
+			height: auto;
+			width: 100%;
+			transform: translate3d(0, 5vh, 0);
+		}
+
+		.photo-reveal.in-view {
+			transform: translate3d(0, 0, 0);
+		}
+
+		.photo-block {
 			z-index: auto;
+		}
+
+		.back-to-top {
+			right: 1.5rem;
+			bottom: 0.5rem;
+			font-size: 0.7rem;
 		}
 	}
 
