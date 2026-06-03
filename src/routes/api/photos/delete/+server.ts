@@ -2,6 +2,7 @@ import { json } from '@sveltejs/kit';
 import { requireAdmin } from '$lib/auth-admin';
 import { ghDelete, ghGetOptional } from '$lib/github';
 import { loadManifest, saveManifest, sortByOrder } from '$lib/photos-server';
+import { loadGeo, saveGeo } from '$lib/photos-geo-server';
 import type { RequestHandler } from './$types';
 
 export const DELETE: RequestHandler = async ({ request }) => {
@@ -36,6 +37,17 @@ export const DELETE: RequestHandler = async ({ request }) => {
 
 		const updated = entries.filter((e) => e.slug !== slug);
 		await saveManifest(updated, sha);
+
+		// Drop any stored location for this slug (best-effort; never blocks the delete).
+		try {
+			const { geo, sha: geoSha } = await loadGeo();
+			if (geo[slug]) {
+				delete geo[slug];
+				await saveGeo(geo, geoSha);
+			}
+		} catch (e) {
+			console.warn(`Could not update geo store on delete of ${slug}:`, e);
+		}
 
 		return json(sortByOrder(updated));
 	} catch (error) {

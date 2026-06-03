@@ -187,6 +187,7 @@ export const AdminRoutes = [
     `${base}/posts`,
     `${base}/slider-dashboard`,
     `${base}/photos-dashboard`,
+    `${base}/memories`,
 ];
 
 export interface SliderPhoto {
@@ -409,4 +410,40 @@ function getPercentsFromObjectPosition(value: unknown): { x: number; y: number }
     const y = vertical === 'top' ? 0 : vertical === 'bottom' ? 100 : 50;
 
     return { x, y };
+}
+
+/**
+ * Geolocation + capture metadata for a photo, stored SEPARATELY from the public
+ * manifest (admin-only, see src/lib/photos-geo-server.ts). Keyed by photo slug.
+ * `lat`/`lng` come from EXIF GPS read at upload; the country/city/label fields are
+ * filled once by a reverse-geocode (Nominatim) and cached.
+ */
+export interface PhotoGeoEntry {
+    slug: string;
+    lat: number;
+    lng: number;
+    /** ISO timestamp from EXIF DateTimeOriginal, or null when absent. */
+    dateTaken: string | null;
+    /** ISO-3166 alpha-2 country code (upper-case), used for the flag. */
+    countryCode: string | null;
+    countryName: string | null;
+    city: string | null;
+    /** Full human-readable place string (Nominatim display_name). */
+    label: string | null;
+    /** ISO timestamp of when the reverse-geocode was performed, or null if it failed. */
+    geocodedAt: string | null;
+}
+
+/** True when lat/lng are finite numbers within valid WGS84 ranges. */
+export function isValidLatLng(lat: unknown, lng: unknown): boolean {
+    return (
+        typeof lat === 'number' &&
+        typeof lng === 'number' &&
+        Number.isFinite(lat) &&
+        Number.isFinite(lng) &&
+        lat >= -90 &&
+        lat <= 90 &&
+        lng >= -180 &&
+        lng <= 180
+    );
 }

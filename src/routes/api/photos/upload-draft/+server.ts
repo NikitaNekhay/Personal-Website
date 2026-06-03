@@ -4,6 +4,8 @@ import { randomBytes } from 'crypto';
 import { requireAdmin } from '$lib/auth-admin';
 import { ghCreateBlob } from '$lib/github';
 import { loadManifest } from '$lib/photos-server';
+import { resolvePhotoGeo } from '$lib/photo-exif-server';
+import type { PhotoGeoEntry } from '../../../../shared/types';
 import {
 	defaultCollectionNumber,
 	DEFAULT_PHOTO_COLLECTION,
@@ -34,6 +36,8 @@ interface PendingPhotoUpload {
 	entry: PhotoManifestEntry;
 	originalBlobSha: string;
 	thumbBlobSha: string;
+	/** Geo read from EXIF + reverse-geocoded; null when the image had no GPS. */
+	geo: PhotoGeoEntry | null;
 }
 
 export const POST: RequestHandler = async ({ request }) => {
@@ -112,6 +116,10 @@ export const POST: RequestHandler = async ({ request }) => {
 		}
 
 		const buffer = Buffer.from(await file.arrayBuffer());
+
+		// Read GPS/date from the RAW buffer before sharp strips metadata below.
+		const geoEntry = await resolvePhotoGeo(slug, buffer);
+
 		let pipeline = sharp(buffer);
 		if (stripExif) {
 			pipeline = pipeline.rotate();
@@ -154,7 +162,8 @@ export const POST: RequestHandler = async ({ request }) => {
 		const pending: PendingPhotoUpload = {
 			entry,
 			originalBlobSha: await ghCreateBlob(originalBuffer.toString('base64'), 'base64'),
-			thumbBlobSha: await ghCreateBlob(thumbBuffer.toString('base64'), 'base64')
+			thumbBlobSha: await ghCreateBlob(thumbBuffer.toString('base64'), 'base64'),
+			geo: geoEntry
 		};
 
 		return json(pending);

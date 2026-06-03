@@ -16,8 +16,11 @@
 		DEFAULT_PHOTO_LAYER,
 		normalizePhotoCollectionKey,
 		type PhotoCollectionKey,
+		type PhotoGeoEntry,
 		type PhotoManifestEntry
 	} from '../../shared/types';
+	import { smoothDetails } from '../../services/smoothDetails';
+	import { getFlagUrl, formatTakenDate, placeLabel, formatCoords } from '$lib/geo-display';
 
 	const SLUG_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 	const MAX_FILE_BYTES = 4 * 1024 * 1024;
@@ -29,6 +32,7 @@
 		entry: PhotoManifestEntry;
 		originalBlobSha: string;
 		thumbBlobSha: string;
+		geo?: PhotoGeoEntry | null;
 	}
 
 	interface StagedFile {
@@ -66,6 +70,7 @@
 	}
 
 	let manifest = $state<PhotoManifestEntry[]>([]);
+	let geoBySlug = $state<Record<string, PhotoGeoEntry>>({});
 	let isLoadingManifest = $state(true);
 	let staged = $state<StagedFile[]>([]);
 	let stripAllExif = $state(true);
@@ -177,6 +182,17 @@
 		}
 	}
 
+	async function loadGeo() {
+		try {
+			const headers = await getAuthHeaders();
+			const res = await fetch(`${base}/api/photos/geo`, { headers });
+			if (!res.ok) return;
+			geoBySlug = (await res.json()) as Record<string, PhotoGeoEntry>;
+		} catch {
+			/* not authorized / offline — geo panel just shows "No location data" */
+		}
+	}
+
 	async function loadSettings() {
 		try {
 			const res = await fetch(`${base}/api/photos/settings`);
@@ -220,6 +236,7 @@
 	onMount(() => {
 		loadManifest();
 		loadSettings();
+		loadGeo();
 	});
 
 	function addFiles(files: FileList | File[]) {
@@ -493,6 +510,7 @@
 				staged = staged.map((item) =>
 					published.has(item.slug) ? { ...item, status: 'done' } : item
 				);
+				loadGeo();
 				setPopup('success', 'Success', `Published ${pendingPhotos.length} photo(s).`);
 			} catch (e) {
 				const message = e instanceof Error ? e.message : 'Publish failed';
@@ -790,6 +808,7 @@
 			manifest = await res.json();
 			displayOrder = [...manifest].sort((a, b) => a.order - b.order);
 			syncDrafts(displayOrder);
+			loadGeo();
 			setPopup('success', 'Success', `Deleted "${title}".`);
 			deleteConfirmOpen = false;
 			pendingDeletePhoto = null;
@@ -1409,6 +1428,39 @@
 		{:else if visiblePhotos.length === 0}
 			<p>No photos match the current filter. <button type="button" class="link-btn" onclick={resetFilters}>Clear filters</button></p>
 		{:else}
+			{#snippet geoContent(geo: PhotoGeoEntry | undefined)}
+				{#if geo}
+					<ul class="geo-list">
+						{#if formatTakenDate(geo.dateTaken)}
+							<li>
+								<span class="geo-key">Taken</span>
+								<span>{formatTakenDate(geo.dateTaken)}</span>
+							</li>
+						{/if}
+						{#if placeLabel(geo)}
+							<li>
+								<span class="geo-key">Place</span>
+								<span class="geo-place">
+									{#if geo.countryCode}
+										<img
+											class="geo-flag"
+											src={getFlagUrl(geo.countryCode)}
+											alt={geo.countryName ?? ''}
+										/>
+									{/if}
+									{placeLabel(geo)}
+								</span>
+							</li>
+						{/if}
+						<li>
+							<span class="geo-key">Coords</span>
+							<span class="geo-coords">{formatCoords(geo.lat, geo.lng)}</span>
+						</li>
+					</ul>
+				{:else}
+					<p class="geo-empty">No location data</p>
+				{/if}
+			{/snippet}
 			<div class="photo-grid">
 				{#each visiblePhotos as photo (photo.id)}
 					{@const index = sectionPhotos.findIndex((p) => p.slug === photo.slug)}
@@ -1559,6 +1611,10 @@
 									{/each}
 								</select>
 							</label>
+							<details class="card-geo-mobile" use:smoothDetails>
+								<summary>Location</summary>
+								{@render geoContent(geoBySlug[photo.slug])}
+							</details>
 							<div class="card-actions">
 								<button
 									type="button"
@@ -1634,6 +1690,10 @@
 								</button>
 							</div>
 						</div>
+						<aside class="card-geo">
+							<span class="geo-title">Location</span>
+							{@render geoContent(geoBySlug[photo.slug])}
+						</aside>
 					</div>
 				{/each}
 			</div>
@@ -2194,6 +2254,107 @@
 	.order-input:focus {
 		outline: none;
 		border-color: #f6ae2d;
+	}
+
+	/* ── Read-only location panel (EXIF geo). PC: a column to the right of the card.
+	   Phone: a collapsible <details> card above the action buttons. ───────────── */
+	.card-geo {
+		display: flex;
+		flex-direction: column;
+		gap: 0.35rem;
+		width: 220px;
+		flex-shrink: 0;
+		align-self: stretch;
+		padding: 0.6rem 0.75rem;
+		background: #faf9fd;
+		border: 1px solid #efeaf7;
+		border-radius: 8px;
+	}
+
+	.card-geo-mobile {
+		display: none;
+		border: 1px solid #efeaf7;
+		border-radius: 8px;
+		background: #faf9fd;
+		padding: 0.4rem 0.6rem;
+		margin-top: 0.5rem;
+	}
+
+	.card-geo-mobile summary {
+		cursor: pointer;
+		font-weight: 700;
+		font-size: 0.78rem;
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
+		color: #555;
+		list-style: none;
+	}
+
+	.geo-title {
+		font-weight: 700;
+		font-size: 0.78rem;
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
+		color: #555;
+	}
+
+	.geo-list {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		display: flex;
+		flex-direction: column;
+		gap: 0.3rem;
+	}
+
+	.geo-list li {
+		display: flex;
+		flex-direction: column;
+		gap: 0.1rem;
+		font-size: 0.82rem;
+		color: #333;
+	}
+
+	.geo-key {
+		font-size: 0.68rem;
+		text-transform: uppercase;
+		letter-spacing: 0.03em;
+		color: #999;
+	}
+
+	.geo-place {
+		display: flex;
+		align-items: center;
+		gap: 0.35rem;
+	}
+
+	.geo-flag {
+		width: 18px;
+		height: auto;
+		border-radius: 2px;
+		flex-shrink: 0;
+	}
+
+	.geo-coords {
+		font-family: monospace;
+		font-size: 0.78rem;
+		color: #777;
+	}
+
+	.geo-empty {
+		font-size: 0.82rem;
+		color: #aaa;
+		margin: 0;
+	}
+
+	@media (max-width: 768px) {
+		.card-geo {
+			display: none;
+		}
+
+		.card-geo-mobile {
+			display: block;
+		}
 	}
 
 	@media (max-width: 600px) {

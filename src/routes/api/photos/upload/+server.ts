@@ -2,8 +2,10 @@ import { json } from '@sveltejs/kit';
 import sharp from 'sharp';
 import { randomBytes } from 'crypto';
 import { requireAdmin } from '$lib/auth-admin';
-import { ghCommitFiles } from '$lib/github';
+import { ghCommitFiles, type GhTreeFile } from '$lib/github';
 import { loadManifest, MANIFEST_PATH, sortByOrder } from '$lib/photos-server';
+import { loadGeo, geoToTreeFile } from '$lib/photos-geo-server';
+import { resolvePhotoGeo } from '$lib/photo-exif-server';
 import {
 	defaultCollectionNumber,
 	DEFAULT_PHOTO_COLLECTION,
@@ -100,6 +102,10 @@ export const POST: RequestHandler = async ({ request }) => {
 
 		const buffer = Buffer.from(await file.arrayBuffer());
 
+		// Read GPS/date from the RAW buffer before sharp strips metadata below.
+		// Never blocks the upload — resolvePhotoGeo swallows its own errors.
+		const geoEntry = await resolvePhotoGeo(slug, buffer);
+
 		let pipeline = sharp(buffer);
 		if (stripExif) {
 			pipeline = pipeline.rotate(); // auto-orient without keeping metadata
@@ -156,23 +162,28 @@ export const POST: RequestHandler = async ({ request }) => {
 			'base64'
 		);
 
-		await ghCommitFiles(
-			[
-				{
-					path: originalPath,
-					contentBase64: originalBuffer.toString('base64')
-				},
-				{
-					path: thumbPath,
-					contentBase64: thumbBuffer.toString('base64')
-				},
-				{
-					path: MANIFEST_PATH,
-					contentBase64: manifestBase64
-				}
-			],
-			`[photos skip deploy] Add photo: ${slug}`
-		);
+		const files: GhTreeFile[] = [
+			{
+				path: originalPath,
+				contentBase64: originalBuffer.toString('base64')
+			},
+			{
+				path: thumbPath,
+				contentBase64: thumbBuffer.toString('base64')
+			},
+			{
+				path: MANIFEST_PATH,
+				contentBase64: manifestBase64
+			}
+		];
+
+		// Persist geo (admin-only store) in the same atomic commit when present.
+		if (geoEntry) {
+			const { geo } = await loadGeo();
+			files.push(geoToTreeFile({ ...geo, [slug]: geoEntry }));
+		}
+
+		await ghCommitFiles(files, `[photos skip deploy] Add photo: ${slug}`);
 
 		return json(sortByOrder(updated));
 	} catch (error) {

@@ -291,6 +291,15 @@
 										href="{base}/photos-dashboard"
 										on:click={goBurgerLink}>{$t("Photos")}</a
 									>
+									<a
+										class="acc-link {isActive('/memories')
+											? 'is-active'
+											: ''}"
+										style="--d: 400ms"
+										target="_self"
+										href="{base}/memories"
+										on:click={goBurgerLink}>{$t("Memories")}</a
+									>
 								{/if}
 								<a
 									class="acc-link acc-logout"

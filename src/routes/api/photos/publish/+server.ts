@@ -1,7 +1,8 @@
 import { json } from '@sveltejs/kit';
 import { requireAdmin } from '$lib/auth-admin';
-import { ghCommitFiles } from '$lib/github';
+import { ghCommitFiles, type GhTreeFile } from '$lib/github';
 import { loadManifest, MANIFEST_PATH, sortByOrder } from '$lib/photos-server';
+import { loadGeo, geoToTreeFile, normalizeGeoEntry } from '$lib/photos-geo-server';
 import {
 	isPhotoCollectionYear,
 	isPhotoCollectionKey,
@@ -10,6 +11,7 @@ import {
 	isPhotoRevealDirection,
 	isPhotoScalePercent,
 	normalizePhotoEntry,
+	type PhotoGeoEntry,
 	type PhotoManifestEntry
 } from '../../../../shared/types';
 import type { RequestHandler } from './$types';
@@ -18,6 +20,7 @@ interface PendingPhotoCommit {
 	entry: PhotoManifestEntry;
 	originalBlobSha: string;
 	thumbBlobSha: string;
+	geo?: PhotoGeoEntry | null;
 }
 
 function isValidPendingPhoto(value: unknown): value is PendingPhotoCommit {
@@ -74,23 +77,35 @@ export const POST: RequestHandler = async ({ request }) => {
 			'base64'
 		);
 
-		await ghCommitFiles(
-			[
-				...pending.flatMap((photo: PendingPhotoCommit) => [
-					{
-						path: `static/photos/originals/${photo.entry.slug}.webp`,
-						sha: photo.originalBlobSha
-					},
-					{
-						path: `static/photos/thumbs/${photo.entry.slug}.webp`,
-						sha: photo.thumbBlobSha
-					}
-				]),
+		const files: GhTreeFile[] = [
+			...pending.flatMap((photo: PendingPhotoCommit) => [
 				{
-					path: MANIFEST_PATH,
-					contentBase64: manifestBase64
+					path: `static/photos/originals/${photo.entry.slug}.webp`,
+					sha: photo.originalBlobSha
+				},
+				{
+					path: `static/photos/thumbs/${photo.entry.slug}.webp`,
+					sha: photo.thumbBlobSha
 				}
-			],
+			]),
+			{
+				path: MANIFEST_PATH,
+				contentBase64: manifestBase64
+			}
+		];
+
+		// Fold any geotagged photos into the admin-only geo store in the same commit.
+		const geoEntries = pending
+			.map((photo: PendingPhotoCommit) => normalizeGeoEntry(photo.entry.slug, photo.geo))
+			.filter((g: PhotoGeoEntry | null): g is PhotoGeoEntry => g !== null);
+		if (geoEntries.length > 0) {
+			const { geo } = await loadGeo();
+			for (const g of geoEntries) geo[g.slug] = g;
+			files.push(geoToTreeFile(geo));
+		}
+
+		await ghCommitFiles(
+			files,
 			`[photos skip deploy] Publish ${pending.length} photo${pending.length === 1 ? '' : 's'}`
 		);
 
