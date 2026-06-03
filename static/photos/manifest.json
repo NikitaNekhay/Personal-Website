@@ -13,8 +13,10 @@
     "objectPosition": "center center",
     "positionX": 50,
     "positionY": 50,
-    "scalePercent": 30,
+    "scalePercent": 100,
     "revealFrom": "bottom",
+    "spacing": 20,
+    "layer": 0,
     "uploadedAt": "2026-05-26T19:23:28.473Z"
   },
   {
@@ -33,6 +35,8 @@
     "positionY": 50,
     "scalePercent": 100,
     "revealFrom": "bottom",
+    "spacing": 20,
+    "layer": 0,
     "uploadedAt": "2026-05-26T19:58:43.378Z"
   },
   {
@@ -51,6 +55,8 @@
     "positionY": 50,
     "scalePercent": 100,
     "revealFrom": "bottom",
+    "spacing": 20,
+    "layer": 0,
     "uploadedAt": "2026-05-26T19:59:05.036Z"
   },
   {
@@ -69,6 +75,8 @@
     "positionY": 50,
     "scalePercent": 100,
     "revealFrom": "bottom",
+    "spacing": 20,
+    "layer": 0,
     "uploadedAt": "2026-05-26T19:59:17.783Z"
   },
   {
@@ -87,6 +95,8 @@
     "positionY": 50,
     "scalePercent": 100,
     "revealFrom": "bottom",
+    "spacing": 20,
+    "layer": 0,
     "uploadedAt": "2026-05-26T19:59:26.006Z"
   },
   {
@@ -105,6 +115,8 @@
     "positionY": 50,
     "scalePercent": 100,
     "revealFrom": "bottom",
+    "spacing": 20,
+    "layer": 0,
     "uploadedAt": "2026-05-26T19:59:37.593Z"
   },
   {
@@ -123,6 +135,8 @@
     "positionY": 50,
     "scalePercent": 100,
     "revealFrom": "bottom",
+    "spacing": 20,
+    "layer": 0,
     "uploadedAt": "2026-05-26T19:59:47.873Z"
   },
   {
@@ -141,6 +155,8 @@
     "positionY": 50,
     "scalePercent": 100,
     "revealFrom": "bottom",
+    "spacing": 20,
+    "layer": 0,
     "uploadedAt": "2026-05-26T19:59:54.730Z"
   },
   {
@@ -159,6 +175,8 @@
     "positionY": 50,
     "scalePercent": 100,
     "revealFrom": "bottom",
+    "spacing": 20,
+    "layer": 0,
     "uploadedAt": "2026-05-26T20:00:08.459Z"
   },
   {
@@ -177,6 +195,8 @@
     "positionY": 50,
     "scalePercent": 100,
     "revealFrom": "bottom",
+    "spacing": 20,
+    "layer": 0,
     "uploadedAt": "2026-05-26T20:00:01.268Z"
   },
   {
@@ -195,6 +215,8 @@
     "positionY": 50,
     "scalePercent": 100,
     "revealFrom": "bottom",
+    "spacing": 20,
+    "layer": 0,
     "uploadedAt": "2026-05-26T20:00:18.594Z"
   },
   {
@@ -213,6 +235,8 @@
     "positionY": 50,
     "scalePercent": 100,
     "revealFrom": "bottom",
+    "spacing": 20,
+    "layer": 0,
     "uploadedAt": "2026-05-26T19:58:52.819Z"
   },
   {
@@ -231,6 +255,8 @@
     "positionY": 50,
     "scalePercent": 100,
     "revealFrom": "bottom",
+    "spacing": 20,
+    "layer": 0,
     "uploadedAt": "2026-05-26T20:00:34.170Z"
   },
   {
@@ -249,6 +275,8 @@
     "positionY": 50,
     "scalePercent": 100,
     "revealFrom": "bottom",
+    "spacing": 20,
+    "layer": 0,
     "uploadedAt": "2026-05-26T20:00:41.724Z"
   },
   {
@@ -267,6 +295,8 @@
     "positionY": 50,
     "scalePercent": 100,
     "revealFrom": "bottom",
+    "spacing": 20,
+    "layer": 0,
     "uploadedAt": "2026-05-26T20:00:26.775Z"
   },
   {
@@ -285,6 +315,8 @@
     "positionY": 50,
     "scalePercent": 100,
     "revealFrom": "bottom",
+    "spacing": 20,
+    "layer": 0,
     "uploadedAt": "2026-05-26T20:00:49.004Z"
   },
   {
@@ -303,6 +335,8 @@
     "positionY": 50,
     "scalePercent": 100,
     "revealFrom": "bottom",
+    "spacing": 20,
+    "layer": 0,
     "uploadedAt": "2026-05-26T20:00:57.883Z"
   },
   {
@@ -321,6 +355,8 @@
     "positionY": 50,
     "scalePercent": 100,
     "revealFrom": "bottom",
+    "spacing": 20,
+    "layer": 0,
     "uploadedAt": "2026-05-26T20:01:06.758Z"
   },
   {
@@ -339,6 +375,8 @@
     "positionY": 50,
     "scalePercent": 100,
     "revealFrom": "bottom",
+    "spacing": 20,
+    "layer": 0,
     "uploadedAt": "2026-05-26T20:01:16.275Z"
   },
   {
@@ -357,6 +395,8 @@
     "positionY": 50,
     "scalePercent": 100,
     "revealFrom": "bottom",
+    "spacing": 20,
+    "layer": 0,
     "uploadedAt": "2026-05-26T20:01:26.494Z"
   },
   {
@@ -375,6 +415,8 @@
     "positionY": 50,
     "scalePercent": 100,
     "revealFrom": "bottom",
+    "spacing": 20,
+    "layer": 0,
     "uploadedAt": "2026-05-26T20:01:33.279Z"
   },
   {
@@ -393,6 +435,8 @@
     "positionY": 50,
     "scalePercent": 100,
     "revealFrom": "bottom",
+    "spacing": 20,
+    "layer": 0,
     "uploadedAt": "2026-05-26T20:01:39.274Z"
   },
   {
@@ -411,6 +455,8 @@
     "positionY": 50,
     "scalePercent": 100,
     "revealFrom": "bottom",
+    "spacing": 20,
+    "layer": 0,
     "uploadedAt": "2026-05-26T20:01:43.878Z"
   },
   {
@@ -429,6 +475,8 @@
     "positionY": 50,
     "scalePercent": 100,
     "revealFrom": "bottom",
+    "spacing": 20,
+    "layer": 0,
     "uploadedAt": "2026-05-26T20:01:51.219Z"
   },
   {
@@ -447,6 +495,8 @@
     "positionY": 50,
     "scalePercent": 100,
     "revealFrom": "bottom",
+    "spacing": 20,
+    "layer": 0,
     "uploadedAt": "2026-05-26T20:01:58.814Z"
   },
   {
@@ -465,6 +515,8 @@
     "positionY": 50,
     "scalePercent": 100,
     "revealFrom": "bottom",
+    "spacing": 20,
+    "layer": 0,
     "uploadedAt": "2026-05-26T20:02:05.297Z"
   },
   {
@@ -483,6 +535,8 @@
     "positionY": 50,
     "scalePercent": 100,
     "revealFrom": "bottom",
+    "spacing": 20,
+    "layer": 0,
     "uploadedAt": "2026-05-26T20:02:14.989Z"
   },
   {
@@ -501,6 +555,8 @@
     "positionY": 50,
     "scalePercent": 100,
     "revealFrom": "bottom",
+    "spacing": 20,
+    "layer": 0,
     "uploadedAt": "2026-05-26T20:02:27.497Z"
   },
   {
@@ -519,6 +575,8 @@
     "positionY": 50,
     "scalePercent": 100,
     "revealFrom": "bottom",
+    "spacing": 20,
+    "layer": 0,
     "uploadedAt": "2026-05-26T20:02:36.202Z"
   },
   {
@@ -537,6 +595,8 @@
     "positionY": 50,
     "scalePercent": 100,
     "revealFrom": "bottom",
+    "spacing": 20,
+    "layer": 0,
     "uploadedAt": "2026-05-26T20:02:48.487Z"
   },
   {
@@ -555,6 +615,8 @@
     "positionY": 50,
     "scalePercent": 100,
     "revealFrom": "bottom",
+    "spacing": 20,
+    "layer": 0,
     "uploadedAt": "2026-05-26T20:02:59.101Z"
   },
   {
@@ -573,6 +635,8 @@
     "positionY": 50,
     "scalePercent": 100,
     "revealFrom": "bottom",
+    "spacing": 20,
+    "layer": 0,
     "uploadedAt": "2026-05-26T20:03:10.164Z"
   },
   {
@@ -591,6 +655,8 @@
     "positionY": 50,
     "scalePercent": 100,
     "revealFrom": "bottom",
+    "spacing": 20,
+    "layer": 0,
     "uploadedAt": "2026-05-26T20:03:23.767Z"
   },
   {
@@ -609,6 +675,8 @@
     "positionY": 50,
     "scalePercent": 100,
     "revealFrom": "bottom",
+    "spacing": 20,
+    "layer": 0,
     "uploadedAt": "2026-05-26T20:03:32.816Z"
   },
   {
@@ -627,6 +695,8 @@
     "positionY": 50,
     "scalePercent": 100,
     "revealFrom": "bottom",
+    "spacing": 20,
+    "layer": 0,
     "uploadedAt": "2026-05-26T20:03:41.276Z"
   },
   {
@@ -645,6 +715,8 @@
     "positionY": 50,
     "scalePercent": 100,
     "revealFrom": "bottom",
+    "spacing": 20,
+    "layer": 0,
     "uploadedAt": "2026-05-26T20:03:54.432Z"
   },
   {
@@ -663,6 +735,8 @@
     "positionY": 50,
     "scalePercent": 100,
     "revealFrom": "bottom",
+    "spacing": 20,
+    "layer": 0,
     "uploadedAt": "2026-05-26T20:04:06.085Z"
   },
   {
@@ -681,6 +755,8 @@
     "positionY": 50,
     "scalePercent": 100,
     "revealFrom": "bottom",
+    "spacing": 20,
+    "layer": 0,
     "uploadedAt": "2026-05-26T20:04:14.390Z"
   },
   {
@@ -699,6 +775,8 @@
     "positionY": 50,
     "scalePercent": 100,
     "revealFrom": "bottom",
+    "spacing": 20,
+    "layer": 0,
     "uploadedAt": "2026-05-26T20:04:21.017Z"
   },
   {
@@ -717,6 +795,8 @@
     "positionY": 50,
     "scalePercent": 100,
     "revealFrom": "bottom",
+    "spacing": 20,
+    "layer": 0,
     "uploadedAt": "2026-05-26T20:04:28.262Z"
   },
   {
@@ -735,6 +815,8 @@
     "positionY": 50,
     "scalePercent": 100,
     "revealFrom": "bottom",
+    "spacing": 20,
+    "layer": 0,
     "uploadedAt": "2026-05-26T20:04:38.867Z"
   },
   {
@@ -753,6 +835,8 @@
     "positionY": 50,
     "scalePercent": 100,
     "revealFrom": "bottom",
+    "spacing": 20,
+    "layer": 0,
     "uploadedAt": "2026-05-26T20:04:47.886Z"
   },
   {
@@ -771,6 +855,8 @@
     "positionY": 50,
     "scalePercent": 100,
     "revealFrom": "bottom",
+    "spacing": 20,
+    "layer": 0,
     "uploadedAt": "2026-05-26T20:04:57.729Z"
   },
   {
@@ -789,6 +875,8 @@
     "positionY": 50,
     "scalePercent": 100,
     "revealFrom": "bottom",
+    "spacing": 20,
+    "layer": 0,
     "uploadedAt": "2026-05-26T20:05:08.746Z"
   },
   {
@@ -807,6 +895,8 @@
     "positionY": 50,
     "scalePercent": 100,
     "revealFrom": "bottom",
+    "spacing": 20,
+    "layer": 0,
     "uploadedAt": "2026-05-26T20:05:16.787Z"
   },
   {
@@ -825,6 +915,8 @@
     "positionY": 50,
     "scalePercent": 100,
     "revealFrom": "bottom",
+    "spacing": 20,
+    "layer": 0,
     "uploadedAt": "2026-05-26T20:05:24.005Z"
   },
   {
@@ -843,6 +935,8 @@
     "positionY": 50,
     "scalePercent": 100,
     "revealFrom": "bottom",
+    "spacing": 20,
+    "layer": 0,
     "uploadedAt": "2026-05-26T20:05:31.577Z"
   },
   {
@@ -861,6 +955,8 @@
     "positionY": 50,
     "scalePercent": 100,
     "revealFrom": "bottom",
+    "spacing": 20,
+    "layer": 0,
     "uploadedAt": "2026-05-26T20:05:40.184Z"
   },
   {
@@ -879,6 +975,8 @@
     "positionY": 50,
     "scalePercent": 100,
     "revealFrom": "bottom",
+    "spacing": 20,
+    "layer": 0,
     "uploadedAt": "2026-05-26T20:05:48.406Z"
   },
   {
@@ -897,6 +995,8 @@
     "positionY": 50,
     "scalePercent": 100,
     "revealFrom": "bottom",
+    "spacing": 20,
+    "layer": 0,
     "uploadedAt": "2026-05-26T20:05:59.997Z"
   },
   {
@@ -915,6 +1015,8 @@
     "positionY": 50,
     "scalePercent": 100,
     "revealFrom": "bottom",
+    "spacing": 20,
+    "layer": 0,
     "uploadedAt": "2026-05-26T20:06:10.129Z"
   },
   {
@@ -933,6 +1035,8 @@
     "positionY": 50,
     "scalePercent": 100,
     "revealFrom": "bottom",
+    "spacing": 20,
+    "layer": 0,
     "uploadedAt": "2026-05-26T20:06:18.106Z"
   },
   {
@@ -951,6 +1055,8 @@
     "positionY": 50,
     "scalePercent": 100,
     "revealFrom": "bottom",
+    "spacing": 20,
+    "layer": 0,
     "uploadedAt": "2026-05-26T20:06:26.601Z"
   },
   {
@@ -969,6 +1075,8 @@
     "positionY": 50,
     "scalePercent": 100,
     "revealFrom": "bottom",
+    "spacing": 20,
+    "layer": 0,
     "uploadedAt": "2026-05-26T20:06:35.541Z"
   },
   {
@@ -987,6 +1095,8 @@
     "positionY": 50,
     "scalePercent": 100,
     "revealFrom": "bottom",
+    "spacing": 20,
+    "layer": 0,
     "uploadedAt": "2026-05-26T20:06:44.953Z"
   },
   {
@@ -1005,6 +1115,8 @@
     "positionY": 50,
     "scalePercent": 100,
     "revealFrom": "bottom",
+    "spacing": 20,
+    "layer": 0,
     "uploadedAt": "2026-05-26T20:06:53.507Z"
   },
   {
@@ -1023,6 +1135,8 @@
     "positionY": 50,
     "scalePercent": 100,
     "revealFrom": "bottom",
+    "spacing": 20,
+    "layer": 0,
     "uploadedAt": "2026-05-26T20:07:00.787Z"
   },
   {
@@ -1041,6 +1155,8 @@
     "positionY": 50,
     "scalePercent": 100,
     "revealFrom": "bottom",
+    "spacing": 20,
+    "layer": 0,
     "uploadedAt": "2026-05-26T20:07:08.776Z"
   },
   {
@@ -1059,6 +1175,8 @@
     "positionY": 50,
     "scalePercent": 100,
     "revealFrom": "bottom",
+    "spacing": 20,
+    "layer": 0,
     "uploadedAt": "2026-05-26T20:07:18.603Z"
   },
   {
@@ -1077,6 +1195,8 @@
     "positionY": 50,
     "scalePercent": 100,
     "revealFrom": "bottom",
+    "spacing": 20,
+    "layer": 0,
     "uploadedAt": "2026-05-26T20:07:24.835Z"
   },
   {
@@ -1095,6 +1215,8 @@
     "positionY": 50,
     "scalePercent": 100,
     "revealFrom": "bottom",
+    "spacing": 20,
+    "layer": 0,
     "uploadedAt": "2026-05-26T20:07:30.634Z"
   },
   {
@@ -1113,6 +1235,8 @@
     "positionY": 50,
     "scalePercent": 100,
     "revealFrom": "bottom",
+    "spacing": 20,
+    "layer": 0,
     "uploadedAt": "2026-05-26T20:07:35.623Z"
   },
   {
@@ -1131,6 +1255,8 @@
     "positionY": 50,
     "scalePercent": 100,
     "revealFrom": "bottom",
+    "spacing": 20,
+    "layer": 0,
     "uploadedAt": "2026-05-26T20:07:40.689Z"
   },
   {
@@ -1149,6 +1275,8 @@
     "positionY": 50,
     "scalePercent": 100,
     "revealFrom": "bottom",
+    "spacing": 20,
+    "layer": 0,
     "uploadedAt": "2026-05-26T20:07:50.504Z"
   },
   {
@@ -1167,6 +1295,8 @@
     "positionY": 50,
     "scalePercent": 100,
     "revealFrom": "bottom",
+    "spacing": 20,
+    "layer": 0,
     "uploadedAt": "2026-05-26T20:07:56.454Z"
   },
   {
@@ -1185,6 +1315,8 @@
     "positionY": 50,
     "scalePercent": 100,
     "revealFrom": "bottom",
+    "spacing": 20,
+    "layer": 0,
     "uploadedAt": "2026-05-26T20:08:07.658Z"
   },
   {
@@ -1203,6 +1335,8 @@
     "positionY": 50,
     "scalePercent": 100,
     "revealFrom": "bottom",
+    "spacing": 20,
+    "layer": 0,
     "uploadedAt": "2026-05-26T20:08:17.924Z"
   },
   {
@@ -1221,6 +1355,8 @@
     "positionY": 50,
     "scalePercent": 100,
     "revealFrom": "bottom",
+    "spacing": 20,
+    "layer": 0,
     "uploadedAt": "2026-05-26T20:08:27.362Z"
   },
   {
@@ -1239,6 +1375,8 @@
     "positionY": 50,
     "scalePercent": 100,
     "revealFrom": "bottom",
+    "spacing": 20,
+    "layer": 0,
     "uploadedAt": "2026-05-26T20:08:36.645Z"
   },
   {
@@ -1257,6 +1395,8 @@
     "positionY": 50,
     "scalePercent": 100,
     "revealFrom": "bottom",
+    "spacing": 20,
+    "layer": 0,
     "uploadedAt": "2026-05-26T20:08:46.151Z"
   },
   {
@@ -1275,6 +1415,8 @@
     "positionY": 50,
     "scalePercent": 100,
     "revealFrom": "bottom",
+    "spacing": 20,
+    "layer": 0,
     "uploadedAt": "2026-05-26T20:08:57.942Z"
   },
   {
@@ -1293,6 +1435,8 @@
     "positionY": 50,
     "scalePercent": 100,
     "revealFrom": "bottom",
+    "spacing": 20,
+    "layer": 0,
     "uploadedAt": "2026-05-26T20:09:09.922Z"
   },
   {
@@ -1308,9 +1452,11 @@
     "height": 2560,
     "objectPosition": "center center",
     "positionX": 50,
-    "positionY": 70,
+    "positionY": 50,
     "scalePercent": 100,
     "revealFrom": "right",
+    "spacing": 20,
+    "layer": 0,
     "uploadedAt": "2026-05-29T16:00:22.175Z"
   },
   {
@@ -1329,6 +1475,8 @@
     "positionY": 50,
     "scalePercent": 100,
     "revealFrom": "bottom",
+    "spacing": 20,
+    "layer": 0,
     "uploadedAt": "2026-05-29T16:00:27.920Z"
   },
   {
@@ -1343,10 +1491,12 @@
     "width": 1920,
     "height": 1440,
     "objectPosition": "center center",
-    "positionX": 20,
+    "positionX": 50,
     "positionY": 50,
     "scalePercent": 100,
     "revealFrom": "bottom",
+    "spacing": 20,
+    "layer": 0,
     "uploadedAt": "2026-05-29T16:00:32.122Z"
   }
 ]
