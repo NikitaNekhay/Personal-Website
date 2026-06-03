@@ -14,6 +14,7 @@
 		DEFAULT_PHOTO_SCALE,
 		DEFAULT_PHOTO_SPACING,
 		DEFAULT_PHOTO_LAYER,
+		normalizePhotoCollectionKey,
 		type PhotoCollectionKey,
 		type PhotoManifestEntry
 	} from '../../shared/types';
@@ -1453,10 +1454,7 @@
 									value={photoDrafts[photo.slug]?.collectionKey ?? photo.collectionKey}
 									onchange={(e) =>
 										updateDraft(photo.slug, {
-											collectionKey:
-												e.currentTarget.value === PHOTO_SELECTION_COLLECTION
-													? PHOTO_SELECTION_COLLECTION
-													: Number(e.currentTarget.value)
+											collectionKey: normalizePhotoCollectionKey(e.currentTarget.value)
 										})}
 								>
 									{#each PHOTO_COLLECTION_OPTIONS as collection}

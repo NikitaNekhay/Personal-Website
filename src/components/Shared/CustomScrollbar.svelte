@@ -29,7 +29,6 @@
 
 	function setDot(p: number) {
 		if (dotEl) dotEl.style.top = `${(p * 100).toFixed(2)}%`;
-		if (barEl) barEl.setAttribute('aria-valuenow', String(Math.round(p * 100)));
 	}
 
 	// ── position tracking (dot follows the page scroll) ─────────────────────
@@ -48,7 +47,7 @@
 	}
 
 	// ── interaction (tap/drag to scroll) ────────────────────────────────────
-	let dragging = false;
+	let dragging = $state(false); // used in template (class:dragging) → must be reactive
 	let dragTop = 0; // track top, captured at gesture start (stable vs iOS toolbar)
 	let dragHeight = 1; // track height, captured at gesture start
 	let dragMax = 0; // max scroll, captured at gesture start
@@ -122,17 +121,15 @@
 </script>
 
 {#if browser}
+	<!-- Presentational: a mouse-only visual progress indicator that duplicates the
+	     native page scroll (which remains the accessible/keyboard path). Not exposed
+	     as an ARIA scrollbar widget because it isn't keyboard-operable and controls
+	     whole-page scroll rather than a specific region. -->
 	<div
 		class="scrollbar"
 		class:is-visible={scrollable}
 		class:dragging
-		role="scrollbar"
-		aria-orientation="vertical"
-		aria-label="Page scroll position"
-		aria-valuemin={0}
-		aria-valuemax={100}
-		aria-valuenow={0}
-		tabindex="-1"
+		aria-hidden="true"
 		bind:this={barEl}
 		onpointerdown={onPointerDown}
 		onpointermove={onPointerMove}

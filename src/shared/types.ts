@@ -343,11 +343,16 @@ export function isPhotoCollectionKey(value: unknown): value is PhotoCollectionKe
 
 export function normalizePhotoCollectionKey(
     value: unknown,
-    fallbackYear = defaultCollectionNumber()
+    fallbackYear: number = defaultCollectionNumber()
 ): PhotoCollectionKey {
     if (value === PHOTO_SELECTION_COLLECTION) return PHOTO_SELECTION_COLLECTION;
     const parsed = typeof value === 'string' ? Number(value) : value;
-    return typeof parsed === 'number' && isPhotoCollectionYear(parsed) ? parsed : fallbackYear;
+    if (typeof parsed === 'number' && isPhotoCollectionYear(parsed)) return parsed;
+    // fallbackYear is `number` at the type level; only return it if it's actually a
+    // valid collection year, otherwise fall back to the last known year. This keeps
+    // the return type narrowed to PhotoCollectionKey without changing call sites.
+    if (isPhotoCollectionYear(fallbackYear)) return fallbackYear;
+    return PHOTO_COLLECTION_YEARS[PHOTO_COLLECTION_YEARS.length - 1];
 }
 
 export function isPhotoRevealDirection(value: unknown): value is PhotoRevealDirection {
