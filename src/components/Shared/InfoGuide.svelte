@@ -1,3 +1,11 @@
+<script module lang="ts">
+	// Глобальное (на весь модуль) состояние: id единственной открытой подсказки.
+	// Любая открытая подсказка пишет сюда свой id, остальные мгновенно
+	// закрываются — гарантия «не больше одной открытой за раз».
+	let activeGuideId = $state<number | null>(null);
+	let guideCounter = 0;
+</script>
+
 <script lang="ts">
 	import { base } from '$app/paths';
 
@@ -6,9 +14,12 @@
 	}
 
 	let { text }: Props = $props();
-	let isOpen = $state(false);
+
+	const myId = ++guideCounter; // уникальный id этого экземпляра
 	let isHovered = $state(false);
 
+	// «Закреплено» (открыто кликом/тапом) — только если глобальный id наш.
+	const isOpen = $derived(activeGuideId === myId);
 	const isVisible = $derived(isOpen || isHovered);
 
 	// Подсказка позиционируется через position:fixed, чтобы НЕ обрезаться
@@ -58,10 +69,45 @@
 		};
 	});
 
+	// Пока подсказка закреплена (открыта тапом/кликом) — слушаем весь документ:
+	// любой клик/тап/скролл вне самой кнопки закрывает её. Слушатель навешивает
+	// ТОЛЬКО открытый экземпляр, поэтому он на странице ровно один.
+	$effect(() => {
+		if (!isOpen) return;
+		const onDocPointerDown = (e: Event) => {
+			// клик по собственной кнопке обрабатывает toggle() — его не трогаем
+			if (buttonEl && buttonEl.contains(e.target as Node)) return;
+			activeGuideId = null;
+		};
+		const onKey = (e: KeyboardEvent) => {
+			if (e.key === 'Escape') activeGuideId = null;
+		};
+		// capture: ловим до того, как клик «съест» что-то ниже
+		document.addEventListener('pointerdown', onDocPointerDown, true);
+		document.addEventListener('keydown', onKey);
+		return () => {
+			document.removeEventListener('pointerdown', onDocPointerDown, true);
+			document.removeEventListener('keydown', onKey);
+		};
+	});
+
 	function toggle(e: MouseEvent) {
 		e.preventDefault();
 		e.stopPropagation();
-		isOpen = !isOpen;
+		activeGuideId = isOpen ? null : myId;
+	}
+
+	function onPointerEnter(e: PointerEvent) {
+		// только настоящая мышь: на тач/пере «hover» залипает и плодит баги
+		if (e.pointerType !== 'mouse') return;
+		// навели на ЧУЖУЮ закреплённую подсказку — закрываем её (одна за раз)
+		if (!isOpen) activeGuideId = null;
+		isHovered = true;
+	}
+
+	function onPointerLeave(e: PointerEvent) {
+		if (e.pointerType !== 'mouse') return;
+		isHovered = false;
 	}
 </script>
 
@@ -72,10 +118,9 @@
 		class="guide-button"
 		aria-label="Show field guide"
 		aria-expanded={isVisible}
-		onmouseenter={() => (isHovered = true)}
-		onmouseleave={() => (isHovered = false)}
+		onpointerenter={onPointerEnter}
+		onpointerleave={onPointerLeave}
 		onclick={toggle}
-		onblur={() => (isOpen = false)}
 	>
 		<img src="{base}/media/info.svg" alt="" />
 	</button>
