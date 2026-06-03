@@ -105,7 +105,9 @@
 		width: 100%;
 		padding-top: var(--site-header-height);
 		position: relative;
-		z-index: 0;
+		/* No z-index here: a stacking context would trap the fixed bookmark and
+		   "Back to top" (both z-45) below the root scrollbar. Photo stacking is
+		   contained inside EditorialCanvas's .canvas instead. */
 	}
 
 	.home-loading {

@@ -294,6 +294,11 @@
 <style>
 	.canvas {
 		position: relative;
+		/* Own stacking context so per-photo `layer` (z-index up to 100) stays
+		   contained BELOW the site scrollbar / bookmark / back-to-top, which live
+		   at the root. */
+		z-index: 0;
+		isolation: isolate;
 		width: 100%;
 		background: #ffffff;
 		padding-bottom: 22vh;
@@ -332,18 +337,24 @@
 	}
 
 	/* Sizing is height-driven (like the old contain box) so default photos stay
-	   compact — about one screen tall at scale 100, never taller. The min() also
-	   bounds width so wide images don't exceed ~92vw. */
+	   compact — about one screen tall at scale 100, never taller. BOTH width and
+	   height are explicit lengths (a block element with width:auto would otherwise
+	   stretch to the full container width, ignoring scale). They are derived from
+	   the same min() so the photo's aspect ratio is preserved, and the width is
+	   also bounded to ~92vw for wide images. */
 	.photo-reveal {
 		position: relative;
 		display: block;
 		margin: 0;
 		aspect-ratio: var(--ar, 0.75);
+		width: min(
+			calc(var(--w, 100) / 100 * (100svh - var(--site-header-height)) * var(--ar, 0.75)),
+			calc(var(--w, 100) / 100 * 92vw)
+		);
 		height: min(
 			calc(var(--w, 100) / 100 * (100svh - var(--site-header-height))),
 			calc(var(--w, 100) / 100 * 92vw / var(--ar, 0.75))
 		);
-		width: auto;
 		opacity: 0;
 		transform: translate3d(var(--reveal-from, 0, 6vh), 0);
 		transition:
