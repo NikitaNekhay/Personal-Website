@@ -64,6 +64,10 @@
 	}
 
 	function onPointerDown(e: PointerEvent) {
+		// Touch (iOS/Android) scrolls the page natively — we never drive the scroll
+		// programmatically there, so the bar can't fight the browser. Drag/click is
+		// mouse/pen only. (CSS also makes the bar pass-through on touch devices.)
+		if (e.pointerType === 'touch') return;
 		if (!scrollable || !barEl) return;
 		e.preventDefault();
 		const rect = barEl.getBoundingClientRect();
@@ -162,6 +166,17 @@
 	.scrollbar.is-visible {
 		opacity: 1;
 		pointer-events: auto;
+	}
+
+	/* Touch devices (phones/tablets): the bar is a passive indicator only. It never
+	   intercepts touches, so the page scrolls natively (smooth as the browser's own)
+	   and there is no JS scroll-fighting / jitter. The dot still tracks position. */
+	@media (hover: none) and (pointer: coarse) {
+		.scrollbar,
+		.scrollbar.is-visible {
+			pointer-events: none;
+			touch-action: auto;
+		}
 	}
 
 	/* Children never become the pointer/touch target, so the bar's touch-action
