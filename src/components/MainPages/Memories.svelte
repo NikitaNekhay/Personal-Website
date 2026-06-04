@@ -32,9 +32,25 @@
 	let errorMsg = $state<string | null>(null);
 	let items = $state<MemoryItem[]>([]);
 	let mapEl: HTMLDivElement | undefined = $state();
+	let isFullscreen = $state(false);
 
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	let map: any = null;
+
+	async function setFullscreen(on: boolean) {
+		isFullscreen = on;
+		if (typeof document !== 'undefined') {
+			document.body.style.overflow = on ? 'hidden' : '';
+		}
+		// Wait for the container to actually resize, then let Leaflet recompute its
+		// tile/layout geometry — without this the map renders grey/clipped after toggle.
+		await tick();
+		map?.invalidateSize();
+	}
+
+	function handleKeydown(e: KeyboardEvent) {
+		if (e.key === 'Escape' && isFullscreen) setFullscreen(false);
+	}
 
 	function imgUrl(path: string): string {
 		return `${base}/api/photos/image/${path.replace(/^\/?photos\//, '')}`;
@@ -160,6 +176,7 @@
 		});
 		return () => {
 			unsub();
+			if (typeof document !== 'undefined') document.body.style.overflow = '';
 			if (map) {
 				map.remove();
 				map = null;
@@ -171,6 +188,8 @@
 <svelte:head>
 	<title>{$t('Memories')}</title>
 </svelte:head>
+
+<svelte:window onkeydown={handleKeydown} />
 
 <section class="memories">
 	<h1 class="memories-title">{$t('Memories')}</h1>
@@ -186,7 +205,29 @@
 		</p>
 	{:else}
 		<p class="memories-note">{items.length} place{items.length === 1 ? '' : 's'} on the map.</p>
-		<div class="memories-map" bind:this={mapEl}></div>
+		<div class="memories-map-wrap" class:fullscreen={isFullscreen}>
+			{#if isFullscreen}
+				<button
+					type="button"
+					class="map-btn map-back"
+					onclick={() => setFullscreen(false)}
+				>
+					<span class="map-btn-arrow" aria-hidden="true">←</span>
+					{$t('Back')}
+				</button>
+			{:else}
+				<button
+					type="button"
+					class="map-btn map-expand"
+					onclick={() => setFullscreen(true)}
+					aria-label="Open fullscreen map"
+				>
+					<span class="map-btn-arrow" aria-hidden="true">⤢</span>
+					{$t('Fullscreen')}
+				</button>
+			{/if}
+			<div class="memories-map" bind:this={mapEl}></div>
+		</div>
 	{/if}
 </section>
 
@@ -214,6 +255,10 @@
 		color: #c53030;
 	}
 
+	.memories-map-wrap {
+		position: relative;
+	}
+
 	.memories-map {
 		width: 100%;
 		height: 70vh;
@@ -222,6 +267,75 @@
 		overflow: hidden;
 		box-shadow: 0 4px 16px rgba(36, 30, 78, 0.12);
 		z-index: 0; /* keep tiles/controls below the site header */
+	}
+
+	/* Fullscreen: the wrapper covers the whole viewport (above the site header). */
+	.memories-map-wrap.fullscreen {
+		position: fixed;
+		inset: 0;
+		z-index: 9999;
+		background: #fff;
+	}
+
+	.memories-map-wrap.fullscreen .memories-map {
+		height: 100vh;
+		min-height: 0;
+		border-radius: 0;
+		box-shadow: none;
+	}
+
+	/* Site-styled map buttons (navy pill, gold focus ring) — above Leaflet controls. */
+	.map-btn {
+		position: absolute;
+		z-index: 10000;
+		display: inline-flex;
+		align-items: center;
+		gap: 0.4rem;
+		font: inherit;
+		font-weight: 700;
+		font-size: 0.9rem;
+		letter-spacing: 0.02em;
+		color: #fff;
+		background: #241e4e;
+		border: none;
+		border-radius: 999px;
+		padding: 0.55rem 1.1rem;
+		cursor: pointer;
+		box-shadow: 0 4px 14px rgba(36, 30, 78, 0.35);
+		transition:
+			transform 140ms ease,
+			background 140ms ease,
+			box-shadow 140ms ease;
+	}
+
+	.map-btn:hover {
+		background: #2f2766;
+		transform: translateY(-1px);
+		box-shadow: 0 6px 18px rgba(36, 30, 78, 0.45);
+	}
+
+	.map-btn:active {
+		transform: translateY(0);
+	}
+
+	.map-btn:focus-visible {
+		outline: 2px solid #f6ae2d;
+		outline-offset: 2px;
+	}
+
+	.map-expand {
+		top: 0.85rem;
+		right: 0.85rem;
+	}
+
+	.map-back {
+		top: 1.1rem;
+		left: 1.1rem;
+	}
+
+	.map-btn-arrow {
+		font-size: 1.05rem;
+		line-height: 1;
 	}
 
 	/* Thumbnail pin */

@@ -236,7 +236,10 @@
 	onMount(() => {
 		loadManifest();
 		loadSettings();
-		loadGeo();
+		// Geo is an admin-only fetch needing a token, but auth.currentUser is still
+		// null at mount until Firebase restores the session. Wait for that, otherwise
+		// getAuthHeaders() throws and the panel silently stays empty.
+		auth.authStateReady().then(() => loadGeo());
 	});
 
 	function addFiles(files: FileList | File[]) {
