@@ -1,11 +1,24 @@
 <script>
   import { base } from "$app/paths";
+  import { goto } from "$app/navigation";
   import { onMount } from "svelte";
   import { t } from "svelte-i18n";
   import { currentLanguagee } from "../../store/store_";
   import { fadeInImage } from "../../services/fadeInImage";
   import { trackEngagement } from "../../services/engagement";
   import { prefetchImages } from "../../services/imagePreload";
+  import Bookmark from "../Shared/Bookmark.svelte";
+
+  // Bookmark sections for /works. "Project 1" is the current page (stays put);
+  // "Custom Editions" routes to the sibling page. Rendered as a single row.
+  const worksSections = [
+    { label: "Project 1", active: true, onSelect: () => {} },
+    {
+      label: "Custom Editions",
+      active: false,
+      onSelect: () => goto(`${base}/works/custom_editions`),
+    },
+  ];
   let innerWidth = 0;
   let innerHeight = 0;
   let reverseDisplay = "w-[100%] w-screen mb-44";
@@ -63,6 +76,7 @@
 <svelte:window bind:innerWidth bind:innerHeight />
 
 <div bind:this={root}>
+<Bookmark items={worksSections} ariaLabel="Open works sections" peekLabel="Project 1" />
 <section class="h-screen">
   <div
     class="grid h-[100%] px-4 bg-white place-content-center lg:mb-0 md:mb-48 sm:mb-48"
