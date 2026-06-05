@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { t } from 'svelte-i18n';
 	import { browser } from '$app/environment';
 	import { base } from '$app/paths';
 	import { trackEngagement } from '../../services/engagement';
@@ -325,7 +326,7 @@
 </svelte:head>
 
 {#if sorted.length === 0}
-	<div class="empty">No photos available</div>
+	<div class="empty">{$t('No photos available')}</div>
 {:else}
 	<div
 		class="gallery-root"

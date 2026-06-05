@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
+  import { t } from "svelte-i18n";
   import { authStore, triggerComments } from "../../../store/store";
   import type { MessageType } from "../../../shared/types";
   import { page } from "$app/stores";
@@ -37,7 +38,7 @@
 </script>
 
 <div>
-  <h1>Your comment</h1>
+  <h1>{$t("Your comment")}</h1>
 
   <div
     class="overflow-hidden rounded-lg border border-gray-200 shadow-sm focus-within:border-blue-600 focus-within:ring-1 focus-within:ring-blue-600"

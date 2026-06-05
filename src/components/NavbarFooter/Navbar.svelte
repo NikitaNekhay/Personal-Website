@@ -11,6 +11,7 @@
 	import ru from "../../services/ru.json";
 	import en from "../../services/en.json";
 	import { currentLanguagee } from "../../store/store_";
+	import { contentEditorOpen } from "../../store/contentEditor";
 
 	import { onMount } from "svelte";
 	import { slide } from "svelte/transition";
@@ -300,6 +301,15 @@
 										href="{base}/memories"
 										on:click={goBurgerLink}>{$t("Memories")}</a
 									>
+									<button
+										class="acc-link ce-toggle"
+										style="--d: 410ms"
+										type="button"
+										on:click={() => {
+											closeHeader();
+											contentEditorOpen.set(true);
+										}}>{$t("Edit content")}</button
+									>
 								{/if}
 								<a
 									class="acc-link acc-logout"
@@ -459,6 +469,23 @@
 
 	.acc-logout:hover {
 		color: #c53030;
+	}
+
+	/* Admin "Edit content" toggle — gradient text matching the footer copyright. */
+	.nav-account .ce-toggle {
+		background-color: transparent;
+		background-image: linear-gradient(to right, #eab308, #ef4444, #ec4899);
+		-webkit-background-clip: text;
+		background-clip: text;
+		color: transparent;
+		border: none;
+		padding: 0;
+		font-weight: 700;
+		cursor: pointer;
+	}
+	.nav-account .ce-toggle:hover {
+		color: transparent;
+		filter: brightness(1.12);
 	}
 
 	@keyframes linkIn {

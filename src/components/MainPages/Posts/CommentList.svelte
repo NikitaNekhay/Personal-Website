@@ -1,5 +1,6 @@
 <script lang="ts">
     import { afterUpdate, onMount } from "svelte";
+    import { t } from "svelte-i18n";
     import { Errors, type MessageType } from "../../../shared/types";
     import {
         deleteComment,
@@ -187,7 +188,7 @@
 
                 <div class="flex items-center justify-end gap-2 bg-white p-3">
                     {#if checkUserRight(comment)}
-                        <p>What to do with your comment?</p>
+                        <p>{$t("What to do with your comment?")}</p>
                         {#if editClicked && editClicked.index === i}
                             <input type="text" bind:value={comment.comment} />
                             <button
@@ -226,7 +227,7 @@
         </ul>
     {:else}
         <div>
-            <h1 class="text-center w-full mt-4">Please leave a comment!</h1>
+            <h1 class="text-center w-full mt-4">{$t("Please leave a comment!")}</h1>
         </div>
     {/if}
 {/key}

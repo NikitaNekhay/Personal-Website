@@ -1,5 +1,8 @@
 <script lang="ts">
     import Navbar from "../components/NavbarFooter/Navbar.svelte";
+    import ContentEditor from "../components/Shared/ContentEditor.svelte";
+    import { contentEditorOpen } from "../store/contentEditor";
+    import { resetPageKeys } from "$lib/i18n-tracker";
     import EmptyPage from "../components/Shared/EmptyPage.svelte";
     import CustomScrollbar from "../components/Shared/CustomScrollbar.svelte";
     import RouteLoadingOverlay from "../components/Shared/RouteLoadingOverlay.svelte";
@@ -22,6 +25,17 @@
 
     let isUser: boolean = false;
     let isChanged: boolean = false;
+
+    // Reset the per-page i18n key tracker whenever the route changes, so the
+    // content editor's "This page" tab reflects the current route only.
+    let lastPath = "";
+    $: {
+        const p = $page.url.pathname;
+        if (p !== lastPath) {
+            lastPath = p;
+            resetPageKeys();
+        }
+    }
 
     const checkUserStatus = (user) => {
         isAdmin.set({ value: false });
@@ -167,6 +181,10 @@
 <RouteLoadingOverlay />
 <CustomScrollbar />
 <Navbar />
+
+{#if $isAdmin.value && $contentEditorOpen}
+    <ContentEditor />
+{/if}
 
 {#if $page.error}
     <EmptyPage />

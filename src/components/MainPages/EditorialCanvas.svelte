@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { t } from 'svelte-i18n';
 	import { browser } from '$app/environment';
 	import { base } from '$app/paths';
 	import { prefetchImages } from '../../services/imagePreload';
@@ -232,7 +233,7 @@
 </script>
 
 {#if sorted.length === 0}
-	<div class="empty">No photos yet.</div>
+	<div class="empty">{$t('No photos yet.')}</div>
 {:else}
 	<div class="canvas" bind:this={rootEl}>
 		{#each sorted as photo, index (photo.slug)}
