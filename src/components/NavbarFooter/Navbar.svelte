@@ -205,6 +205,17 @@
 					lang={$currentLanguagee}
 				>
 					<div class="exp-inner">
+						{#if $isAdmin.value}
+							<button
+								class="acc-link ce-toggle"
+								style="--d: 60ms"
+								type="button"
+								on:click={() => {
+									closeHeader();
+									contentEditorOpen.set(true);
+								}}>{$t("Edit content")}</button
+							>
+						{/if}
 						<!-- Основная навигация (крупнее) -->
 						<nav class="nav-main">
 							<div class="nav-group nav-group-a">
@@ -300,15 +311,6 @@
 										target="_self"
 										href="{base}/memories"
 										on:click={goBurgerLink}>{$t("Memories")}</a
-									>
-									<button
-										class="acc-link ce-toggle"
-										style="--d: 410ms"
-										type="button"
-										on:click={() => {
-											closeHeader();
-											contentEditorOpen.set(true);
-										}}>{$t("Edit content")}</button
 									>
 								{/if}
 								<a
@@ -471,8 +473,9 @@
 		color: #c53030;
 	}
 
-	/* Admin "Edit content" toggle — gradient text matching the footer copyright. */
-	.nav-account .ce-toggle {
+	/* Admin "Edit content" toggle — gradient text matching the footer copyright.
+	   This rainbow gradient lives ONLY here, never inside the editor itself. */
+	.exp-inner .ce-toggle {
 		background-color: transparent;
 		background-image: linear-gradient(to right, #eab308, #ef4444, #ec4899);
 		-webkit-background-clip: text;
@@ -482,10 +485,25 @@
 		padding: 0;
 		font-weight: 700;
 		cursor: pointer;
+		order: 99; /* phones: keep it at the end of the column */
+		align-self: flex-start; /* phones: left-aligned */
 	}
-	.nav-account .ce-toggle:hover {
+	.exp-inner .ce-toggle:hover {
 		color: transparent;
 		filter: brightness(1.12);
+	}
+	/* PC: pin it to the LEFT side of the expanded header (mirrors .nav-account on the right). */
+	@media (min-width: 1024px) {
+		.exp-inner .ce-toggle {
+			position: absolute;
+			left: 2.5rem;
+			top: 50%;
+			transform: translateY(-50%);
+			order: 0;
+		}
+		.exp-inner .ce-toggle:hover {
+			transform: translateY(-50%);
+		}
 	}
 
 	@keyframes linkIn {
