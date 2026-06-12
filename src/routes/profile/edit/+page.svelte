@@ -5,7 +5,7 @@
 </svelte:head>
 
 <script >
-    import CountryData from "../../../CountryData.json";
+    import CountryData from "../../../services/CountryData.json";
   import ProfileEdit from '../../../components/MainPages/Profile/ProfileEdit.svelte'
 
 

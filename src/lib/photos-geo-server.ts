@@ -6,7 +6,7 @@ import { isValidLatLng, type PhotoGeoEntry } from '../shared/types';
  * shipped as a public asset and is only ever read through the admin-guarded
  * GET /api/photos/geo endpoint. Shape: a map keyed by photo slug.
  */
-export const GEO_PATH = 'data/photos-geo.json';
+export const GEO_PATH = 'static/photos/data/photos-geo.json';
 
 export type PhotoGeoMap = Record<string, PhotoGeoEntry>;
 

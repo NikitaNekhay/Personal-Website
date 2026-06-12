@@ -2,7 +2,7 @@
     import { onMount } from "svelte";
     import ShoppingCart from "../../../components/MainPages/Profile/ShoppingCart.svelte";
     import LoadingSpinner from "../../../components/Shared/LoadingSpinner.svelte";
-    import CountryData from "../../../CountryData.json";
+    import CountryData from "../../../services/CountryData.json";
     import { t } from "svelte-i18n";
     import { cart } from "../../../store/cart_store_";
     import { authStore } from "../../../store/store";
