@@ -582,6 +582,7 @@
 			flex-direction: column;
 			align-items: flex-end;
 			gap: 0.9rem;
+			flex: 0 1 auto; 
 		}
 
 		.nav-group {

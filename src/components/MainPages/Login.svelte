@@ -100,14 +100,12 @@
         href=""
     />
 {/if}
-<section class="h-screen w-screen 3xl:pb-[40%]">
+<section class="h-screen w-screen 3xl:pb-[40%] 2xl:pb-[40%] xl:pb-[40%]">
     <div
-        class="flex place-content-center px-[20%] py-[14%] sm:px-6 sm:py-[25%] {innerWidth >
-        620
-            ? 'md:py-[15%]'
-            : 'md:py-[25%]'} lg:px-8 xl:py-[8%] 2xl:py-[8%] 3xl:py-[9%]"
+        class="flex place-content-center px-[20%] py-[14%] sm:px-6 sm:py-[25%] 
+        {innerWidth > 620 ? 'md:py-[15%]' : 'md:py-[25%]'} lg:px-8 xl:py-[8%] 2xl:py-[8%] 3xl:py-[9%]"
     />
-    <div class="  ">
+    <div>
         <header class="mb-6 justify-center text-center">
             <h1 class="font-abril text-4xl text-blue-0">
                 {register ? $t("REGISTER") : $t("LOGIN")}
@@ -295,7 +293,6 @@
             </div>
         </div>
     </div>
-    <div class="flex max-h-screen w-2/6" />
 </section>
 
 <style>

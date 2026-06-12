@@ -187,7 +187,7 @@
                                 <li>
                                     <p>
                                         {$t(
-                                            "sew myself, design myself, make photos myself, write web-sites myself, set up infrastructure myself",
+                                            "sew myself, design myself, make photos myself, write web-sites myself, set up infrastructure myself, set up infrastructure myself",
                                         )}
                                     </p>
                                 </li>
