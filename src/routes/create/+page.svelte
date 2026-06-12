@@ -5,7 +5,6 @@
 
 <script lang="ts">
   import PostEdit from '../../components/MainPages/Posts/PostEdit.svelte'
-    import Dashboard from '../../components/MainPages/UserManager/Dashboard.svelte';
 </script>
 
 <PostEdit typeCRUD={"CREATE POST"} post={null}/>
