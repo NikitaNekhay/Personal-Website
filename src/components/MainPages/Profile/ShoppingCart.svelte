@@ -269,6 +269,7 @@
   }
 
   function handleCart() {
+    let orderPlaced = false;
     try {
       isErrorInput.length = 0;
       if (handleFormValidation()) {
@@ -307,6 +308,7 @@
             isError = false;
             msg =
               "You have made your oder! Check your email for further instructions.";
+            orderPlaced = true;
           }
         } catch (error) {
           throw error;
@@ -332,8 +334,46 @@
       setTimeout(() => {
         submitClicked = !submitClicked;
         isLoading = true;
+        // Empty the cart ONLY after a successful order, i.e. once the green
+        // success popup has been shown to the user.
+        if (orderPlaced) clearCartAfterOrder();
       }, 2500);
     }
+  }
+
+  // Clears the user's cart after a successful checkout. Handles both cases:
+  //  • logged-in user → reset + persist the empty cart to their profile (Firebase)
+  //  • guest          → reset the local cart store (also clears localStorage)
+  // Best-effort: the order is already placed, so a persistence failure here is
+  // swallowed (the cart re-syncs on the next profile write) and never shown.
+  async function clearCartAfterOrder() {
+    cartItems = [];
+    productQuantities = new Map();
+
+    if ($authStore.user) {
+      $authStore.data.cart = [];
+      tempUserCart = { ...tempUserCart, cart: [] };
+      try {
+        await updateUserProfile(
+          $authStore.user,
+          $authStore.data.name,
+          $authStore.data.email,
+          $authStore.data.phone,
+          $authStore.data.country,
+          $authStore.data.city,
+          $authStore.data.description,
+          $authStore.data.messages,
+          $authStore.data.cart,
+        );
+      } catch (error) {
+        //console.log("cart cleared locally, profile sync failed", error);
+      }
+    } else {
+      tempUserCart = { ...tempUserCart, cart: [] };
+      cart.set({ ...$cart, cart: [] });
+    }
+
+    countAllPrice();
   }
 
   function validateContactOption(contactOption) {
