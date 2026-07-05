@@ -3,12 +3,12 @@ import { auth, db } from '../../lib/firebase/firebase';
 import { collection, doc, getDoc, runTransaction, getDocs, deleteDoc, query, addDoc, setDoc } from "firebase/firestore";
 import { authStore } from '../../store/store';
 import { base } from '$app/paths';
-import { type UserDataType,type ProductType, Errors } from '../../shared/types';
+import { type UserDataType,type ProductType, type MessageType, Errors } from '../../shared/types';
 
 
 export const prerender = 'auto'
 
-export async function updateUserProfile(user: User | string , name: string, email: string, phone: string, country: string,city: string, description: string, messages: [], cart:[]) {
+export async function updateUserProfile(user: User | string , name: string, email: string, phone: string, country: string,city: string, description: string, messages: MessageType[], cart: ProductType[]) {
   try {
     let userDocRef:any;
     ////console.log(user,user.uid,user.user.uid)

@@ -3,6 +3,8 @@
 	import { authStore } from '../../store/store';
 	import { page } from '$app/stores';
 	import { cart } from '../../store/cart_store_';
+	import { scale } from 'svelte/transition';
+	import { backOut } from 'svelte/easing';
 	import BurgerIcon from './BurgerIcon.svelte';
 
 	// Кластер-триггер в правом верхнем углу хедера: корзина + бургер.
@@ -12,6 +14,14 @@
 	export let onToggle: (e: MouseEvent | KeyboardEvent) => void;
 
 	let currentPage = $page.url.pathname;
+
+	// Live cart count — reactive to whichever store backs the current user
+	// (profile for logged-in, local cart store for guests). Guarded so a missing
+	// array never throws.
+	$: cartCount = isUser ? ($authStore.data.cart?.length ?? 0) : ($cart.cart?.length ?? 0);
+
+	// While auth/cart is still resolving, show '?' instead of a misleading 0.
+	$: cartLabel = $authStore.loading ? '?' : String(cartCount);
 
 	function handleKeydown(e: KeyboardEvent) {
 		if (e.key === 'Enter' || e.key === ' ') {
@@ -55,7 +65,13 @@
 				? 'text-yellow-0 animate-pulse'
 				: 'text-black'}"
 		>
-			{isUser ? $authStore.data.cart.length : $cart.cart.length}
+			{#key cartLabel}
+				<span
+					class="count-pop"
+					in:scale={{ duration: 260, start: 0.2, opacity: 0.3, easing: backOut }}
+					>{cartLabel}</span
+				>
+			{/key}
 		</span>
 	</a>
 
@@ -82,6 +98,12 @@
 		cursor: pointer;
 		color: inherit;
 		pointer-events: auto;
+	}
+
+	/* inline-block so the intro scale transform renders around the digit's centre */
+	.count-pop {
+		display: inline-block;
+		transform-origin: center;
 	}
 
 	/* Корзина в закрытом виде скрыта только на телефонах (≤1023px). */

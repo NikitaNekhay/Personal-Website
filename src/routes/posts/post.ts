@@ -113,13 +113,24 @@ export async function deleteProduct(id: string) {
 
 export async function handleCart(post: ProductType, tempAuthStore: AuthStoreType) {
 
-  if (tempAuthStore.user !== null && !(tempAuthStore.loading)) {
-    const tempArr: ProductType[] = tempAuthStore.data.cart ?? [];
-    tempArr.push(post);
+  if (tempAuthStore.user === null || tempAuthStore.loading) {
+    throw Errors.NoUserToAddToCart;
+  }
 
-    tempAuthStore.data.cart = tempArr;
-    //////console.log("tempAuthStore is",tempAuthStore)
-    //////console.log("handleClick - pushed value for cart:",tempArr)
+  // Optimistic + reactive: push through authStore.update() (NOT a bare mutation)
+  // with a NEW array reference, so every subscriber — including the header cart
+  // counter — reflects the added item instantly. Keep the previous cart for a
+  // rollback if the profile write fails.
+  const prevCart: ProductType[] = tempAuthStore.data.cart ?? [];
+  const nextCart: ProductType[] = [...prevCart, post];
+  authStore.update((s) => {
+    s.data.cart = nextCart;
+    return s;
+  });
+
+  // Persist to the user's profile in the background. On failure, roll the
+  // optimistic add back so the counter keeps matching reality.
+  try {
     await updateUserProfile(
       tempAuthStore.user,
       tempAuthStore.data.name,
@@ -129,36 +140,21 @@ export async function handleCart(post: ProductType, tempAuthStore: AuthStoreType
       tempAuthStore.data.city,
       tempAuthStore.data.description,
       tempAuthStore.data.messages,
-      tempAuthStore.data.cart)
-
-  } else {
-
-    throw Errors.NoUserToAddToCart;
+      nextCart);
+  } catch (err) {
+    authStore.update((s) => {
+      s.data.cart = prevCart;
+      return s;
+    });
+    throw err;
   }
-
-
-
 }
 
 // for cart store(no user)
-export async function handleCartNoUser(post: ProductType, tempCart: UserCartType) {
+export async function handleCartNoUser(post: ProductType, _tempCart: UserCartType) {
 
-  // const tempArr:ProductType[] = tempCart.cart ?? [];
-  // tempArr.push(post);
-  // tempCart.cart = tempArr;
-
-  // //console.log("cart:",tempArr)
-
-  cart.update(($cart) => {
-    const tempArr: ProductType[] = $cart.cart ?? [];
-    tempArr.push(post);
-    $cart = tempCart;
-    $cart.cart = tempArr;
-
-    //console.log("cart:", $cart.cart);
-    return $cart;
-  });
-
-
+  // Immutable update: new object + new array so the store fires a change and
+  // persists to localStorage; the header counter then updates immediately.
+  cart.update((c: UserCartType) => ({ ...c, cart: [...(c.cart ?? []), post] }));
 
 }

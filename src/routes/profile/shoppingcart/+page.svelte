@@ -10,6 +10,9 @@
 
     let userCountry = "Unknown";
     let userCity = "Unknown";
+    // The cart must never be gated on the flaky 3rd-party geo lookup below —
+    // this flips true no matter how that request ends, so the page always renders.
+    let ready = false;
 
     // onMount(async () => {
     //     // Fetch the user's IP and location using a public IP API (consider using a more private/secure method in production)
@@ -31,9 +34,15 @@
     // });
 
     onMount(async () => {
+        // Geo lookup is a best-effort convenience (pre-fills country/city for
+        // guests). Abort it after 3.5s so a blocked/slow request can't hang the
+        // page, and always mark ready in `finally` so the cart renders regardless.
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 3500);
         try {
             const res = await fetch(
                 "https://ipinfo.io/json?token=f795a8243455e9",
+                { signal: controller.signal },
             );
             const locationData = await res.json();
 
@@ -48,6 +57,9 @@
             }
         } catch (error) {
             console.error("Error fetching location data:", error);
+        } finally {
+            clearTimeout(timeout);
+            ready = true;
         }
     });
 
@@ -108,7 +120,7 @@
     />
 </svelte:head>
 
-{#if userCountry !== "Unknown"}
+{#if ready}
     <ShoppingCart countries={CountryData} sendEmail={sendEmailPost} />
 {:else}
     <LoadingSpinner />

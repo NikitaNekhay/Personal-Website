@@ -2,22 +2,30 @@ import { auth, db } from "$lib/firebase/firebase"
 import { createUserWithEmailAndPassword, getAuth, signInWithEmailAndPassword, signOut, updateEmail, updatePassword, type User } from "firebase/auth"
 import { deleteDoc, doc } from "firebase/firestore";
 import { writable } from "svelte/store"
-import { Errors, Language, type ProductType } from "../shared/types";
+import { Errors, Language, type AuthStoreType, type ProductType, type UserDataType } from "../shared/types";
 
 
-export const authStore = writable({
-  user: null,
-  loading: true,
-  data: {
+// Single source of truth for a "blank" profile — used for the initial store
+// value and whenever we resolve to a logged-out state, so no stale data lingers.
+export function emptyUserData(): UserDataType {
+  return {
+    id: "",
     name: "template",
     email: "",
     phone: "",
     country: "",
     city: "",
+    adress: "",
     description: "",
     messages: [],
-    cart:[],
-  },
+    cart: [],
+  };
+}
+
+export const authStore = writable<AuthStoreType>({
+  user: null,
+  loading: true,
+  data: emptyUserData(),
 });
 
 export const productStore = writable({

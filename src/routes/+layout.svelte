@@ -13,7 +13,7 @@
     import { doc, getDoc, setDoc } from "firebase/firestore";
     import { auth, db } from "$lib/firebase/firebase";
     import { base } from "$app/paths";
-    import { authStore, isAdmin } from "../store/store";
+    import { authStore, emptyUserData, isAdmin } from "../store/store";
 
     import {  onMount } from "svelte";
     import type { UserDataType } from "../shared/types";
@@ -101,67 +101,68 @@
     try {
         onMount(() => {
             const unsubscribe = auth.onAuthStateChanged(async (user) => {
-                const currentPath = window.location.pathname;
-                checkUserStatus(user);
-                handleRedirect(user, currentPath);
+                try {
+                    const currentPath = window.location.pathname;
+                    checkUserStatus(user);
+                    handleRedirect(user, currentPath);
 
-                let dataToSetToStore: UserDataType = {
-                    id: "",
-                    name: "template",
-                    email: "",
-                    phone: "",
-                    country: "",
-                    city: "",
-                    description: "",
-                    messages: [],
-                    cart: [],
-                };
-                if (user) {
-                    const docRef = doc(db, "user", user.uid);
-                    const docSnap = await getDoc(docRef);
-
-                    if (!docSnap.exists()) {
-                        const userRef = doc(db, "user", user.uid);
-                        dataToSetToStore = {
-                            id: userRef.id ?? user.uid,
-                            name: userRef.name ?? "template",
-                            email: userRef.email ?? user.email,
-                            phone: userRef.phone ?? "",
-                            country: userRef.country ?? "",
-                            city: userRef.city ?? "",
-                            description: userRef.description ?? "",
-                            messages: userRef.messages ?? [],
-                            cart: userRef.cart ?? [],
-                        };
-                        await setDoc(userRef, dataToSetToStore, {
-                            merge: true,
-                        });
-                        //////console.log("value of user to put in authStore.user, if snapshot doesn't exist",user)
+                    if (!user) {
+                        // Logged-out / guest: resolve auth (so `loading` settles)
+                        // and clear any previous user's data — never keep it stale.
                         authStore.set({
-                            user: user,
-                            data: dataToSetToStore,
+                            user: null,
+                            data: emptyUserData(),
                             loading: false,
                         });
-                    } else {
-                        const userData = docSnap.data();
-                        dataToSetToStore = {
-                            id: userData.id,
-                            name: userData.name,
-                            phone: userData.phone,
-                            email: userData.email,
-                            country: userData.country,
-                            city: userData.city,
-                            description: userData.description,
-                            messages: userData.messages,
-                            cart: userData.cart,
-                        };
-                        // ////console.log("value of user to put in authStore.user if snapshot exists",user)
-                        authStore.set({
-                            user: user,
-                            data: dataToSetToStore,
-                            loading: false,
-                        });
+                        return;
                     }
+
+                    // Sensible defaults sourced from the auth user itself: used as-is
+                    // for a brand-new account, and as fallbacks for any missing field.
+                    let data: UserDataType = {
+                        ...emptyUserData(),
+                        id: user.uid,
+                        name: user.displayName ?? "template",
+                        email: user.email ?? "",
+                        phone: user.phoneNumber ?? "",
+                    };
+
+                    try {
+                        const docRef = doc(db, "user", user.uid);
+                        const docSnap = await getDoc(docRef);
+
+                        if (docSnap.exists()) {
+                            const d = docSnap.data();
+                            data = {
+                                id: d.id ?? user.uid,
+                                name: d.name ?? data.name,
+                                email: d.email ?? data.email,
+                                phone: d.phone ?? data.phone,
+                                country: d.country ?? "",
+                                city: d.city ?? "",
+                                adress: d.adress ?? "",
+                                description: d.description ?? "",
+                                messages: d.messages ?? [],
+                                cart: d.cart ?? [],
+                            };
+                        } else {
+                            // First sign-in: create the profile document.
+                            await setDoc(docRef, data, { merge: true });
+                        }
+                    } catch (err) {
+                        // Profile read/write failed (offline, security rules, a
+                        // transient Firestore error). Keep the safe defaults so the
+                        // user stays logged in with an empty cart — the header
+                        // counter must never stay stuck on "?".
+                        console.error("Failed to load user profile:", err);
+                    }
+
+                    authStore.set({ user, data, loading: false });
+                } catch (err) {
+                    // Any other unexpected failure (redirect/status helpers, etc.)
+                    // must still release the loading state.
+                    console.error("Auth state handling failed:", err);
+                    authStore.update((s) => ({ ...s, loading: false }));
                 }
             });
 

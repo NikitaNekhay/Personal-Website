@@ -270,55 +270,53 @@
 
   function handleCart() {
     let orderPlaced = false;
+    isErrorInput.length = 0;
+
+    // Validate FIRST. On failure, show the error and keep the button clickable —
+    // do NOT enter the loading state. (The old code ran a `finally` that flipped
+    // `submitClicked` to true + `isLoading` to true even on validation failure,
+    // which left the button stuck on the disabled spinner forever.)
+    if (!handleFormValidation()) {
+      isError = true;
+      isChanged = true;
+      document.body.scrollIntoView({ block: "start", behavior: "smooth" });
+      return;
+    }
+
+    // Valid submission — enter the loading state (button shows the spinner and
+    // can't be double-clicked while the order is being placed).
+    submitClicked = true;
+    isLoading = true;
     try {
-      isErrorInput.length = 0;
-      if (handleFormValidation()) {
-        submitClicked = !submitClicked;
-        try {
-          // make quantity of items in cart for check
-          cartItems.forEach((item) => {
-            productQuantities.set(
-              item.title,
-              (productQuantities.get(item.title) || 0) + 1,
-            );
-          });
+      // make quantity of items in cart for check
+      cartItems.forEach((item) => {
+        productQuantities.set(
+          item.title,
+          (productQuantities.get(item.title) || 0) + 1,
+        );
+      });
 
-          countAllPrice();
+      countAllPrice();
 
-          if (isAgreePolicy) {
-            // create and handle user from form data
-            ////console.log("create user");
-            if (isCreateAccout) handleCreateNewUser();
+      if (isAgreePolicy) {
+        // create and handle user from form data
+        if (isCreateAccout) handleCreateNewUser();
 
-            // send credentials to admin
-            ////console.log("send credentials to admin");
-            handleSendCredentials();
+        // send credentials to admin
+        handleSendCredentials();
 
-            // Download Check
-            //downloadCheck();
-
-            // Send check to user's email
-            sendEmail(
-              tempUserCart.email,
-              $t(EmailSubjects.ProceedOrder),
-              generateCheck(),
-              EmailSubjects.ProceedOrder,
-            );
-            isChanged = true;
-            isError = false;
-            msg =
-              "You have made your oder! Check your email for further instructions.";
-            orderPlaced = true;
-          }
-        } catch (error) {
-          throw error;
-        }
-      } else {
-        if (msg !== msgT) {
-          throw msg;
-        } else {
-          throw Errors.PurchaseFormAttention;
-        }
+        // Send check to user's email
+        sendEmail(
+          tempUserCart.email,
+          $t(EmailSubjects.ProceedOrder),
+          generateCheck(),
+          EmailSubjects.ProceedOrder,
+        );
+        isChanged = true;
+        isError = false;
+        msg =
+          "You have made your oder! Check your email for further instructions.";
+        orderPlaced = true;
       }
     } catch (error) {
       if (typeof error === "string") {
@@ -331,11 +329,11 @@
       document.body.scrollIntoView({ block: "start", behavior: "smooth" });
       isChanged = true;
     } finally {
+      // Always release the button back to a clickable state, and clear the cart
+      // only after a successful order (once the green popup has been shown).
       setTimeout(() => {
-        submitClicked = !submitClicked;
-        isLoading = true;
-        // Empty the cart ONLY after a successful order, i.e. once the green
-        // success popup has been shown to the user.
+        submitClicked = false;
+        isLoading = false;
         if (orderPlaced) clearCartAfterOrder();
       }, 2500);
     }
@@ -598,12 +596,10 @@
         isChanged = true;
         isError = true;
         throw msg;
-      } finally {
-        setTimeout(() => {
-          submitClicked = !submitClicked;
-          isLoading = true;
-        }, 2500);
       }
+      // Button state (submitClicked / isLoading) is owned solely by handleCart,
+      // so this helper must not touch it — otherwise a racing setTimeout could
+      // re-disable the button after handleCart already re-enabled it.
     } else {
       if (typeof error === "string") {
         msg = error;
