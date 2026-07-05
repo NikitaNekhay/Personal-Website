@@ -24,7 +24,7 @@ const config = {
 			base: dev ? '/Personal-Website' : '',
 		  },
 		prerender: {
-			entries: ['/','/login','/about','/contact','/works','/posts/[id]','/posts','/posts/[id]/edit','/profile','/profile/edit','/profile/edit/credentials','/profile/shoppingcart','/dashboard','/stat','/create','/shop','/photos-dashboard'], 
+			entries: ['/','/login','/about','/contact','/works','/posts/[id]','/posts','/posts/[id]/edit','/profile','/profile/edit','/profile/edit/credentials','/profile/shoppingcart','/create','/shop','/photos-dashboard'],
 		},
 	}
 };
