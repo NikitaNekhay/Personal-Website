@@ -146,6 +146,7 @@
       class="grid h-[100%] px-4 bg-white place-content-center lg:mb-0 md:mb-48 sm:mb-48"
     >
       <h1
+        data-scrollmark
         class="tracking-widest mb- text-black-1 font-abril text-6xl sm:text-4xl text-center"
       >
         {$t("CUSTOM EDITIONS")}
@@ -205,6 +206,7 @@
 
           <div class="sm:w-10/12">
             <a
+              data-scrollmark data-scrollmark-level="2"
               class=" transition duration-300 delay-100 hover:text-yellow-0"
               href="#">{$t("Borrelli polo with a perl pad")}</a
             >
@@ -282,6 +284,7 @@
           <div class="sm:w-10/12">
             <a
               class=" transition duration-300 delay-100 hover:text-yellow-0"
+              data-scrollmark data-scrollmark-level="2"
               href="#">{$t("Vintage Brioni in the sashiko technique")}</a
             >
           </div>
@@ -357,6 +360,7 @@
           <div class="sm:w-10/12">
             <a
               class=" transition duration-300 delay-100 hover:text-yellow-0"
+              data-scrollmark data-scrollmark-level="2"
               href="#">{$t("Adidas shirt with a ribbed waistband")}</a
             >
           </div>

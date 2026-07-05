@@ -11,7 +11,7 @@
             <section class="">
 
 
-                <h1 class="tracking-widest text-black-1 uppercase font-serif text-2xl">
+                <h1 data-scrollmark class="tracking-widest text-black-1 uppercase font-serif text-2xl">
                     {$t("Checkout and acceptance of orders")}
                 </h1>
                 <p>{$t('For checkout, please, fill out form on our site on the page of shopping cart or if you have already signed up check your profile to have true data in it. Next make the prepayment via a convenient option. If prepayment was successfully recieved by us we will inform you that the order has been started, if it is needed we will send you more details.')}</p>
@@ -20,7 +20,7 @@
                 <p>{$t('After finishing the order, our manager will contact you. If the order is in stock or was performed, then you can pickup your it in Minsk at the same day of notification (orders, performed after 1 PM, will be available to pickup on the next day).')}</p>
                 <br>
 
-                <h1 class="tracking-widest uppercase text-black-1 font-serif text-2xl">
+                <h1 data-scrollmark class="tracking-widest uppercase text-black-1 font-serif text-2xl">
                     {$t("Payment conditions")}
                 </h1>    
                 <h2 class="tracking-widest uppercase text-black-1 font-serif text-lg">
@@ -75,7 +75,7 @@
                 <p>{$t('If you have not found your bank in this list, then write us and we together will try to find a solution of payment or prepayment of the order.')}</p>
                 <br />
 
-                <h1 class="tracking-widest uppercase text-black-1 font-serif text-2xl">
+                <h1 data-scrollmark class="tracking-widest uppercase text-black-1 font-serif text-2xl">
                     {$t("Shipping and delivery of goods")}
                 </h1>            
                 <p>{$t("We suggest some shipping options:")}</p>
@@ -207,7 +207,7 @@
                 <p >{$t('If incorrect data is entered in the order form or in the user profile, the Seller does not bear any responsibility for the further implementation of the order, and in case of partial or full payment for the order the Seller is entitled not to return the funds to the Buyer.')}</p>
                 <br>
 
-                <h1 class="tracking-widest text-black-1 uppercase font-serif text-2xl">
+                <h1 data-scrollmark class="tracking-widest text-black-1 uppercase font-serif text-2xl">
                     {$t("Return of goods")}
                 </h1>
                 <p>{$t('Return of goods is only possible in case of defects or flaws in the product within 14 calendar days from the date of purchase. Confirmation of defects is done through our inspection.')}</p>
@@ -235,7 +235,7 @@
                 <p>{$t('In case of a full order refund, the buyer is responsible for covering the shipping costs.')}</p>
                 <br>
 
-                <h1 class="tracking-widest text-black-1 uppercase font-serif text-2xl">
+                <h1 data-scrollmark class="tracking-widest text-black-1 uppercase font-serif text-2xl">
                     {$t("Return of money")}
                 </h1>
                 <p>{$t('The refund of funds is processed only to the same bank card that was used for the order payment.')}</p>
@@ -250,7 +250,7 @@
                 <p>{$t('')}</p> -->
                 <br>
 
-                <h1 class="tracking-widest text-black-1 uppercase font-serif text-2xl">
+                <h1 data-scrollmark class="tracking-widest text-black-1 uppercase font-serif text-2xl">
                     {$t("Fitting of goods")}
                 </h1>
                 <p>{$t('If there are manufactured products of the required size, we carry out fitting in Minsk. And place and time are agreed personally in a place convenient for you.')}</p>
@@ -264,7 +264,7 @@
                 <p>{$t('')}</p> -->
                 <br>
 
-                <h1 class="tracking-widest text-black-1 uppercase font-serif text-2xl">
+                <h1 data-scrollmark class="tracking-widest text-black-1 uppercase font-serif text-2xl">
                     {$t("Termins")}
                 </h1>
                     <p>{$t('The moment of purchase -- is the moment of payment of the full price for the goods.')}</p>

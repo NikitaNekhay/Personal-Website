@@ -82,6 +82,7 @@
     class="grid h-[100%] px-4 bg-white place-content-center lg:mb-0 md:mb-48 sm:mb-48"
   >
     <h1
+      data-scrollmark
       class="tracking-widest mb- text-black-1 font-abril text-6xl sm:text-4xl text-center"
     >
       {$t("PROJECT 1 CAPSULE COLLECTION")}
@@ -177,7 +178,7 @@
         class="h-auto w-4/12 sm:w-5/12 mb-20 sm:mb-0 sm:place-content-center justify-center self-center font-anonymous
         text-2xl sm:text-sm md:text-xl lg:text-xl"
       >
-        <article class="hyphens-auto" lang={$currentLanguagee}>
+        <article class="hyphens-auto" lang={$currentLanguagee} data-scrollmark={$t("About")}>
           <p>
             {$t(
               "This is a presentation of first capsule collection made by my hands. Also it is my early experience in clothes' making.",
