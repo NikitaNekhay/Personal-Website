@@ -34,7 +34,9 @@ function isValidPendingPhoto(value: unknown): value is PendingPhotoCommit {
 		typeof item.originalBlobSha === 'string' &&
 		typeof item.thumbBlobSha === 'string' &&
 		isPhotoCollectionYear(entry.collectionNumber) &&
-		isPhotoCollectionKey(entry.collectionKey) &&
+		Array.isArray(entry.collectionKeys) &&
+		entry.collectionKeys.length > 0 &&
+		entry.collectionKeys.every(isPhotoCollectionKey) &&
 		isPhotoObjectPosition(entry.objectPosition) &&
 		isPhotoPositionPercent(entry.positionX) &&
 		isPhotoPositionPercent(entry.positionY) &&
@@ -61,7 +63,7 @@ export const POST: RequestHandler = async ({ request }) => {
 		if (new Set(incomingSlugs).size !== incomingSlugs.length) {
 			return json({ error: 'Duplicate uploaded slugs' }, { status: 409 });
 		}
-		if (incomingSlugs.some((slug) => existingSlugs.has(slug))) {
+		if (incomingSlugs.some((slug: string) => existingSlugs.has(slug))) {
 			return json({ error: 'One or more slugs already exist' }, { status: 409 });
 		}
 

@@ -10,7 +10,7 @@ import {
 	isPhotoScalePercent,
 	isPhotoSpacing,
 	isPhotoLayer,
-	normalizePhotoCollectionKey,
+	normalizePhotoCollectionKeys,
 	type PhotoCollectionKey,
 	type PhotoRevealDirection
 } from '../../../../shared/types';
@@ -29,7 +29,7 @@ export const PATCH: RequestHandler = async ({ request }) => {
 			const slugSet = new Set(slugs);
 			const updates: {
 				collectionNumber?: number;
-				collectionKey?: PhotoCollectionKey;
+				collectionKeys?: PhotoCollectionKey[];
 				positionX?: number;
 				positionY?: number;
 				scalePercent?: number;
@@ -38,20 +38,24 @@ export const PATCH: RequestHandler = async ({ request }) => {
 				layer?: number;
 			} = {};
 
+			// collectionNumber (the real capture year) and collectionKeys (which tabs a
+			// photo shows under) are independent — setting one no longer silently
+			// overwrites the other.
 			if (body.collectionNumber !== undefined) {
 				if (!isPhotoCollectionYear(body.collectionNumber)) {
 					return json({ error: 'Invalid collection year' }, { status: 400 });
 				}
 				updates.collectionNumber = body.collectionNumber;
-				updates.collectionKey = body.collectionNumber;
 			}
-			if (body.collectionKey !== undefined) {
-				if (!isPhotoCollectionKey(body.collectionKey)) {
-					return json({ error: 'Invalid collection group' }, { status: 400 });
+			if (body.collectionKeys !== undefined) {
+				if (
+					!Array.isArray(body.collectionKeys) ||
+					body.collectionKeys.length === 0 ||
+					!body.collectionKeys.every(isPhotoCollectionKey)
+				) {
+					return json({ error: 'Invalid collection groups' }, { status: 400 });
 				}
-				const collectionKey = normalizePhotoCollectionKey(body.collectionKey);
-				updates.collectionKey = collectionKey;
-				if (typeof collectionKey === 'number') updates.collectionNumber = collectionKey;
+				updates.collectionKeys = normalizePhotoCollectionKeys(body.collectionKeys);
 			}
 			if (body.objectPosition !== undefined) {
 				if (!isPhotoObjectPosition(body.objectPosition)) {
@@ -122,7 +126,7 @@ export const PATCH: RequestHandler = async ({ request }) => {
 			slug,
 			title,
 			collectionNumber,
-			collectionKey,
+			collectionKeys,
 			objectPosition,
 			positionX,
 			positionY,
@@ -150,14 +154,16 @@ export const PATCH: RequestHandler = async ({ request }) => {
 				return json({ error: 'Invalid collection year' }, { status: 400 });
 			}
 			entry.collectionNumber = collectionNumber;
-			entry.collectionKey = collectionNumber;
 		}
-		if (collectionKey !== undefined) {
-			if (!isPhotoCollectionKey(collectionKey)) {
-				return json({ error: 'Invalid collection group' }, { status: 400 });
+		if (collectionKeys !== undefined) {
+			if (
+				!Array.isArray(collectionKeys) ||
+				collectionKeys.length === 0 ||
+				!collectionKeys.every(isPhotoCollectionKey)
+			) {
+				return json({ error: 'Invalid collection groups' }, { status: 400 });
 			}
-			entry.collectionKey = normalizePhotoCollectionKey(collectionKey, entry.collectionNumber);
-			if (typeof entry.collectionKey === 'number') entry.collectionNumber = entry.collectionKey;
+			entry.collectionKeys = normalizePhotoCollectionKeys(collectionKeys, entry.collectionNumber);
 		}
 		if (objectPosition !== undefined) {
 			if (!isPhotoObjectPosition(objectPosition)) {

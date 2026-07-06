@@ -17,7 +17,7 @@ import {
 	isPhotoScalePercent,
 	isPhotoSpacing,
 	isPhotoLayer,
-	normalizePhotoCollectionKey,
+	normalizePhotoCollectionKeys,
 	DEFAULT_PHOTO_SCALE,
 	DEFAULT_PHOTO_SPACING,
 	DEFAULT_PHOTO_LAYER,
@@ -51,7 +51,7 @@ export const POST: RequestHandler = async ({ request }) => {
 		const title = String(formData.get('title') ?? '').trim();
 		const stripExif = formData.get('stripExif') !== 'false';
 		const collectionRaw = formData.get('collectionNumber');
-		const collectionKeyRaw = formData.get('collectionKey') ?? DEFAULT_PHOTO_COLLECTION;
+		const collectionKeysRaw = formData.get('collectionKeys');
 		const objectPositionRaw = formData.get('objectPosition');
 		const positionXRaw = formData.get('positionX');
 		const positionYRaw = formData.get('positionY');
@@ -60,7 +60,9 @@ export const POST: RequestHandler = async ({ request }) => {
 		const spacingRaw = formData.get('spacing');
 		const layerRaw = formData.get('layer');
 
-		let collectionNumber = defaultCollectionNumber();
+		// Explicit collectionNumber wins; otherwise it's derived below from the photo's
+		// own EXIF capture date (once read), falling back to the current year.
+		let collectionNumber: number | null = null;
 		if (collectionRaw !== null && collectionRaw !== '') {
 			const parsed = Number(collectionRaw);
 			if (!isPhotoCollectionYear(parsed)) {
@@ -68,11 +70,22 @@ export const POST: RequestHandler = async ({ request }) => {
 			}
 			collectionNumber = parsed;
 		}
-		if (!isPhotoCollectionKey(collectionKeyRaw)) {
-			return json({ error: 'Invalid collection group' }, { status: 400 });
+
+		let collectionKeysParsed: unknown = [DEFAULT_PHOTO_COLLECTION];
+		if (collectionKeysRaw !== null && collectionKeysRaw !== '') {
+			try {
+				collectionKeysParsed = JSON.parse(String(collectionKeysRaw));
+			} catch {
+				return json({ error: 'Invalid collection groups' }, { status: 400 });
+			}
 		}
-		const collectionKey = normalizePhotoCollectionKey(collectionKeyRaw, collectionNumber);
-		if (typeof collectionKey === 'number') collectionNumber = collectionKey;
+		if (
+			!Array.isArray(collectionKeysParsed) ||
+			collectionKeysParsed.length === 0 ||
+			!collectionKeysParsed.every(isPhotoCollectionKey)
+		) {
+			return json({ error: 'Invalid collection groups' }, { status: 400 });
+		}
 
 		const objectPosition = isPhotoObjectPosition(objectPositionRaw)
 			? objectPositionRaw
@@ -120,6 +133,16 @@ export const POST: RequestHandler = async ({ request }) => {
 		// Read GPS/date from the RAW buffer before sharp strips metadata below.
 		const geoEntry = await resolvePhotoGeo(slug, buffer);
 
+		// Smart default: if the admin didn't pick a year explicitly, use the photo's own
+		// EXIF capture date instead of silently defaulting to "today" — this is the exact
+		// gap that previously left every uploaded photo tagged with the current year
+		// regardless of when it was actually taken.
+		if (collectionNumber === null) {
+			const exifYear = geoEntry?.dateTaken ? new Date(geoEntry.dateTaken).getUTCFullYear() : null;
+			collectionNumber = exifYear !== null && isPhotoCollectionYear(exifYear) ? exifYear : defaultCollectionNumber();
+		}
+		const collectionKeys = normalizePhotoCollectionKeys(collectionKeysParsed, collectionNumber);
+
 		let pipeline = sharp(buffer);
 		if (stripExif) {
 			pipeline = pipeline.rotate();
@@ -149,7 +172,7 @@ export const POST: RequestHandler = async ({ request }) => {
 			width: meta.width ?? 0,
 			height: meta.height ?? 0,
 			objectPosition,
-			collectionKey,
+			collectionKeys,
 			positionX: Math.round(positionX),
 			positionY: Math.round(positionY),
 			scalePercent: Math.round(scalePercent),

@@ -18,7 +18,7 @@
 	let loadError = $state<string | null>(null);
 
 	const filteredPhotos = $derived(
-		photos.filter((p) => p.collectionKey === selectedCollection)
+		photos.filter((p) => p.collectionKeys.includes(selectedCollection))
 	);
 
 	const sliderKey = $derived(

@@ -4,8 +4,7 @@
     "slug": "drugs-suck",
     "title": "drugs_suck",
     "order": 1,
-    "collectionNumber": 2026,
-    "collectionKey": "selection",
+    "collectionNumber": 2024,
     "original": "/photos/originals/drugs-suck.webp",
     "thumb": "/photos/thumbs/drugs-suck.webp",
     "width": 1920,
@@ -17,15 +16,18 @@
     "revealFrom": "left",
     "spacing": 35,
     "layer": 0,
-    "uploadedAt": "2026-06-03T16:06:09.648Z"
+    "uploadedAt": "2026-06-03T16:06:09.648Z",
+    "collectionKeys": [
+      "selection",
+      2024
+    ]
   },
   {
     "id": "18571e1b",
     "slug": "golden-girls",
     "title": "golden_girls",
     "order": 2,
-    "collectionNumber": 2026,
-    "collectionKey": "selection",
+    "collectionNumber": 2023,
     "original": "/photos/originals/golden-girls.webp",
     "thumb": "/photos/thumbs/golden-girls.webp",
     "width": 1920,
@@ -37,15 +39,18 @@
     "revealFrom": "right",
     "spacing": 35,
     "layer": 0,
-    "uploadedAt": "2026-06-03T16:06:14.885Z"
+    "uploadedAt": "2026-06-03T16:06:14.885Z",
+    "collectionKeys": [
+      "selection",
+      2023
+    ]
   },
   {
     "id": "fae66888",
     "slug": "blurred-lights-of-mine",
     "title": "blurred_lights_of_mine",
     "order": 3,
-    "collectionNumber": 2026,
-    "collectionKey": "selection",
+    "collectionNumber": 2023,
     "original": "/photos/originals/blurred-lights-of-mine.webp",
     "thumb": "/photos/thumbs/blurred-lights-of-mine.webp",
     "width": 1920,
@@ -57,15 +62,18 @@
     "revealFrom": "left",
     "spacing": 40,
     "layer": 0,
-    "uploadedAt": "2026-06-03T16:06:19.578Z"
+    "uploadedAt": "2026-06-03T16:06:19.578Z",
+    "collectionKeys": [
+      "selection",
+      2023
+    ]
   },
   {
     "id": "afc96e03",
     "slug": "string-between-houses",
     "title": "string_between_houses",
     "order": 4,
-    "collectionNumber": 2026,
-    "collectionKey": "selection",
+    "collectionNumber": 2023,
     "original": "/photos/originals/string-between-houses.webp",
     "thumb": "/photos/thumbs/string-between-houses.webp",
     "width": 1920,
@@ -77,7 +85,11 @@
     "revealFrom": "bottom",
     "spacing": 45,
     "layer": 1,
-    "uploadedAt": "2026-06-03T16:06:27.119Z"
+    "uploadedAt": "2026-06-03T16:06:27.119Z",
+    "collectionKeys": [
+      "selection",
+      2023
+    ]
   },
   {
     "id": "55c1d669",
@@ -85,7 +97,6 @@
     "title": "cars_cross_petersburg",
     "order": 5,
     "collectionNumber": 2026,
-    "collectionKey": "selection",
     "original": "/photos/originals/cars-cross-petersburg.webp",
     "thumb": "/photos/thumbs/cars-cross-petersburg.webp",
     "width": 1920,
@@ -97,15 +108,17 @@
     "revealFrom": "left",
     "spacing": 42,
     "layer": 0,
-    "uploadedAt": "2026-06-03T16:06:32.077Z"
+    "uploadedAt": "2026-06-03T16:06:32.077Z",
+    "collectionKeys": [
+      "selection"
+    ]
   },
   {
     "id": "536c85c6",
     "slug": "hidden-street-view-on-the-way-to-climbing-gym",
     "title": "hidden_street_view_on_the_way_to_climbing_gym",
     "order": 6,
-    "collectionNumber": 2026,
-    "collectionKey": "selection",
+    "collectionNumber": 2023,
     "original": "/photos/originals/hidden-street-view-on-the-way-to-climbing-gym.webp",
     "thumb": "/photos/thumbs/hidden-street-view-on-the-way-to-climbing-gym.webp",
     "width": 1920,
@@ -117,15 +130,18 @@
     "revealFrom": "right",
     "spacing": 35,
     "layer": 0,
-    "uploadedAt": "2026-06-03T16:06:37.739Z"
+    "uploadedAt": "2026-06-03T16:06:37.739Z",
+    "collectionKeys": [
+      "selection",
+      2023
+    ]
   },
   {
     "id": "4f93dced",
     "slug": "autumn-s-attemp-to-the-poetry",
     "title": "autumn's_attemp_to_the_poetry",
     "order": 7,
-    "collectionNumber": 2026,
-    "collectionKey": "selection",
+    "collectionNumber": 2023,
     "original": "/photos/originals/autumn-s-attemp-to-the-poetry.webp",
     "thumb": "/photos/thumbs/autumn-s-attemp-to-the-poetry.webp",
     "width": 1920,
@@ -137,15 +153,18 @@
     "revealFrom": "left",
     "spacing": 35,
     "layer": 0,
-    "uploadedAt": "2026-06-03T16:06:43.361Z"
+    "uploadedAt": "2026-06-03T16:06:43.361Z",
+    "collectionKeys": [
+      "selection",
+      2023
+    ]
   },
   {
     "id": "8b6fd217",
     "slug": "nik-on-style-grodno",
     "title": "nik_on_style_grodno",
     "order": 8,
-    "collectionNumber": 2026,
-    "collectionKey": "selection",
+    "collectionNumber": 2023,
     "original": "/photos/originals/nik-on-style-grodno.webp",
     "thumb": "/photos/thumbs/nik-on-style-grodno.webp",
     "width": 1536,
@@ -157,15 +176,18 @@
     "revealFrom": "right",
     "spacing": 38,
     "layer": 0,
-    "uploadedAt": "2026-06-03T16:06:46.602Z"
+    "uploadedAt": "2026-06-03T16:06:46.602Z",
+    "collectionKeys": [
+      "selection",
+      2023
+    ]
   },
   {
     "id": "921df659",
     "slug": "nik-on-phone-grodno",
     "title": "nik_on_phone_grodno",
     "order": 9,
-    "collectionNumber": 2026,
-    "collectionKey": "selection",
+    "collectionNumber": 2023,
     "original": "/photos/originals/nik-on-phone-grodno.webp",
     "thumb": "/photos/thumbs/nik-on-phone-grodno.webp",
     "width": 1920,
@@ -177,15 +199,18 @@
     "revealFrom": "left",
     "spacing": 43,
     "layer": 0,
-    "uploadedAt": "2026-06-03T16:06:49.905Z"
+    "uploadedAt": "2026-06-03T16:06:49.905Z",
+    "collectionKeys": [
+      "selection",
+      2023
+    ]
   },
   {
     "id": "0689db29",
     "slug": "do-you-see-the-bunny",
     "title": "do_you_see_the_bunny",
     "order": 10,
-    "collectionNumber": 2026,
-    "collectionKey": "selection",
+    "collectionNumber": 2023,
     "original": "/photos/originals/do-you-see-the-bunny.webp",
     "thumb": "/photos/thumbs/do-you-see-the-bunny.webp",
     "width": 1920,
@@ -197,15 +222,18 @@
     "revealFrom": "right",
     "spacing": 47,
     "layer": 0,
-    "uploadedAt": "2026-06-03T16:06:55.765Z"
+    "uploadedAt": "2026-06-03T16:06:55.765Z",
+    "collectionKeys": [
+      "selection",
+      2023
+    ]
   },
   {
     "id": "163bf0b9",
     "slug": "beach-50byn-nik",
     "title": "beach_50byn_nik",
     "order": 11,
-    "collectionNumber": 2026,
-    "collectionKey": "selection",
+    "collectionNumber": 2023,
     "original": "/photos/originals/beach-50byn-nik.webp",
     "thumb": "/photos/thumbs/beach-50byn-nik.webp",
     "width": 1920,
@@ -217,15 +245,18 @@
     "revealFrom": "bottom",
     "spacing": 36,
     "layer": 1,
-    "uploadedAt": "2026-06-03T16:06:59.465Z"
+    "uploadedAt": "2026-06-03T16:06:59.465Z",
+    "collectionKeys": [
+      "selection",
+      2023
+    ]
   },
   {
     "id": "2badf45d",
     "slug": "beach-50byn-cili",
     "title": "beach_50byn_cili",
     "order": 12,
-    "collectionNumber": 2026,
-    "collectionKey": "selection",
+    "collectionNumber": 2023,
     "original": "/photos/originals/beach-50byn-cili.webp",
     "thumb": "/photos/thumbs/beach-50byn-cili.webp",
     "width": 1920,
@@ -237,15 +268,18 @@
     "revealFrom": "right",
     "spacing": 36,
     "layer": 0,
-    "uploadedAt": "2026-06-03T16:07:03.921Z"
+    "uploadedAt": "2026-06-03T16:07:03.921Z",
+    "collectionKeys": [
+      "selection",
+      2023
+    ]
   },
   {
     "id": "8eb6e3a8",
     "slug": "nik-neswizh",
     "title": "nik_neswizh",
     "order": 13,
-    "collectionNumber": 2026,
-    "collectionKey": "selection",
+    "collectionNumber": 2023,
     "original": "/photos/originals/nik-neswizh.webp",
     "thumb": "/photos/thumbs/nik-neswizh.webp",
     "width": 1536,
@@ -257,7 +291,11 @@
     "revealFrom": "left",
     "spacing": 38,
     "layer": 0,
-    "uploadedAt": "2026-06-03T16:07:08.159Z"
+    "uploadedAt": "2026-06-03T16:07:08.159Z",
+    "collectionKeys": [
+      "selection",
+      2023
+    ]
   },
   {
     "id": "a5f10962",
@@ -265,7 +303,6 @@
     "title": "dili_neswizh",
     "order": 14,
     "collectionNumber": 2026,
-    "collectionKey": "selection",
     "original": "/photos/originals/dili-neswizh.webp",
     "thumb": "/photos/thumbs/dili-neswizh.webp",
     "width": 1920,
@@ -277,7 +314,10 @@
     "revealFrom": "right",
     "spacing": 41,
     "layer": 0,
-    "uploadedAt": "2026-06-03T16:07:11.421Z"
+    "uploadedAt": "2026-06-03T16:07:11.421Z",
+    "collectionKeys": [
+      "selection"
+    ]
   },
   {
     "id": "a1493ae2",
@@ -285,7 +325,6 @@
     "title": "dili_neswizh_run",
     "order": 15,
     "collectionNumber": 2026,
-    "collectionKey": "selection",
     "original": "/photos/originals/dili-neswizh-run.webp",
     "thumb": "/photos/thumbs/dili-neswizh-run.webp",
     "width": 1920,
@@ -297,15 +336,17 @@
     "revealFrom": "left",
     "spacing": 45,
     "layer": 0,
-    "uploadedAt": "2026-06-03T16:07:15.114Z"
+    "uploadedAt": "2026-06-03T16:07:15.114Z",
+    "collectionKeys": [
+      "selection"
+    ]
   },
   {
     "id": "eae42892",
     "slug": "nik-into-museum",
     "title": "nik_into_museum",
     "order": 16,
-    "collectionNumber": 2026,
-    "collectionKey": "selection",
+    "collectionNumber": 2023,
     "original": "/photos/originals/nik-into-museum.webp",
     "thumb": "/photos/thumbs/nik-into-museum.webp",
     "width": 1536,
@@ -317,15 +358,18 @@
     "revealFrom": "right",
     "spacing": 34,
     "layer": 0,
-    "uploadedAt": "2026-06-03T16:07:18.903Z"
+    "uploadedAt": "2026-06-03T16:07:18.903Z",
+    "collectionKeys": [
+      "selection",
+      2023
+    ]
   },
   {
     "id": "91745d04",
     "slug": "car-in-the-fire",
     "title": "car_in_the_fire",
     "order": 17,
-    "collectionNumber": 2026,
-    "collectionKey": "selection",
+    "collectionNumber": 2023,
     "original": "/photos/originals/car-in-the-fire.webp",
     "thumb": "/photos/thumbs/car-in-the-fire.webp",
     "width": 1920,
@@ -337,15 +381,18 @@
     "revealFrom": "left",
     "spacing": 39,
     "layer": 0,
-    "uploadedAt": "2026-06-03T16:07:24.344Z"
+    "uploadedAt": "2026-06-03T16:07:24.344Z",
+    "collectionKeys": [
+      "selection",
+      2023
+    ]
   },
   {
     "id": "b5ac628f",
     "slug": "what-in-his-hand",
     "title": "what_in_his_hand",
     "order": 18,
-    "collectionNumber": 2026,
-    "collectionKey": "selection",
+    "collectionNumber": 2023,
     "original": "/photos/originals/what-in-his-hand.webp",
     "thumb": "/photos/thumbs/what-in-his-hand.webp",
     "width": 1920,
@@ -357,15 +404,18 @@
     "revealFrom": "bottom",
     "spacing": 39,
     "layer": 1,
-    "uploadedAt": "2026-06-03T16:07:29.297Z"
+    "uploadedAt": "2026-06-03T16:07:29.297Z",
+    "collectionKeys": [
+      "selection",
+      2023
+    ]
   },
   {
     "id": "7948f4c7",
     "slug": "yellow-flower-pt1",
     "title": "yellow_flower_pt1",
     "order": 19,
-    "collectionNumber": 2026,
-    "collectionKey": "selection",
+    "collectionNumber": 2023,
     "original": "/photos/originals/yellow-flower-pt1.webp",
     "thumb": "/photos/thumbs/yellow-flower-pt1.webp",
     "width": 1920,
@@ -377,15 +427,18 @@
     "revealFrom": "left",
     "spacing": 43,
     "layer": 0,
-    "uploadedAt": "2026-06-03T16:07:33.058Z"
+    "uploadedAt": "2026-06-03T16:07:33.058Z",
+    "collectionKeys": [
+      "selection",
+      2023
+    ]
   },
   {
     "id": "47458ac1",
     "slug": "yellow-flower-pt2",
     "title": "yellow_flower_pt2",
     "order": 20,
-    "collectionNumber": 2026,
-    "collectionKey": "selection",
+    "collectionNumber": 2023,
     "original": "/photos/originals/yellow-flower-pt2.webp",
     "thumb": "/photos/thumbs/yellow-flower-pt2.webp",
     "width": 1920,
@@ -397,15 +450,18 @@
     "revealFrom": "right",
     "spacing": 44,
     "layer": 0,
-    "uploadedAt": "2026-06-03T16:07:37.223Z"
+    "uploadedAt": "2026-06-03T16:07:37.223Z",
+    "collectionKeys": [
+      "selection",
+      2023
+    ]
   },
   {
     "id": "39bfe185",
     "slug": "yellow-flowers-hands-and-spicy-chips",
     "title": "yellow_flowers_hands_and_spicy_chips",
     "order": 21,
-    "collectionNumber": 2026,
-    "collectionKey": "selection",
+    "collectionNumber": 2023,
     "original": "/photos/originals/yellow-flowers-hands-and-spicy-chips.webp",
     "thumb": "/photos/thumbs/yellow-flowers-hands-and-spicy-chips.webp",
     "width": 1920,
@@ -417,7 +473,11 @@
     "revealFrom": "left",
     "spacing": 31,
     "layer": 0,
-    "uploadedAt": "2026-06-03T16:07:41.621Z"
+    "uploadedAt": "2026-06-03T16:07:41.621Z",
+    "collectionKeys": [
+      "selection",
+      2023
+    ]
   },
   {
     "id": "0fe7c4d4",
@@ -425,7 +485,6 @@
     "title": "we_at_the_gulf_hill",
     "order": 22,
     "collectionNumber": 2026,
-    "collectionKey": "selection",
     "original": "/photos/originals/we-at-the-gulf-hill.webp",
     "thumb": "/photos/thumbs/we-at-the-gulf-hill.webp",
     "width": 1920,
@@ -437,15 +496,17 @@
     "revealFrom": "right",
     "spacing": 38,
     "layer": 0,
-    "uploadedAt": "2026-06-03T16:07:46.460Z"
+    "uploadedAt": "2026-06-03T16:07:46.460Z",
+    "collectionKeys": [
+      "selection"
+    ]
   },
   {
     "id": "1f95b94d",
     "slug": "we-listen-you-gulf",
     "title": "we_listen_you_gulf",
     "order": 23,
-    "collectionNumber": 2026,
-    "collectionKey": "selection",
+    "collectionNumber": 2023,
     "original": "/photos/originals/we-listen-you-gulf.webp",
     "thumb": "/photos/thumbs/we-listen-you-gulf.webp",
     "width": 1920,
@@ -457,15 +518,18 @@
     "revealFrom": "left",
     "spacing": 39,
     "layer": 0,
-    "uploadedAt": "2026-06-03T16:07:51.058Z"
+    "uploadedAt": "2026-06-03T16:07:51.058Z",
+    "collectionKeys": [
+      "selection",
+      2023
+    ]
   },
   {
     "id": "c3caa0c1",
     "slug": "shadow-ball-legs-gulf-rocket",
     "title": "shadow_ball_legs_gulf_rocket",
     "order": 24,
-    "collectionNumber": 2026,
-    "collectionKey": "selection",
+    "collectionNumber": 2023,
     "original": "/photos/originals/shadow-ball-legs-gulf-rocket.webp",
     "thumb": "/photos/thumbs/shadow-ball-legs-gulf-rocket.webp",
     "width": 1920,
@@ -477,7 +541,11 @@
     "revealFrom": "right",
     "spacing": 44,
     "layer": 0,
-    "uploadedAt": "2026-06-03T16:07:56.721Z"
+    "uploadedAt": "2026-06-03T16:07:56.721Z",
+    "collectionKeys": [
+      "selection",
+      2023
+    ]
   },
   {
     "id": "25b38bc3",
@@ -485,7 +553,6 @@
     "title": "put_the_red_cross_or_censored",
     "order": 25,
     "collectionNumber": 2026,
-    "collectionKey": "selection",
     "original": "/photos/originals/put-the-red-cross-or-censored.webp",
     "thumb": "/photos/thumbs/put-the-red-cross-or-censored.webp",
     "width": 1920,
@@ -497,7 +564,10 @@
     "revealFrom": "bottom",
     "spacing": 43,
     "layer": 1,
-    "uploadedAt": "2026-06-03T16:08:01.481Z"
+    "uploadedAt": "2026-06-03T16:08:01.481Z",
+    "collectionKeys": [
+      "selection"
+    ]
   },
   {
     "id": "86cef1b7",
@@ -505,7 +575,6 @@
     "title": "summer_ushkova_pushkin",
     "order": 26,
     "collectionNumber": 2026,
-    "collectionKey": "selection",
     "original": "/photos/originals/summer-ushkova-pushkin.webp",
     "thumb": "/photos/thumbs/summer-ushkova-pushkin.webp",
     "width": 1920,
@@ -517,7 +586,10 @@
     "revealFrom": "right",
     "spacing": 34,
     "layer": 0,
-    "uploadedAt": "2026-06-03T16:08:06.642Z"
+    "uploadedAt": "2026-06-03T16:08:06.642Z",
+    "collectionKeys": [
+      "selection"
+    ]
   },
   {
     "id": "73db0881",
@@ -525,7 +597,6 @@
     "title": "dogs_love_water",
     "order": 27,
     "collectionNumber": 2026,
-    "collectionKey": "selection",
     "original": "/photos/originals/dogs-love-water.webp",
     "thumb": "/photos/thumbs/dogs-love-water.webp",
     "width": 1920,
@@ -537,7 +608,10 @@
     "revealFrom": "left",
     "spacing": 36,
     "layer": 0,
-    "uploadedAt": "2026-06-03T16:08:12.218Z"
+    "uploadedAt": "2026-06-03T16:08:12.218Z",
+    "collectionKeys": [
+      "selection"
+    ]
   },
   {
     "id": "cfdcae74",
@@ -545,7 +619,6 @@
     "title": "summer_ushkova_gods_touch",
     "order": 28,
     "collectionNumber": 2026,
-    "collectionKey": "selection",
     "original": "/photos/originals/summer-ushkova-gods-touch.webp",
     "thumb": "/photos/thumbs/summer-ushkova-gods-touch.webp",
     "width": 1920,
@@ -557,15 +630,17 @@
     "revealFrom": "right",
     "spacing": 41,
     "layer": 0,
-    "uploadedAt": "2026-06-03T16:08:17.298Z"
+    "uploadedAt": "2026-06-03T16:08:17.298Z",
+    "collectionKeys": [
+      "selection"
+    ]
   },
   {
     "id": "c856dada",
     "slug": "spine-or-fish-bone",
     "title": "spine_or_fish_bone",
     "order": 29,
-    "collectionNumber": 2026,
-    "collectionKey": "selection",
+    "collectionNumber": 2023,
     "original": "/photos/originals/spine-or-fish-bone.webp",
     "thumb": "/photos/thumbs/spine-or-fish-bone.webp",
     "width": 1920,
@@ -577,15 +652,18 @@
     "revealFrom": "left",
     "spacing": 42,
     "layer": 0,
-    "uploadedAt": "2026-06-03T16:08:23.521Z"
+    "uploadedAt": "2026-06-03T16:08:23.521Z",
+    "collectionKeys": [
+      "selection",
+      2023
+    ]
   },
   {
     "id": "acd592d3",
     "slug": "only-one-such-balcony",
     "title": "only_one_such_balcony",
     "order": 30,
-    "collectionNumber": 2026,
-    "collectionKey": "selection",
+    "collectionNumber": 2023,
     "original": "/photos/originals/only-one-such-balcony.webp",
     "thumb": "/photos/thumbs/only-one-such-balcony.webp",
     "width": 1920,
@@ -597,15 +675,18 @@
     "revealFrom": "right",
     "spacing": 46,
     "layer": 0,
-    "uploadedAt": "2026-06-03T16:08:27.565Z"
+    "uploadedAt": "2026-06-03T16:08:27.565Z",
+    "collectionKeys": [
+      "selection",
+      2023
+    ]
   },
   {
     "id": "286dbd35",
     "slug": "wildness-by-the-city",
     "title": "wildness_by_the_city",
     "order": 31,
-    "collectionNumber": 2026,
-    "collectionKey": "selection",
+    "collectionNumber": 2023,
     "original": "/photos/originals/wildness-by-the-city.webp",
     "thumb": "/photos/thumbs/wildness-by-the-city.webp",
     "width": 1920,
@@ -617,15 +698,18 @@
     "revealFrom": "left",
     "spacing": 32,
     "layer": 0,
-    "uploadedAt": "2026-06-03T16:08:33.764Z"
+    "uploadedAt": "2026-06-03T16:08:33.764Z",
+    "collectionKeys": [
+      "selection",
+      2023
+    ]
   },
   {
     "id": "50412111",
     "slug": "a-sunned-man",
     "title": "a_sunned_man",
     "order": 32,
-    "collectionNumber": 2026,
-    "collectionKey": "selection",
+    "collectionNumber": 2023,
     "original": "/photos/originals/a-sunned-man.webp",
     "thumb": "/photos/thumbs/a-sunned-man.webp",
     "width": 1920,
@@ -637,7 +721,11 @@
     "revealFrom": "bottom",
     "spacing": 36,
     "layer": 1,
-    "uploadedAt": "2026-06-03T16:08:38.120Z"
+    "uploadedAt": "2026-06-03T16:08:38.120Z",
+    "collectionKeys": [
+      "selection",
+      2023
+    ]
   },
   {
     "id": "1c2a5186",
@@ -645,7 +733,6 @@
     "title": "road_from_the_pushkin",
     "order": 33,
     "collectionNumber": 2026,
-    "collectionKey": "selection",
     "original": "/photos/originals/road-from-the-pushkin.webp",
     "thumb": "/photos/thumbs/road-from-the-pushkin.webp",
     "width": 1920,
@@ -657,15 +744,17 @@
     "revealFrom": "left",
     "spacing": 39,
     "layer": 0,
-    "uploadedAt": "2026-06-03T16:08:43.819Z"
+    "uploadedAt": "2026-06-03T16:08:43.819Z",
+    "collectionKeys": [
+      "selection"
+    ]
   },
   {
     "id": "104b373a",
     "slug": "first-time-in-kremlin",
     "title": "first_time_in_kremlin",
     "order": 34,
-    "collectionNumber": 2026,
-    "collectionKey": "selection",
+    "collectionNumber": 2023,
     "original": "/photos/originals/first-time-in-kremlin.webp",
     "thumb": "/photos/thumbs/first-time-in-kremlin.webp",
     "width": 1920,
@@ -677,15 +766,18 @@
     "revealFrom": "right",
     "spacing": 43,
     "layer": 0,
-    "uploadedAt": "2026-06-03T16:08:48.216Z"
+    "uploadedAt": "2026-06-03T16:08:48.216Z",
+    "collectionKeys": [
+      "selection",
+      2023
+    ]
   },
   {
     "id": "dbebaf6f",
     "slug": "last-day-on-inno-trip-but-in-kazan",
     "title": "last_day_on_inno_trip_but_in_kazan",
     "order": 35,
-    "collectionNumber": 2026,
-    "collectionKey": "selection",
+    "collectionNumber": 2023,
     "original": "/photos/originals/last-day-on-inno-trip-but-in-kazan.webp",
     "thumb": "/photos/thumbs/last-day-on-inno-trip-but-in-kazan.webp",
     "width": 1920,
@@ -697,15 +789,18 @@
     "revealFrom": "left",
     "spacing": 47,
     "layer": 0,
-    "uploadedAt": "2026-06-03T16:08:53.160Z"
+    "uploadedAt": "2026-06-03T16:08:53.160Z",
+    "collectionKeys": [
+      "selection",
+      2023
+    ]
   },
   {
     "id": "711b50a4",
     "slug": "nik-vano-kazanka",
     "title": "nik_vano_kazanka",
     "order": 36,
-    "collectionNumber": 2026,
-    "collectionKey": "selection",
+    "collectionNumber": 2023,
     "original": "/photos/originals/nik-vano-kazanka.webp",
     "thumb": "/photos/thumbs/nik-vano-kazanka.webp",
     "width": 1920,
@@ -717,7 +812,11 @@
     "revealFrom": "right",
     "spacing": 34,
     "layer": 0,
-    "uploadedAt": "2026-06-03T16:08:57.586Z"
+    "uploadedAt": "2026-06-03T16:08:57.586Z",
+    "collectionKeys": [
+      "selection",
+      2023
+    ]
   },
   {
     "id": "5dacadfb",
@@ -725,7 +824,6 @@
     "title": "beach_plus",
     "order": 37,
     "collectionNumber": 2026,
-    "collectionKey": "selection",
     "original": "/photos/originals/beach-plus.webp",
     "thumb": "/photos/thumbs/beach-plus.webp",
     "width": 1280,
@@ -737,7 +835,10 @@
     "revealFrom": "left",
     "spacing": 39,
     "layer": 0,
-    "uploadedAt": "2026-06-03T16:09:00.464Z"
+    "uploadedAt": "2026-06-03T16:09:00.464Z",
+    "collectionKeys": [
+      "selection"
+    ]
   },
   {
     "id": "0f54b2ae",
@@ -745,7 +846,6 @@
     "title": "guys_Zaslavl",
     "order": 38,
     "collectionNumber": 2026,
-    "collectionKey": "selection",
     "original": "/photos/originals/guys-zaslavl.webp",
     "thumb": "/photos/thumbs/guys-zaslavl.webp",
     "width": 1920,
@@ -757,7 +857,10 @@
     "revealFrom": "right",
     "spacing": 36,
     "layer": 0,
-    "uploadedAt": "2026-06-03T16:09:04.762Z"
+    "uploadedAt": "2026-06-03T16:09:04.762Z",
+    "collectionKeys": [
+      "selection"
+    ]
   },
   {
     "id": "641da3b9",
@@ -765,7 +868,6 @@
     "title": "church_Zaslavl",
     "order": 39,
     "collectionNumber": 2026,
-    "collectionKey": "selection",
     "original": "/photos/originals/church-zaslavl.webp",
     "thumb": "/photos/thumbs/church-zaslavl.webp",
     "width": 1920,
@@ -777,7 +879,10 @@
     "revealFrom": "bottom",
     "spacing": 45,
     "layer": 1,
-    "uploadedAt": "2026-06-03T16:09:08.980Z"
+    "uploadedAt": "2026-06-03T16:09:08.980Z",
+    "collectionKeys": [
+      "selection"
+    ]
   },
   {
     "id": "c6ad0fd8",
@@ -785,7 +890,6 @@
     "title": "guys_hill_Zaslavl",
     "order": 40,
     "collectionNumber": 2026,
-    "collectionKey": "selection",
     "original": "/photos/originals/guys-hill-zaslavl.webp",
     "thumb": "/photos/thumbs/guys-hill-zaslavl.webp",
     "width": 1920,
@@ -797,15 +901,17 @@
     "revealFrom": "right",
     "spacing": 45,
     "layer": 0,
-    "uploadedAt": "2026-06-03T16:09:12.884Z"
+    "uploadedAt": "2026-06-03T16:09:12.884Z",
+    "collectionKeys": [
+      "selection"
+    ]
   },
   {
     "id": "6d71e6e8",
     "slug": "cats-sky-closer",
     "title": "cats_sky_closer",
     "order": 41,
-    "collectionNumber": 2026,
-    "collectionKey": "selection",
+    "collectionNumber": 2024,
     "original": "/photos/originals/cats-sky-closer.webp",
     "thumb": "/photos/thumbs/cats-sky-closer.webp",
     "width": 1920,
@@ -817,15 +923,18 @@
     "revealFrom": "left",
     "spacing": 32,
     "layer": 0,
-    "uploadedAt": "2026-06-03T16:09:18.059Z"
+    "uploadedAt": "2026-06-03T16:09:18.059Z",
+    "collectionKeys": [
+      "selection",
+      2024
+    ]
   },
   {
     "id": "b69d4ad2",
     "slug": "cats-sky",
     "title": "cats_sky",
     "order": 42,
-    "collectionNumber": 2026,
-    "collectionKey": "selection",
+    "collectionNumber": 2024,
     "original": "/photos/originals/cats-sky.webp",
     "thumb": "/photos/thumbs/cats-sky.webp",
     "width": 1920,
@@ -837,15 +946,18 @@
     "revealFrom": "right",
     "spacing": 36,
     "layer": 0,
-    "uploadedAt": "2026-06-03T16:09:23.200Z"
+    "uploadedAt": "2026-06-03T16:09:23.200Z",
+    "collectionKeys": [
+      "selection",
+      2024
+    ]
   },
   {
     "id": "19ab03df",
     "slug": "dogs-during-the-autumn-minsk",
     "title": "dogs_during_the_autumn_Minsk",
     "order": 43,
-    "collectionNumber": 2026,
-    "collectionKey": "selection",
+    "collectionNumber": 2024,
     "original": "/photos/originals/dogs-during-the-autumn-minsk.webp",
     "thumb": "/photos/thumbs/dogs-during-the-autumn-minsk.webp",
     "width": 1920,
@@ -857,15 +969,18 @@
     "revealFrom": "left",
     "spacing": 41,
     "layer": 0,
-    "uploadedAt": "2026-06-03T16:09:28.358Z"
+    "uploadedAt": "2026-06-03T16:09:28.358Z",
+    "collectionKeys": [
+      "selection",
+      2024
+    ]
   },
   {
     "id": "3e290cbc",
     "slug": "american-colorite",
     "title": "american_colorite",
     "order": 44,
-    "collectionNumber": 2026,
-    "collectionKey": "selection",
+    "collectionNumber": 2024,
     "original": "/photos/originals/american-colorite.webp",
     "thumb": "/photos/thumbs/american-colorite.webp",
     "width": 1920,
@@ -877,15 +992,18 @@
     "revealFrom": "right",
     "spacing": 42,
     "layer": 0,
-    "uploadedAt": "2026-06-03T16:09:32.759Z"
+    "uploadedAt": "2026-06-03T16:09:32.759Z",
+    "collectionKeys": [
+      "selection",
+      2024
+    ]
   },
   {
     "id": "0de043d1",
     "slug": "meet-you-with-the-ride",
     "title": "meet_you_with_the_ride",
     "order": 45,
-    "collectionNumber": 2026,
-    "collectionKey": "selection",
+    "collectionNumber": 2024,
     "original": "/photos/originals/meet-you-with-the-ride.webp",
     "thumb": "/photos/thumbs/meet-you-with-the-ride.webp",
     "width": 1920,
@@ -897,7 +1015,11 @@
     "revealFrom": "left",
     "spacing": 47,
     "layer": 0,
-    "uploadedAt": "2026-06-03T16:09:37.867Z"
+    "uploadedAt": "2026-06-03T16:09:37.867Z",
+    "collectionKeys": [
+      "selection",
+      2024
+    ]
   },
   {
     "id": "6c6b4d6e",
@@ -905,7 +1027,6 @@
     "title": "great_spain_organ",
     "order": 46,
     "collectionNumber": 2026,
-    "collectionKey": "selection",
     "original": "/photos/originals/great-spain-organ.webp",
     "thumb": "/photos/thumbs/great-spain-organ.webp",
     "width": 1920,
@@ -917,15 +1038,17 @@
     "revealFrom": "bottom",
     "spacing": 36,
     "layer": 1,
-    "uploadedAt": "2026-06-03T16:09:42.206Z"
+    "uploadedAt": "2026-06-03T16:09:42.206Z",
+    "collectionKeys": [
+      "selection"
+    ]
   },
   {
     "id": "77a85e21",
     "slug": "gray-town-beatiful-flowers",
     "title": "gray_town_beatiful_flowers",
     "order": 47,
-    "collectionNumber": 2026,
-    "collectionKey": "selection",
+    "collectionNumber": 2024,
     "original": "/photos/originals/gray-town-beatiful-flowers.webp",
     "thumb": "/photos/thumbs/gray-town-beatiful-flowers.webp",
     "width": 1920,
@@ -937,15 +1060,18 @@
     "revealFrom": "left",
     "spacing": 35,
     "layer": 0,
-    "uploadedAt": "2026-06-03T16:09:47.196Z"
+    "uploadedAt": "2026-06-03T16:09:47.196Z",
+    "collectionKeys": [
+      "selection",
+      2024
+    ]
   },
   {
     "id": "443ea766",
     "slug": "mirror-restourant",
     "title": "mirror_restourant",
     "order": 48,
-    "collectionNumber": 2026,
-    "collectionKey": "selection",
+    "collectionNumber": 2024,
     "original": "/photos/originals/mirror-restourant.webp",
     "thumb": "/photos/thumbs/mirror-restourant.webp",
     "width": 1920,
@@ -957,15 +1083,18 @@
     "revealFrom": "right",
     "spacing": 37,
     "layer": 0,
-    "uploadedAt": "2026-06-03T16:09:52.944Z"
+    "uploadedAt": "2026-06-03T16:09:52.944Z",
+    "collectionKeys": [
+      "selection",
+      2024
+    ]
   },
   {
     "id": "45f19a4e",
     "slug": "gallery-pt-1",
     "title": "gallery_pt_1",
     "order": 49,
-    "collectionNumber": 2026,
-    "collectionKey": "selection",
+    "collectionNumber": 2024,
     "original": "/photos/originals/gallery-pt-1.webp",
     "thumb": "/photos/thumbs/gallery-pt-1.webp",
     "width": 1920,
@@ -977,15 +1106,18 @@
     "revealFrom": "left",
     "spacing": 45,
     "layer": 0,
-    "uploadedAt": "2026-06-03T16:09:58.696Z"
+    "uploadedAt": "2026-06-03T16:09:58.696Z",
+    "collectionKeys": [
+      "selection",
+      2024
+    ]
   },
   {
     "id": "18048407",
     "slug": "gallery-pt-2",
     "title": "gallery_pt_2",
     "order": 50,
-    "collectionNumber": 2026,
-    "collectionKey": "selection",
+    "collectionNumber": 2024,
     "original": "/photos/originals/gallery-pt-2.webp",
     "thumb": "/photos/thumbs/gallery-pt-2.webp",
     "width": 1920,
@@ -997,15 +1129,18 @@
     "revealFrom": "right",
     "spacing": 45,
     "layer": 0,
-    "uploadedAt": "2026-06-03T16:10:03.737Z"
+    "uploadedAt": "2026-06-03T16:10:03.737Z",
+    "collectionKeys": [
+      "selection",
+      2024
+    ]
   },
   {
     "id": "f664a767",
     "slug": "man-on-the-kazan-hill",
     "title": "man_on_the_kazan_hill",
     "order": 51,
-    "collectionNumber": 2026,
-    "collectionKey": "selection",
+    "collectionNumber": 2024,
     "original": "/photos/originals/man-on-the-kazan-hill.webp",
     "thumb": "/photos/thumbs/man-on-the-kazan-hill.webp",
     "width": 1920,
@@ -1017,15 +1152,18 @@
     "revealFrom": "left",
     "spacing": 32,
     "layer": 0,
-    "uploadedAt": "2026-06-03T16:10:09.996Z"
+    "uploadedAt": "2026-06-03T16:10:09.996Z",
+    "collectionKeys": [
+      "selection",
+      2024
+    ]
   },
   {
     "id": "662e8496",
     "slug": "man-walking-in-almet",
     "title": "man_walking_in_Almet",
     "order": 52,
-    "collectionNumber": 2026,
-    "collectionKey": "selection",
+    "collectionNumber": 2024,
     "original": "/photos/originals/man-walking-in-almet.webp",
     "thumb": "/photos/thumbs/man-walking-in-almet.webp",
     "width": 1920,
@@ -1037,7 +1175,11 @@
     "revealFrom": "right",
     "spacing": 39,
     "layer": 0,
-    "uploadedAt": "2026-06-03T16:10:15.842Z"
+    "uploadedAt": "2026-06-03T16:10:15.842Z",
+    "collectionKeys": [
+      "selection",
+      2024
+    ]
   },
   {
     "id": "ac5267a7",
@@ -1045,7 +1187,6 @@
     "title": "kids_play_in_the_woods",
     "order": 53,
     "collectionNumber": 2026,
-    "collectionKey": "selection",
     "original": "/photos/originals/kids-play-in-the-woods.webp",
     "thumb": "/photos/thumbs/kids-play-in-the-woods.webp",
     "width": 1920,
@@ -1057,15 +1198,17 @@
     "revealFrom": "bottom",
     "spacing": 40,
     "layer": 1,
-    "uploadedAt": "2026-06-03T16:10:21.662Z"
+    "uploadedAt": "2026-06-03T16:10:21.662Z",
+    "collectionKeys": [
+      "selection"
+    ]
   },
   {
     "id": "b8724a9b",
     "slug": "mirror-style",
     "title": "mirror_style",
     "order": 54,
-    "collectionNumber": 2026,
-    "collectionKey": "selection",
+    "collectionNumber": 2024,
     "original": "/photos/originals/mirror-style.webp",
     "thumb": "/photos/thumbs/mirror-style.webp",
     "width": 1920,
@@ -1077,15 +1220,18 @@
     "revealFrom": "right",
     "spacing": 44,
     "layer": 0,
-    "uploadedAt": "2026-06-03T16:10:27.000Z"
+    "uploadedAt": "2026-06-03T16:10:27.000Z",
+    "collectionKeys": [
+      "selection",
+      2024
+    ]
   },
   {
     "id": "7f0114b0",
     "slug": "dinner-aesthetic",
     "title": "dinner_aesthetic",
     "order": 55,
-    "collectionNumber": 2026,
-    "collectionKey": "selection",
+    "collectionNumber": 2024,
     "original": "/photos/originals/dinner-aesthetic.webp",
     "thumb": "/photos/thumbs/dinner-aesthetic.webp",
     "width": 1920,
@@ -1097,15 +1243,18 @@
     "revealFrom": "left",
     "spacing": 46,
     "layer": 0,
-    "uploadedAt": "2026-06-03T16:10:32.957Z"
+    "uploadedAt": "2026-06-03T16:10:32.957Z",
+    "collectionKeys": [
+      "selection",
+      2024
+    ]
   },
   {
     "id": "fd059d38",
     "slug": "gopnik-way",
     "title": "gopnik_way",
     "order": 56,
-    "collectionNumber": 2026,
-    "collectionKey": "selection",
+    "collectionNumber": 2024,
     "original": "/photos/originals/gopnik-way.webp",
     "thumb": "/photos/thumbs/gopnik-way.webp",
     "width": 1920,
@@ -1117,15 +1266,18 @@
     "revealFrom": "right",
     "spacing": 36,
     "layer": 0,
-    "uploadedAt": "2026-06-03T16:10:38.900Z"
+    "uploadedAt": "2026-06-03T16:10:38.900Z",
+    "collectionKeys": [
+      "selection",
+      2024
+    ]
   },
   {
     "id": "ba4fd6c5",
     "slug": "marriage-building",
     "title": "marriage_building",
     "order": 57,
-    "collectionNumber": 2026,
-    "collectionKey": "selection",
+    "collectionNumber": 2024,
     "original": "/photos/originals/marriage-building.webp",
     "thumb": "/photos/thumbs/marriage-building.webp",
     "width": 1920,
@@ -1137,15 +1289,18 @@
     "revealFrom": "left",
     "spacing": 37,
     "layer": 0,
-    "uploadedAt": "2026-06-03T16:10:44.166Z"
+    "uploadedAt": "2026-06-03T16:10:44.166Z",
+    "collectionKeys": [
+      "selection",
+      2024
+    ]
   },
   {
     "id": "0d1e0783",
     "slug": "volga-says",
     "title": "volga_says",
     "order": 58,
-    "collectionNumber": 2026,
-    "collectionKey": "selection",
+    "collectionNumber": 2024,
     "original": "/photos/originals/volga-says.webp",
     "thumb": "/photos/thumbs/volga-says.webp",
     "width": 1920,
@@ -1157,15 +1312,18 @@
     "revealFrom": "right",
     "spacing": 40,
     "layer": 0,
-    "uploadedAt": "2026-06-03T16:10:48.204Z"
+    "uploadedAt": "2026-06-03T16:10:48.204Z",
+    "collectionKeys": [
+      "selection",
+      2024
+    ]
   },
   {
     "id": "c2a8bcf6",
     "slug": "great-music-to-listen-for-free",
     "title": "great_music_to_listen_for_free",
     "order": 59,
-    "collectionNumber": 2026,
-    "collectionKey": "selection",
+    "collectionNumber": 2024,
     "original": "/photos/originals/great-music-to-listen-for-free.webp",
     "thumb": "/photos/thumbs/great-music-to-listen-for-free.webp",
     "width": 1920,
@@ -1177,15 +1335,18 @@
     "revealFrom": "left",
     "spacing": 39,
     "layer": 0,
-    "uploadedAt": "2026-06-03T16:10:52.437Z"
+    "uploadedAt": "2026-06-03T16:10:52.437Z",
+    "collectionKeys": [
+      "selection",
+      2024
+    ]
   },
   {
     "id": "1ec14e34",
     "slug": "colorite-cat",
     "title": "colorite_cat",
     "order": 60,
-    "collectionNumber": 2026,
-    "collectionKey": "selection",
+    "collectionNumber": 2024,
     "original": "/photos/originals/colorite-cat.webp",
     "thumb": "/photos/thumbs/colorite-cat.webp",
     "width": 1920,
@@ -1197,15 +1358,18 @@
     "revealFrom": "bottom",
     "spacing": 45,
     "layer": 1,
-    "uploadedAt": "2026-06-03T16:10:58.084Z"
+    "uploadedAt": "2026-06-03T16:10:58.084Z",
+    "collectionKeys": [
+      "selection",
+      2024
+    ]
   },
   {
     "id": "a0aff91b",
     "slug": "black-white-swans",
     "title": "black_white_swans",
     "order": 61,
-    "collectionNumber": 2026,
-    "collectionKey": "selection",
+    "collectionNumber": 2024,
     "original": "/photos/originals/black-white-swans.webp",
     "thumb": "/photos/thumbs/black-white-swans.webp",
     "width": 1920,
@@ -1217,15 +1381,18 @@
     "revealFrom": "left",
     "spacing": 32,
     "layer": 0,
-    "uploadedAt": "2026-06-03T16:11:03.040Z"
+    "uploadedAt": "2026-06-03T16:11:03.040Z",
+    "collectionKeys": [
+      "selection",
+      2024
+    ]
   },
   {
     "id": "3bfa6264",
     "slug": "mosque-almet",
     "title": "mosque_Almet",
     "order": 62,
-    "collectionNumber": 2026,
-    "collectionKey": "selection",
+    "collectionNumber": 2024,
     "original": "/photos/originals/mosque-almet.webp",
     "thumb": "/photos/thumbs/mosque-almet.webp",
     "width": 1920,
@@ -1237,15 +1404,18 @@
     "revealFrom": "right",
     "spacing": 34,
     "layer": 0,
-    "uploadedAt": "2026-06-03T16:11:07.500Z"
+    "uploadedAt": "2026-06-03T16:11:07.500Z",
+    "collectionKeys": [
+      "selection",
+      2024
+    ]
   },
   {
     "id": "11682874",
     "slug": "sunset-from-the-weel",
     "title": "sunset_from_the_weel",
     "order": 63,
-    "collectionNumber": 2026,
-    "collectionKey": "selection",
+    "collectionNumber": 2024,
     "original": "/photos/originals/sunset-from-the-weel.webp",
     "thumb": "/photos/thumbs/sunset-from-the-weel.webp",
     "width": 1920,
@@ -1257,15 +1427,18 @@
     "revealFrom": "left",
     "spacing": 37,
     "layer": 0,
-    "uploadedAt": "2026-06-03T16:11:11.798Z"
+    "uploadedAt": "2026-06-03T16:11:11.798Z",
+    "collectionKeys": [
+      "selection",
+      2024
+    ]
   },
   {
     "id": "951566de",
     "slug": "photo-from-grot",
     "title": "photo_from_grot",
     "order": 64,
-    "collectionNumber": 2026,
-    "collectionKey": "selection",
+    "collectionNumber": 2024,
     "original": "/photos/originals/photo-from-grot.webp",
     "thumb": "/photos/thumbs/photo-from-grot.webp",
     "width": 1920,
@@ -1277,15 +1450,18 @@
     "revealFrom": "right",
     "spacing": 40,
     "layer": 0,
-    "uploadedAt": "2026-06-03T16:11:15.879Z"
+    "uploadedAt": "2026-06-03T16:11:15.879Z",
+    "collectionKeys": [
+      "selection",
+      2024
+    ]
   },
   {
     "id": "6d426ac5",
     "slug": "mirror-cafe",
     "title": "mirror_cafe",
     "order": 65,
-    "collectionNumber": 2026,
-    "collectionKey": "selection",
+    "collectionNumber": 2024,
     "original": "/photos/originals/mirror-cafe.webp",
     "thumb": "/photos/thumbs/mirror-cafe.webp",
     "width": 1920,
@@ -1297,15 +1473,18 @@
     "revealFrom": "left",
     "spacing": 46,
     "layer": 0,
-    "uploadedAt": "2026-06-03T16:11:26.920Z"
+    "uploadedAt": "2026-06-03T16:11:26.920Z",
+    "collectionKeys": [
+      "selection",
+      2024
+    ]
   },
   {
     "id": "af36ccff",
     "slug": "neznakomka-celebration",
     "title": "neznakomka_celebration",
     "order": 66,
-    "collectionNumber": 2026,
-    "collectionKey": "selection",
+    "collectionNumber": 2024,
     "original": "/photos/originals/neznakomka-celebration.webp",
     "thumb": "/photos/thumbs/neznakomka-celebration.webp",
     "width": 1920,
@@ -1317,15 +1496,18 @@
     "revealFrom": "right",
     "spacing": 35,
     "layer": 0,
-    "uploadedAt": "2026-06-03T16:11:32.477Z"
+    "uploadedAt": "2026-06-03T16:11:32.477Z",
+    "collectionKeys": [
+      "selection",
+      2024
+    ]
   },
   {
     "id": "f065fe2f",
     "slug": "neznakomka-found",
     "title": "neznakomka_found",
     "order": 67,
-    "collectionNumber": 2026,
-    "collectionKey": "selection",
+    "collectionNumber": 2024,
     "original": "/photos/originals/neznakomka-found.webp",
     "thumb": "/photos/thumbs/neznakomka-found.webp",
     "width": 1920,
@@ -1337,15 +1519,18 @@
     "revealFrom": "bottom",
     "spacing": 36,
     "layer": 1,
-    "uploadedAt": "2026-06-03T16:11:38.337Z"
+    "uploadedAt": "2026-06-03T16:11:38.337Z",
+    "collectionKeys": [
+      "selection",
+      2024
+    ]
   },
   {
     "id": "7a137be2",
     "slug": "y3-founder-on-the-bycicle",
     "title": "y3_founder_on_the_bycicle",
     "order": 68,
-    "collectionNumber": 2026,
-    "collectionKey": "selection",
+    "collectionNumber": 2024,
     "original": "/photos/originals/y3-founder-on-the-bycicle.webp",
     "thumb": "/photos/thumbs/y3-founder-on-the-bycicle.webp",
     "width": 1920,
@@ -1357,15 +1542,18 @@
     "revealFrom": "right",
     "spacing": 41,
     "layer": 0,
-    "uploadedAt": "2026-06-03T16:11:42.142Z"
+    "uploadedAt": "2026-06-03T16:11:42.142Z",
+    "collectionKeys": [
+      "selection",
+      2024
+    ]
   },
   {
     "id": "317344da",
     "slug": "big-smile",
     "title": "big_smile",
     "order": 69,
-    "collectionNumber": 2026,
-    "collectionKey": "selection",
+    "collectionNumber": 2024,
     "original": "/photos/originals/big-smile.webp",
     "thumb": "/photos/thumbs/big-smile.webp",
     "width": 1920,
@@ -1377,15 +1565,18 @@
     "revealFrom": "left",
     "spacing": 42,
     "layer": 0,
-    "uploadedAt": "2026-06-03T16:11:47.135Z"
+    "uploadedAt": "2026-06-03T16:11:47.135Z",
+    "collectionKeys": [
+      "selection",
+      2024
+    ]
   },
   {
     "id": "38c76e01",
     "slug": "capturing-view-from-hidden-doors",
     "title": "capturing_view_from_hidden_doors",
     "order": 70,
-    "collectionNumber": 2026,
-    "collectionKey": "selection",
+    "collectionNumber": 2024,
     "original": "/photos/originals/capturing-view-from-hidden-doors.webp",
     "thumb": "/photos/thumbs/capturing-view-from-hidden-doors.webp",
     "width": 1920,
@@ -1397,15 +1588,18 @@
     "revealFrom": "right",
     "spacing": 44,
     "layer": 0,
-    "uploadedAt": "2026-06-03T16:11:52.163Z"
+    "uploadedAt": "2026-06-03T16:11:52.163Z",
+    "collectionKeys": [
+      "selection",
+      2024
+    ]
   },
   {
     "id": "d139f014",
     "slug": "cinnabon-is-tasty",
     "title": "cinnabon_is_tasty",
     "order": 71,
-    "collectionNumber": 2026,
-    "collectionKey": "selection",
+    "collectionNumber": 2024,
     "original": "/photos/originals/cinnabon-is-tasty.webp",
     "thumb": "/photos/thumbs/cinnabon-is-tasty.webp",
     "width": 1920,
@@ -1417,7 +1611,11 @@
     "revealFrom": "left",
     "spacing": 36,
     "layer": 0,
-    "uploadedAt": "2026-06-03T16:11:57.561Z"
+    "uploadedAt": "2026-06-03T16:11:57.561Z",
+    "collectionKeys": [
+      "selection",
+      2024
+    ]
   },
   {
     "id": "079793f3",
@@ -1425,7 +1623,6 @@
     "title": "thank_you_middle_assian_friend_for_wifi",
     "order": 72,
     "collectionNumber": 2026,
-    "collectionKey": "selection",
     "original": "/photos/originals/thank-you-middle-assian-friend-for-wifi.webp",
     "thumb": "/photos/thumbs/thank-you-middle-assian-friend-for-wifi.webp",
     "width": 1920,
@@ -1437,6 +1634,9 @@
     "revealFrom": "right",
     "spacing": 37,
     "layer": 0,
-    "uploadedAt": "2026-06-03T16:12:01.783Z"
+    "uploadedAt": "2026-06-03T16:12:01.783Z",
+    "collectionKeys": [
+      "selection"
+    ]
   }
 ]

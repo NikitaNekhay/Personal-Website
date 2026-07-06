@@ -225,10 +225,11 @@ export interface PhotoManifestEntry {
     slug: string;
     title: string;
     order: number;
-    /** Collection year shown in home filter (e.g. 2023–2026) */
+    /** Collection year shown in home filter (e.g. 2023–2026) — the photo's real capture year. */
     collectionNumber: number;
-    /** Home/dashboard bucket: the editorial Selection group or a year */
-    collectionKey: PhotoCollectionKey;
+    /** Home/dashboard buckets this photo belongs to (editorial Selection and/or one or more
+     *  years). A photo can appear under several tabs at once — always at least one entry. */
+    collectionKeys: PhotoCollectionKey[];
     original: string;
     thumb: string;
     width: number;
@@ -272,14 +273,24 @@ export function defaultCollectionNumber(): number {
 }
 
 export function normalizePhotoEntry(
-    entry: Partial<PhotoManifestEntry> & Pick<PhotoManifestEntry, 'id' | 'slug'>
+    entry: Partial<PhotoManifestEntry> &
+        Pick<PhotoManifestEntry, 'id' | 'slug'> & {
+            /** Legacy single-value field — still accepted for backward compatibility with
+             *  data written before multi-collection support. */
+            collectionKey?: unknown;
+        }
 ): PhotoManifestEntry {
     const collectionNumber =
         typeof entry.collectionNumber === 'number' &&
         (PHOTO_COLLECTION_YEARS as readonly number[]).includes(entry.collectionNumber)
             ? entry.collectionNumber
             : defaultCollectionNumber();
-    const collectionKey = normalizePhotoCollectionKey(entry.collectionKey, collectionNumber);
+    // Smart fallback: accept the new `collectionKeys` array, or transparently upgrade an
+    // older entry that only has the singular `collectionKey` field.
+    const collectionKeys = normalizePhotoCollectionKeys(
+        entry.collectionKeys ?? entry.collectionKey,
+        collectionNumber
+    );
 
     const fallbackPosition = getPercentsFromObjectPosition(entry.objectPosition);
 
@@ -289,7 +300,7 @@ export function normalizePhotoEntry(
         title: entry.title ?? entry.slug,
         order: entry.order ?? 0,
         collectionNumber,
-        collectionKey,
+        collectionKeys,
         original: entry.original ?? `/photos/originals/${entry.slug}.webp`,
         thumb: entry.thumb ?? `/photos/thumbs/${entry.slug}.webp`,
         width: entry.width ?? 0,
@@ -354,6 +365,23 @@ export function normalizePhotoCollectionKey(
     // the return type narrowed to PhotoCollectionKey without changing call sites.
     if (isPhotoCollectionYear(fallbackYear)) return fallbackYear;
     return PHOTO_COLLECTION_YEARS[PHOTO_COLLECTION_YEARS.length - 1];
+}
+
+/**
+ * Normalizes a photo's collection membership to a non-empty, de-duplicated list.
+ * Accepts a single value, an array, or nothing (all three appear across old data,
+ * form submissions, and API payloads). Invalid entries are dropped individually
+ * rather than discarding the whole list; only falls back to a single default
+ * value when nothing valid was provided at all.
+ */
+export function normalizePhotoCollectionKeys(
+    value: unknown,
+    fallbackYear: number = defaultCollectionNumber()
+): PhotoCollectionKey[] {
+    const raw: unknown[] = Array.isArray(value) ? value : value !== undefined && value !== null ? [value] : [];
+    const valid = raw.filter(isPhotoCollectionKey).map((v) => normalizePhotoCollectionKey(v, fallbackYear));
+    const deduped = [...new Set(valid)];
+    return deduped.length > 0 ? deduped : [normalizePhotoCollectionKey(undefined, fallbackYear)];
 }
 
 export function isPhotoRevealDirection(value: unknown): value is PhotoRevealDirection {

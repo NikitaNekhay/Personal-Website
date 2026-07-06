@@ -5,6 +5,7 @@
 	import CommonPopUp from '../../components/Shared/CommonPopUp.svelte';
 	import ConfirmationPopUp from '../../components/Shared/ConfirmationPopUp.svelte';
 	import InfoGuide from '../../components/Shared/InfoGuide.svelte';
+	import CollectionMultiSelect from '../../components/Shared/CollectionMultiSelect.svelte';
 	import {
 		DEFAULT_PHOTO_COLLECTION,
 		PHOTO_COLLECTION_YEARS,
@@ -14,8 +15,10 @@
 		DEFAULT_PHOTO_SCALE,
 		DEFAULT_PHOTO_SPACING,
 		DEFAULT_PHOTO_LAYER,
-		normalizePhotoCollectionKey,
+		defaultCollectionNumber,
+		normalizePhotoCollectionKeys,
 		type PhotoCollectionKey,
+		type PhotoCollectionYear,
 		type PhotoGeoEntry,
 		type PhotoManifestEntry
 	} from '../../shared/types';
@@ -24,7 +27,6 @@
 
 	const SLUG_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 	const MAX_FILE_BYTES = 4 * 1024 * 1024;
-	const PHOTO_COLLECTION_OPTIONS = [PHOTO_SELECTION_COLLECTION, ...PHOTO_COLLECTION_YEARS] as const;
 
 	type UploadStatus = 'pending' | 'uploading' | 'done' | 'error';
 
@@ -42,7 +44,7 @@
 		slug: string;
 		title: string;
 		collectionNumber: number;
-		collectionKey: PhotoCollectionKey;
+		collectionKeys: PhotoCollectionKey[];
 		positionX: number;
 		positionY: number;
 		scalePercent: number;
@@ -55,12 +57,13 @@
 		error?: string;
 	}
 
-	type ManagementSection = 'all' | 'selection' | number;
+	type ManagementSection = 'all' | 'selection' | PhotoCollectionYear;
 	type PopupKind = 'success' | 'error' | 'warning';
 
 	interface PhotoEditDraft {
 		title: string;
-		collectionKey: PhotoCollectionKey;
+		collectionNumber: number;
+		collectionKeys: PhotoCollectionKey[];
 		positionX: number;
 		positionY: number;
 		scalePercent: number;
@@ -74,8 +77,9 @@
 	let isLoadingManifest = $state(true);
 	let staged = $state<StagedFile[]>([]);
 	let stripAllExif = $state(true);
-	let defaultUploadCollection = $state<PhotoCollectionKey>(DEFAULT_PHOTO_COLLECTION);
-	let bulkCollectionKey = $state<PhotoCollectionKey>(DEFAULT_PHOTO_COLLECTION);
+	let defaultUploadCollections = $state<PhotoCollectionKey[]>([DEFAULT_PHOTO_COLLECTION]);
+	let bulkCollectionKeys = $state<PhotoCollectionKey[]>([DEFAULT_PHOTO_COLLECTION]);
+	let bulkCollectionNumber = $state<number>(defaultCollectionNumber());
 	let bulkPositionX = $state(DEFAULT_PHOTO_POSITION);
 	let bulkPositionY = $state(DEFAULT_PHOTO_POSITION);
 	let bulkScalePercent = $state(DEFAULT_PHOTO_SCALE);
@@ -126,14 +130,24 @@
 		return String(collection);
 	}
 
-	function collectionYear(collection: PhotoCollectionKey): number {
-		return typeof collection === 'number' ? collection : PHOTO_COLLECTION_YEARS[0];
+	// Multiple collections can be shown as a joined chip label, e.g. "Selection + 2024".
+	function collectionKeysLabel(keys: PhotoCollectionKey[]): string {
+		return keys.map(collectionLabel).join(' + ');
+	}
+
+	// Order-independent equality for the two collection-key arrays kept in a draft vs.
+	// the saved photo, used by the dirty-check.
+	function sameCollectionKeys(a: PhotoCollectionKey[], b: PhotoCollectionKey[]): boolean {
+		if (a.length !== b.length) return false;
+		const setB = new Set(b);
+		return a.every((k) => setB.has(k));
 	}
 
 	function photoToDraft(photo: PhotoManifestEntry): PhotoEditDraft {
 		return {
 			title: photo.title,
-			collectionKey: photo.collectionKey,
+			collectionNumber: photo.collectionNumber,
+			collectionKeys: photo.collectionKeys,
 			positionX: photo.positionX,
 			positionY: photo.positionY,
 			scalePercent: photo.scalePercent,
@@ -259,8 +273,8 @@
 			preview: URL.createObjectURL(file),
 			slug: toSlug(file.name),
 			title: file.name.replace(/\.[^.]+$/, ''),
-			collectionNumber: collectionYear(defaultUploadCollection),
-			collectionKey: defaultUploadCollection,
+			collectionNumber: defaultCollectionNumber(),
+			collectionKeys: defaultUploadCollections,
 			positionX: DEFAULT_PHOTO_POSITION,
 			positionY: DEFAULT_PHOTO_POSITION,
 			scalePercent: DEFAULT_PHOTO_SCALE,
@@ -320,10 +334,10 @@
 
 	function getPhotosForSection(section: ManagementSection): PhotoManifestEntry[] {
 		if (section === 'selection') {
-			return displayOrder.filter((photo) => photo.collectionKey === PHOTO_SELECTION_COLLECTION);
+			return displayOrder.filter((photo) => photo.collectionKeys.includes(PHOTO_SELECTION_COLLECTION));
 		}
 		if (section === 'all') return displayOrder;
-		return displayOrder.filter((photo) => photo.collectionKey === section);
+		return displayOrder.filter((photo) => photo.collectionKeys.includes(section));
 	}
 
 	const sectionPhotos = $derived.by(() => getPhotosForSection(activeSection));
@@ -401,8 +415,8 @@
 			s.selected
 				? {
 						...s,
-						collectionKey: bulkCollectionKey,
-						collectionNumber: collectionYear(bulkCollectionKey)
+						collectionKeys: bulkCollectionKeys,
+						collectionNumber: bulkCollectionNumber
 					}
 				: s
 		);
@@ -457,7 +471,7 @@
 				formData.append('title', item.title);
 				formData.append('stripExif', String(item.stripExif));
 				formData.append('collectionNumber', String(item.collectionNumber));
-				formData.append('collectionKey', String(item.collectionKey));
+				formData.append('collectionKeys', JSON.stringify(item.collectionKeys));
 				formData.append('positionX', String(item.positionX));
 				formData.append('positionY', String(item.positionY));
 				formData.append('scalePercent', String(item.scalePercent));
@@ -607,7 +621,8 @@
 		slug: string,
 		updates: {
 			title?: string;
-			collectionKey?: PhotoCollectionKey;
+			collectionNumber?: number;
+			collectionKeys?: PhotoCollectionKey[];
 			positionX?: number;
 			positionY?: number;
 			scalePercent?: number;
@@ -660,7 +675,8 @@
 		if (!draft) return false;
 		return (
 			draft.title !== photo.title ||
-			draft.collectionKey !== photo.collectionKey ||
+			draft.collectionNumber !== photo.collectionNumber ||
+			!sameCollectionKeys(draft.collectionKeys, photo.collectionKeys) ||
 			draft.positionX !== photo.positionX ||
 			draft.positionY !== photo.positionY ||
 			draft.scalePercent !== photo.scalePercent ||
@@ -677,7 +693,8 @@
 			photo.slug,
 			{
 				title: draft.title,
-				collectionKey: draft.collectionKey,
+				collectionNumber: draft.collectionNumber,
+				collectionKeys: draft.collectionKeys,
 				positionX: clampNumber(draft.positionX, 0, 100),
 				positionY: clampNumber(draft.positionY, 0, 100),
 				scalePercent: clampNumber(draft.scalePercent, 1, 100),
@@ -702,7 +719,8 @@
 				headers,
 				body: JSON.stringify({
 					slugs: [...selectedExistingSlugs],
-					collectionKey: bulkCollectionKey
+					collectionKeys: bulkCollectionKeys,
+					collectionNumber: bulkCollectionNumber
 				})
 			});
 			if (!res.ok) throw new Error('Bulk update failed');
@@ -966,12 +984,22 @@
 						<div class="batch-control">
 							<label>
 								<span class="label-row">
-									Collection group
-									<InfoGuide text="Choose where the photo appears on the home page. Selection is a separate editorial group; year groups appear under the year filter." />
+									Collection groups
+									<InfoGuide text="Choose every home-page group this photo should appear under. Selection is its own editorial group; a photo can belong to Selection and one or more years at the same time." />
 								</span>
-								<select bind:value={bulkCollectionKey}>
-									{#each PHOTO_COLLECTION_OPTIONS as collection}
-										<option value={collection}>{collectionLabel(collection)}</option>
+								<CollectionMultiSelect
+									value={bulkCollectionKeys}
+									onChange={(next) => (bulkCollectionKeys = next)}
+								/>
+							</label>
+							<label>
+								<span class="label-row">
+									Year taken
+									<InfoGuide text="The photo's real capture year, independent of which groups it's tagged into." />
+								</span>
+								<select bind:value={bulkCollectionNumber}>
+									{#each PHOTO_COLLECTION_YEARS as year}
+										<option value={year}>{year}</option>
 									{/each}
 								</select>
 							</label>
@@ -1109,21 +1137,25 @@
 							</label>
 							<label>
 								<span class="label-row">
-									Collection group
-									<InfoGuide text="Choose the home-page group for this photo. Selection is its own editorial group; year groups are separate filters." />
+									Collection groups
+									<InfoGuide text="Choose every home-page group this photo should appear under. Selection is its own editorial group; a photo can belong to Selection and one or more years at the same time." />
 								</span>
-								<select
-									bind:value={staged[i].collectionKey}
-									onchange={() => {
-										staged[i] = {
-											...staged[i],
-											collectionNumber: collectionYear(staged[i].collectionKey)
-										};
+								<CollectionMultiSelect
+									value={staged[i].collectionKeys}
+									onChange={(next) => {
+										staged[i] = { ...staged[i], collectionKeys: next };
 										staged = [...staged];
 									}}
-								>
-									{#each PHOTO_COLLECTION_OPTIONS as collection}
-										<option value={collection}>{collectionLabel(collection)}</option>
+								/>
+							</label>
+							<label>
+								<span class="label-row">
+									Year taken
+									<InfoGuide text="The photo's real capture year, independent of which groups it's tagged into." />
+								</span>
+								<select bind:value={staged[i].collectionNumber}>
+									{#each PHOTO_COLLECTION_YEARS as year}
+										<option value={year}>{year}</option>
 									{/each}
 								</select>
 							</label>
@@ -1241,7 +1273,7 @@
 					class:active={activeSection === 'selection'}
 					onclick={() => selectSection('selection')}
 				>
-					Selection ({displayOrder.filter((photo) => photo.collectionKey === PHOTO_SELECTION_COLLECTION).length})
+					Selection ({displayOrder.filter((photo) => photo.collectionKeys.includes(PHOTO_SELECTION_COLLECTION)).length})
 				</button>
 				{#each PHOTO_COLLECTION_YEARS as year}
 					<button
@@ -1249,7 +1281,7 @@
 						class:active={activeSection === year}
 						onclick={() => selectSection(year)}
 					>
-						{year} ({displayOrder.filter((photo) => photo.collectionKey === year).length})
+						{year} ({displayOrder.filter((photo) => photo.collectionKeys.includes(year)).length})
 					</button>
 				{/each}
 			</div>
@@ -1324,12 +1356,22 @@
 					<div class="batch-control">
 						<label>
 							<span class="label-row">
-								Collection group
-								<InfoGuide text="Bulk change the checked existing photos to Selection or one year group. It does not affect unchecked photos." />
+								Collection groups
+								<InfoGuide text="Bulk-set which home-page groups the checked existing photos belong to (replaces their current groups). It does not affect unchecked photos." />
 							</span>
-							<select bind:value={bulkCollectionKey}>
-								{#each PHOTO_COLLECTION_OPTIONS as collection}
-									<option value={collection}>{collectionLabel(collection)}</option>
+							<CollectionMultiSelect
+								value={bulkCollectionKeys}
+								onChange={(next) => (bulkCollectionKeys = next)}
+							/>
+						</label>
+						<label>
+							<span class="label-row">
+								Year taken
+								<InfoGuide text="Bulk-set the real capture year for the checked existing photos." />
+							</span>
+							<select bind:value={bulkCollectionNumber}>
+								{#each PHOTO_COLLECTION_YEARS as year}
+									<option value={year}>{year}</option>
 								{/each}
 							</select>
 						</label>
@@ -1483,7 +1525,8 @@
 						<div class="card-body">
 							<div class="card-meta">
 								<span class="order-num">{activeSectionTitle} #{index + 1} / global #{photo.order}</span>
-								<span class="meta-chip">{collectionLabel(photo.collectionKey)}</span>
+								<span class="meta-chip">{collectionKeysLabel(photo.collectionKeys)}</span>
+								<span class="meta-chip">taken {photo.collectionNumber}</span>
 								<span class="meta-chip">reveal: {photo.revealFrom}</span>
 								<span class="meta-chip">layer {photo.layer}</span>
 							</div>
@@ -1502,18 +1545,28 @@
 							<span class="slug">{photo.slug}</span>
 							<label>
 								<span class="label-row">
-									Collection group
-									<InfoGuide text="Selection is a separate editorial group on the home page. Year values are separate filter groups." />
+									Collection groups
+									<InfoGuide text="Every home-page group this photo appears under. Selection is its own editorial group; a photo can belong to Selection and one or more years at the same time." />
+								</span>
+								<CollectionMultiSelect
+									value={photoDrafts[photo.slug]?.collectionKeys ?? photo.collectionKeys}
+									onChange={(next) => updateDraft(photo.slug, { collectionKeys: next })}
+								/>
+							</label>
+							<label>
+								<span class="label-row">
+									Year taken
+									<InfoGuide text="The photo's real capture year, independent of which groups it's tagged into." />
 								</span>
 								<select
-									value={photoDrafts[photo.slug]?.collectionKey ?? photo.collectionKey}
+									value={photoDrafts[photo.slug]?.collectionNumber ?? photo.collectionNumber}
 									onchange={(e) =>
 										updateDraft(photo.slug, {
-											collectionKey: normalizePhotoCollectionKey(e.currentTarget.value)
+											collectionNumber: Number(e.currentTarget.value)
 										})}
 								>
-									{#each PHOTO_COLLECTION_OPTIONS as collection}
-										<option value={collection}>{collectionLabel(collection)}</option>
+									{#each PHOTO_COLLECTION_YEARS as year}
+										<option value={year}>{year}</option>
 									{/each}
 								</select>
 							</label>
