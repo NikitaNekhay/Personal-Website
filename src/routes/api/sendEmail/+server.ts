@@ -42,11 +42,11 @@ export async function POST({ request }) {
         });
 
         const data = await request.json(); // Parse incoming JSON data
-        const { to, subject, text, type } = data;
+        const { to, subject, text, type, html, replyTo } = data;
 
         // Send the email
         //console.log("in post"+type);
-        await sendEmail(to, subject, text, type);
+        await sendEmail(to, subject, text, type, html, replyTo);
 
         return new Response(JSON.stringify({ message: 'Email sent successfully' }), {
             status: 200,
@@ -66,9 +66,23 @@ export async function POST({ request }) {
 }
 
 
-const sendEmail = async (to, subject, text, type) => {
+const sendEmail = async (
+    to: string,
+    subject: string,
+    text: string,
+    type: string,
+    html?: string,
+    replyTo?: string,
+) => {
     //console.log("in send",type);
-    let mailOptions = {
+    let mailOptions: {
+        from: string;
+        to: string;
+        subject: string;
+        text: string;
+        html?: string;
+        replyTo?: string;
+    } = {
         from: 'nekhaymikita@gmail.com',
         to: to,
         subject: subject,
@@ -80,7 +94,10 @@ const sendEmail = async (to, subject, text, type) => {
         // чисто для админа
         case EmailSubjects.OrderCredentials: {
             mailOptions.to = "nekhaymikita@gmail.com";
+            // System report to the admin — no customer-facing signature tail.
             mailOptions.text = text;
+            if (html) mailOptions.html = html;
+            if (replyTo) mailOptions.replyTo = replyTo; // reply goes straight to the customer
             break;
         }
         case EmailSubjects.NewAccount: {

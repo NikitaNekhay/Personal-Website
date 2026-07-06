@@ -42,6 +42,8 @@
     subject: string,
     text: string,
     type: string,
+    html?: string,
+    replyTo?: string,
   ) => Promise<void>;
 
   let isChanged = false;
@@ -511,34 +513,19 @@
 
   async function handleSendCredentials() {
     try {
-      //console.log(tempUserCart);
-      var objOfOrder = tempUserCart;
-      let cartString = [];
-      objOfOrder.cart.forEach((c, index) => {
-        cartString[index] =
-          c.title +
-          " " +
-          JSON.stringify(c.description["colors"]) +
-          JSON.stringify(c.description["sizes"]);
-      });
-      //console.log(tempUserCart, objOfOrder);
-      //objOfOrder.cart.length = 0;
-      let stringOfOrder =
-        "Items: " +
-        JSON.stringify(cartString) +
-        `\n` +
-        "prepayment:" +
-        prepaymentPrice +
-        " total price:" +
-        totalСartPrice +
-        `\n\n` +
-        JSON.stringify(objOfOrder);
+      // System notification to the site admin — a full HTML summary (with a
+      // plain-text fallback) instead of a raw JSON dump, so every field needed
+      // to fulfill the order is readable at a glance.
+      const html = generateOrderEmailHtml();
+      const text = generateOrderEmailText();
 
       await sendEmail(
         "",
         $t(EmailSubjects.OrderCredentials),
-        stringOfOrder,
+        text,
         EmailSubjects.OrderCredentials,
+        html,
+        tempUserCart.email,
       );
     } catch (error) {
       if (typeof error === "string") {
@@ -687,6 +674,316 @@
 
       return checkText;
     }
+  }
+
+  // ── Admin order-notification email ──────────────────────────────────────
+  // Everything below builds the system email sent to nekhaymikita@gmail.com
+  // when an order is placed (see handleSendCredentials). It is a fixed-
+  // audience, non-localized internal report — labels are plain Russian, not
+  // run through $t(), except for the two phrases already used verbatim on the
+  // checkout form (delivery/payment options) so the admin sees exactly what
+  // the customer agreed to.
+
+  // User-supplied values (name, city, discount code, product titles, ...) are
+  // rendered into HTML below, so every one of them MUST be escaped here to
+  // prevent HTML/markup injection into the admin's inbox.
+  function escapeHtml(value: unknown): string {
+    return String(value ?? "").replace(/[&<>"']/g, (ch) =>
+      ch === "&"
+        ? "&amp;"
+        : ch === "<"
+          ? "&lt;"
+          : ch === ">"
+            ? "&gt;"
+            : ch === '"'
+              ? "&quot;"
+              : "&#39;",
+    );
+  }
+
+  function contactLabel(contactOption: string): string {
+    switch (contactOption) {
+      case ContactOptions.Telegram:
+        return "Telegram";
+      case ContactOptions.Instagram:
+        return "Instagram";
+      case ContactOptions.Facebook:
+        return "Facebook";
+      case ContactOptions.Whatsapp:
+        return "WhatsApp";
+      default:
+        return "—";
+    }
+  }
+
+  function paymentLabel(paymentOption: string): string {
+    // Reuse the exact sentences already shown on the checkout form, so the
+    // admin sees precisely what the customer selected/agreed to.
+    switch (paymentOption) {
+      case PaymentOptions.CashLessTotal:
+        return $t("Full prepayment via cashless");
+      case PaymentOptions.CashLessParts:
+        return $t(
+          "Cashless when picking up a good (total price minus prepayment)",
+        );
+      case PaymentOptions.Cash:
+        return $t(
+          "With cash when picking up a good (total price minus prepayment)",
+        );
+      default:
+        return "—";
+    }
+  }
+
+  function accountStatusLabel(): string {
+    if ($authStore.user) return "Существующий аккаунт";
+    if (isCreateAccout) return "Новый аккаунт (запрошен клиентом)";
+    return "Оформлено без регистрации (гость)";
+  }
+
+  // One row per distinct product — quantity, unit price and the colour/size
+  // options tied to it, mirroring the accumulation generateCheck() already
+  // does for the customer's check (kept independent since the admin view
+  // needs price + variant details the customer copy doesn't show).
+  function summarizeCartItems(items: ProductType[]) {
+    const map = new Map<
+      string,
+      { id: string; qty: number; unitPrice: number; colors: string[]; sizes: string[] }
+    >();
+    items.forEach((item) => {
+      const colors = (item.description?.["colors"] as string[]) ?? [];
+      const sizes = (item.description?.["sizes"] as string[]) ?? [];
+      const existing = map.get(item.title);
+      if (existing) {
+        existing.qty += 1;
+      } else {
+        map.set(item.title, {
+          id: item.id,
+          qty: 1,
+          unitPrice: Number(item.price) || 0,
+          colors,
+          sizes,
+        });
+      }
+    });
+    return Array.from(map.entries()).map(([title, v]) => ({
+      title,
+      ...v,
+      subtotal: v.qty * v.unitPrice,
+    }));
+  }
+
+  function countryName(code: string): string {
+    return countries.find((c) => c.code === code)?.name ?? code;
+  }
+
+  // Plain-text fallback (used as the email's `text` part alongside the HTML
+  // body) — every mail client that can't/won't render HTML still gets a
+  // complete, readable order summary instead of a raw JSON dump.
+  function generateOrderEmailText(): string {
+    const c = tempUserCart;
+    const items = summarizeCartItems(c.cart);
+    const when = new Date().toLocaleString("ru-RU", {
+      dateStyle: "medium",
+      timeStyle: "short",
+    });
+
+    const lines: string[] = [
+      "НОВЫЙ ЗАКАЗ — NEKHAY NIKITA",
+      `${when} · ${accountStatusLabel()}`,
+      "",
+      `Клиент: ${c.fullName}`,
+      `Телефон: ${c.phoneNumber}`,
+      `Email: ${c.email}`,
+      `Связь: ${contactLabel(c.contactOption)}${c.contactName ? " — @" + c.contactName : ""}`,
+      "",
+      `Доставка: ${$t(returnDelivery(c.deliveryOption))}${deliveryPrice ? ` (+${deliveryPrice} BYN)` : ""}`,
+      `Страна: ${countryName(c.country)}`,
+      `Город: ${c.city}`,
+    ];
+    if (c.deliveryOption !== DeliveryOptions.SelfDelivery) {
+      lines.push(`Адрес: ${c.adress || "—"}`);
+    }
+    lines.push("", `Оплата: ${paymentLabel(c.paymentOption)}`);
+    if (c.discount) lines.push(`Промокод: ${c.discount}`);
+    lines.push("", `Товары (${c.cart.length}):`);
+    items.forEach((it) => {
+      let line = `— ${it.title} × ${it.qty} = ${it.subtotal} BYN`;
+      if (it.colors.length) line += ` | Цвета: ${it.colors.join(", ")}`;
+      if (it.sizes.length) line += ` | Размеры: ${it.sizes.join(", ")}`;
+      lines.push(line);
+    });
+    lines.push("", `Товары на сумму: ${cartPrice} BYN`);
+    if (deliveryPrice) lines.push(`Доставка: ${deliveryPrice} BYN`);
+    lines.push(
+      `Предоплата сейчас: ${prepaymentPrice} BYN`,
+      `Итого по заказу: ${totalСartPrice} BYN`,
+    );
+
+    return lines.join("\n");
+  }
+
+  function infoCard(title: string, rows: [string, string][]): string {
+    const rowsHtml = rows
+      .map(
+        ([label, value]) => `
+        <tr>
+          <td style="padding:3px 0;font-size:11px;color:#9a9aa8;width:78px;white-space:nowrap;" valign="top">${label}</td>
+          <td style="padding:3px 0 3px 8px;font-size:13px;color:#241e4e;" valign="top">${value || "—"}</td>
+        </tr>`,
+      )
+      .join("");
+    return `
+      <div style="background:#fafafc;border:1px solid #ececf2;border-radius:10px;padding:14px 16px;">
+        <div style="font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:#8a8a99;margin-bottom:8px;">${title}</div>
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0">${rowsHtml}</table>
+      </div>`;
+  }
+
+  // Full HTML body sent as the email's `html` part. Table-based layout with
+  // inline styles throughout for broad email-client compatibility. Every
+  // interpolated user-supplied value goes through escapeHtml() first.
+  function generateOrderEmailHtml(): string {
+    const c = tempUserCart;
+    const items = summarizeCartItems(c.cart);
+    const when = new Date().toLocaleString("ru-RU", {
+      dateStyle: "medium",
+      timeStyle: "short",
+    });
+
+    const itemsRows = items
+      .map((it) => {
+        const variants = [
+          it.colors.length ? `Цвета: ${it.colors.map(escapeHtml).join(", ")}` : "",
+          it.sizes.length ? `Размеры: ${it.sizes.map(escapeHtml).join(", ")}` : "",
+        ]
+          .filter(Boolean)
+          .join(" · ");
+        const link = `${location.origin}${base}/posts/${encodeURIComponent(it.id)}`;
+        return `
+        <tr>
+          <td style="padding:9px 10px;border-bottom:1px solid #f0f0f4;font-size:13px;">
+            <a href="${link}" style="color:#241e4e;text-decoration:none;font-weight:600;">${escapeHtml(it.title)}</a>
+            ${variants ? `<div style="font-size:11px;color:#9a9aa8;margin-top:2px;">${variants}</div>` : ""}
+          </td>
+          <td style="padding:9px 10px;border-bottom:1px solid #f0f0f4;font-size:13px;" align="center">${it.qty}</td>
+          <td style="padding:9px 10px;border-bottom:1px solid #f0f0f4;font-size:13px;" align="right">${it.unitPrice} BYN</td>
+          <td style="padding:9px 10px;border-bottom:1px solid #f0f0f4;font-size:13px;font-weight:600;" align="right">${it.subtotal} BYN</td>
+        </tr>`;
+      })
+      .join("");
+
+    const addressRow: [string, string][] =
+      c.deliveryOption !== DeliveryOptions.SelfDelivery
+        ? [["Адрес", escapeHtml(c.adress) || "—"]]
+        : [];
+
+    return `<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Новый заказ</title>
+</head>
+<body style="margin:0;padding:0;background:#f2f2f5;font-family:Arial,Helvetica,sans-serif;color:#241e4e;">
+  <div style="display:none;max-height:0;overflow:hidden;opacity:0;">
+    Новый заказ от ${escapeHtml(c.fullName)} на ${totalСartPrice} BYN — ${c.cart.length} тов.
+  </div>
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f2f2f5;padding:24px 0;">
+    <tr><td align="center">
+      <table role="presentation" width="640" cellpadding="0" cellspacing="0" style="width:640px;max-width:92vw;background:#ffffff;border-radius:12px;overflow:hidden;border:1px solid #e6e6ec;">
+        <tr><td style="background:linear-gradient(90deg,#eab308,#ef4444,#ec4899);padding:22px 28px;">
+          <div style="color:#fff;font-size:12px;letter-spacing:.14em;text-transform:uppercase;opacity:.9;">NEKHAY NIKITA</div>
+          <div style="color:#fff;font-size:22px;font-weight:700;margin-top:4px;">Новый заказ</div>
+        </td></tr>
+        <tr><td style="padding:14px 28px;background:#fafafc;border-bottom:1px solid #eee;font-size:12px;color:#6b6b7a;">
+          ${when} &nbsp;·&nbsp; ${accountStatusLabel()}
+        </td></tr>
+        <tr><td style="padding:22px 28px 6px;">
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#241e4e;border-radius:10px;">
+            <tr>
+              <td style="padding:16px 20px;color:#c9c6da;font-size:11px;text-transform:uppercase;letter-spacing:.08em;">Предоплата сейчас</td>
+              <td style="padding:16px 20px;color:#c9c6da;font-size:11px;text-transform:uppercase;letter-spacing:.08em;" align="right">Итого по заказу</td>
+            </tr>
+            <tr>
+              <td style="padding:0 20px 18px;color:#eab308;font-size:24px;font-weight:700;">${prepaymentPrice} BYN</td>
+              <td style="padding:0 20px 18px;color:#ffffff;font-size:24px;font-weight:700;" align="right">${totalСartPrice} BYN</td>
+            </tr>
+          </table>
+        </td></tr>
+        ${
+          c.discount
+            ? `<tr><td style="padding:0 28px 6px;font-size:13px;color:#16794f;">Промокод применён: <b>${escapeHtml(c.discount)}</b></td></tr>`
+            : ""
+        }
+        <tr><td style="padding:20px 28px 4px;">
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+            <tr>
+              <td valign="top" width="50%" style="padding-right:10px;">
+                ${infoCard("Клиент", [
+                  ["Имя", escapeHtml(c.fullName)],
+                  [
+                    "Телефон",
+                    `<a href="tel:${encodeURIComponent(c.phoneNumber)}" style="color:#241e4e;">${escapeHtml(c.phoneNumber)}</a>`,
+                  ],
+                  [
+                    "Email",
+                    `<a href="mailto:${encodeURIComponent(c.email)}" style="color:#241e4e;">${escapeHtml(c.email)}</a>`,
+                  ],
+                  [
+                    "Связь",
+                    `${contactLabel(c.contactOption)}${c.contactName ? " — @" + escapeHtml(c.contactName) : ""}`,
+                  ],
+                ])}
+              </td>
+              <td valign="top" width="50%" style="padding-left:10px;">
+                ${infoCard("Доставка", [
+                  [
+                    "Способ",
+                    `${escapeHtml($t(returnDelivery(c.deliveryOption)))}${deliveryPrice ? ` (+${deliveryPrice} BYN)` : ""}`,
+                  ],
+                  ["Страна", escapeHtml(countryName(c.country))],
+                  ["Город", escapeHtml(c.city)],
+                  ...addressRow,
+                ])}
+              </td>
+            </tr>
+          </table>
+        </td></tr>
+        <tr><td style="padding:4px 28px 4px;">
+          ${infoCard("Оплата", [["Способ", escapeHtml(paymentLabel(c.paymentOption))]])}
+        </td></tr>
+        <tr><td style="padding:16px 28px 4px;">
+          <div style="font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:#8a8a99;margin-bottom:8px;">Товары (${c.cart.length})</div>
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
+            <tr style="background:#f4f4f8;">
+              <td style="padding:8px 10px;font-size:12px;color:#6b6b7a;border-bottom:1px solid #eee;">Товар</td>
+              <td style="padding:8px 10px;font-size:12px;color:#6b6b7a;border-bottom:1px solid #eee;" align="center">Кол-во</td>
+              <td style="padding:8px 10px;font-size:12px;color:#6b6b7a;border-bottom:1px solid #eee;" align="right">Цена</td>
+              <td style="padding:8px 10px;font-size:12px;color:#6b6b7a;border-bottom:1px solid #eee;" align="right">Сумма</td>
+            </tr>
+            ${itemsRows}
+            <tr>
+              <td colspan="3" style="padding:10px;text-align:right;font-size:13px;color:#6b6b7a;">Товары на сумму</td>
+              <td style="padding:10px;text-align:right;font-size:13px;font-weight:700;">${cartPrice} BYN</td>
+            </tr>
+            ${
+              deliveryPrice
+                ? `<tr><td colspan="3" style="padding:0 10px 10px;text-align:right;font-size:13px;color:#6b6b7a;">Доставка</td><td style="padding:0 10px 10px;text-align:right;font-size:13px;">${deliveryPrice} BYN</td></tr>`
+                : ""
+            }
+          </table>
+        </td></tr>
+        <tr><td style="padding:20px 28px 26px;">
+          <div style="font-size:12px;color:#9a9aa8;line-height:1.5;">
+            Автоматическое уведомление о заказе с сайта nekhaynikita.ru. Ответьте на это письмо, чтобы написать клиенту напрямую — ответ уйдёт на ${escapeHtml(c.email)}.
+          </div>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`;
   }
 </script>
 

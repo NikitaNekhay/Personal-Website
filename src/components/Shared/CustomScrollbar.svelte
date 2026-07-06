@@ -270,11 +270,10 @@
 						class:active={m.id === activeId}
 						data-level={m.level}
 						style="top: {(markP(m) * 100).toFixed(2)}%"
-						title={m.label}
+						aria-label={m.label}
 						onclick={() => goToMark(m)}
 					>
 						<span class="mark-dot" aria-hidden="true"></span>
-						<span class="mark-label">{m.label}</span>
 					</button>
 				{/each}
 			</nav>
@@ -409,48 +408,25 @@
 		transform: scale(1.25);
 	}
 
-	.mark-label {
-		position: absolute;
-		right: 16px;
-		top: 50%;
-		transform: translateY(-50%);
-		white-space: nowrap;
-		max-width: 46vw;
-		overflow: hidden;
-		text-overflow: ellipsis;
-		background: #241e4e;
-		color: #fff;
-		font-size: 11px;
-		line-height: 1;
-		padding: 5px 8px;
-		border-radius: 6px;
-		opacity: 0;
-		pointer-events: none;
-		transition: opacity 140ms ease;
-	}
-	.mark:hover .mark-label,
-	.mark:focus-visible .mark-label {
-		opacity: 1;
-	}
 	.mark:focus-visible {
 		outline: none;
 	}
+	.mark:focus-visible .mark-dot {
+		background: #241e4e;
+		transform: scale(1.3);
+	}
 
-	/* Touch: bigger invisible tap target; show the current section's label so the
-	   rail is legible without hover. Swipes still scroll (no touch-action:none). */
+	/* Touch: bigger invisible tap target. No visible label — the accessible
+	   name lives in aria-label for screen readers only. */
 	@media (hover: none) and (pointer: coarse) {
 		.mark {
 			padding: 9px 11px;
-		}
-		.mark.active .mark-label {
-			opacity: 1;
 		}
 	}
 
 	@media (prefers-reduced-motion: reduce) {
 		.dot,
-		.mark-dot,
-		.mark-label {
+		.mark-dot {
 			transition: none;
 		}
 	}

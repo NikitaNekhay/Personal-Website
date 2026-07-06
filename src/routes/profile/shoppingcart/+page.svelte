@@ -68,6 +68,8 @@
         subject: string,
         text: string,
         type: string,
+        html?: string,
+        replyTo?: string,
     ) => {
         //console.log("here");
         const response = await fetch(`${base}/api/sendEmail`, {
@@ -80,6 +82,8 @@
                 subject: subject,
                 text: text,
                 type: type,
+                html: html,
+                replyTo: replyTo,
             }),
         });
 
