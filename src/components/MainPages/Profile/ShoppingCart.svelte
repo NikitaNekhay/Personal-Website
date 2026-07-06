@@ -1017,7 +1017,9 @@
 >
   <section
     class="sticky-section h-auto
-    lg:col-span-3 xl:col-span-3 2xl:col-span-3 3xl:col-span-3
+    {cartItems.length > 0
+      ? 'lg:col-span-3 xl:col-span-3 2xl:col-span-3 3xl:col-span-3'
+      : 'lg:col-span-7 xl:col-span-7 2xl:col-span-7 3xl:col-span-7'}
     3xl:pb-[40%] sm:w-[100%] md:w-[100%]"
   >
     <div class=" left-0">
@@ -1103,6 +1105,7 @@
       </div>
     </div>
   </section>
+  {#if cartItems.length > 0}
   <section
     class="h-auto 3xl:pb-[40%]
     lg:col-span-4 xl:col-span-4 2xl:col-span-4 3xl:col-span-4
@@ -1725,6 +1728,7 @@
       </div>
     </form>
   </section>
+  {/if}
 </div>
 
 <style>

@@ -155,7 +155,7 @@
 				>
 					<div class="border-r-2 border-navy-2">
 						<a
-							class="nav-link no-underline underline-offset-4 hover:underline
+							class="nav-link no-underline transition duration-300 hover:opacity-75 hover:text-yellow-0 hover:animate-pulse
 							lg:mx-10 xl:mx-12 2xl:mx-20 3xl:mx-20
 							{isActive('/about') ? 'text-yellow-0 animate-pulse' : 'text-black'}"
 							style="--d: 0ms"
@@ -163,7 +163,7 @@
 							href="{base}/about">{$t("About")}</a
 						>
 						<a
-							class="nav-link no-underline underline-offset-4 hover:underline
+							class="nav-link no-underline transition duration-300 hover:opacity-75 hover:text-yellow-0 hover:animate-pulse
 							lg:mx-10 xl:mx-12 2xl:mx-20 3xl:mx-20
 							{isActive('/contact') ? 'text-yellow-0 animate-pulse' : 'text-black'}"
 							style="--d: 70ms"
@@ -173,7 +173,7 @@
 					</div>
 					<div class="border-l-2 border-navy-2">
 						<a
-							class="nav-link no-underline underline-offset-4 hover:underline
+							class="nav-link no-underline transition duration-300 hover:opacity-75 hover:text-yellow-0 hover:animate-pulse
 							lg:mx-10 xl:mx-12 2xl:mx-20 3xl:mx-20
 							{isActive('/shop') && !isActive('/shoppingcart')
 								? 'text-yellow-0 animate-pulse'
@@ -183,7 +183,7 @@
 							href="{base}/shop">{$t("Shop")}</a
 						>
 						<a
-							class="nav-link no-underline underline-offset-4 hover:underline
+							class="nav-link no-underline transition duration-300 hover:opacity-75 hover:text-yellow-0 hover:animate-pulse
 							lg:mx-10 xl:mx-12 2xl:mx-20 3xl:mx-20
 							{isActive('/works') ? 'text-yellow-0 animate-pulse' : 'text-black'}"
 							style="--d: 210ms"
@@ -522,6 +522,16 @@
 	   меню, но наоборот. ──────────────────────────────────────────────────── */
 	.nav-inline .nav-link {
 		display: inline-block;
+	}
+
+	/* :not(:hover) so this one-time mount reveal stops competing with Tailwind's
+	   hover:animate-pulse for the `animation` property once the user hovers —
+	   both rules share specificity (0,2,0), and since this scoped style loads
+	   after Tailwind's utilities, it would otherwise always win the tie and
+	   silently cancel the pulse. navLinkIn's end keyframe (opacity:1,
+	   translateY(0)) already matches the resting style, so dropping it on
+	   hover is visually seamless — the reveal has long finished by then. */
+	.nav-inline .nav-link:not(:hover) {
 		animation: navLinkIn 440ms cubic-bezier(0.22, 1, 0.36, 1) both;
 		animation-delay: var(--d, 0ms);
 	}
