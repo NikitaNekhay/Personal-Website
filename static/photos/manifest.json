@@ -867,9 +867,10 @@
     "slug": "church-zaslavl",
     "title": "church_Zaslavl",
     "order": 39,
-    "collectionNumber": 2026,
+    "collectionNumber": 2024,
     "collectionKeys": [
-      "selection"
+      "selection",
+      2024
     ],
     "original": "/photos/originals/church-zaslavl.webp",
     "thumb": "/photos/thumbs/church-zaslavl.webp",
