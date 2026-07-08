@@ -3,7 +3,7 @@
 	import { base } from '$app/paths';
 	import { auth, storage } from '$lib/firebase/firebase';
 	import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
-	import { captureVideoPoster, extractVideoGps } from '$lib/video-client';
+	import { captureVideoPoster, extractVideoMeta } from '$lib/video-client';
 	import CommonPopUp from '../../components/Shared/CommonPopUp.svelte';
 	import ConfirmationPopUp from '../../components/Shared/ConfirmationPopUp.svelte';
 	import InfoGuide from '../../components/Shared/InfoGuide.svelte';
@@ -59,6 +59,8 @@
 		duration?: number;
 		/** Video only: GPS parsed from the MP4 container (null = none found). */
 		gps?: { lat: number; lng: number } | null;
+		/** Capture date resolved from the file's own metadata (EXIF / mvhd), ISO string. */
+		takenAt?: string;
 		collectionNumber: number;
 		collectionKeys: PhotoCollectionKey[];
 		positionX: number;
@@ -292,6 +294,42 @@
 		};
 	}
 
+	// Pre-fills "Year taken" + "Collection groups" from the file's own capture date,
+	// so the staged inputs land on the right values without manual fiddling. The
+	// year is also added as a collection tag (alongside the configured defaults);
+	// an unknown/out-of-range date falls back to the plain defaults. Everything
+	// stays editable in the staged row.
+	function takenDefaults(takenAt: Date | null) {
+		const year = takenAt?.getFullYear();
+		const known = year !== undefined && (PHOTO_COLLECTION_YEARS as readonly number[]).includes(year);
+		return {
+			takenAt: takenAt?.toISOString(),
+			collectionNumber: known ? year : defaultCollectionNumber(),
+			collectionKeys: known
+				? ([...new Set([...defaultUploadCollections, year as PhotoCollectionYear])] as PhotoCollectionKey[])
+				: defaultUploadCollections
+		};
+	}
+
+	// EXIF capture date, read in-browser at staging time (exifr is already a project
+	// dependency for the server-side pipeline; lazily imported so the dashboard
+	// bundle doesn't grow). Falls back to the file's mtime when EXIF is absent.
+	async function photoTakenDate(file: File): Promise<Date | null> {
+		try {
+			const { default: exifr } = await import('exifr');
+			const parsed = await exifr.parse(file, ['DateTimeOriginal', 'CreateDate']);
+			const raw = parsed?.DateTimeOriginal ?? parsed?.CreateDate;
+			if (raw instanceof Date && !Number.isNaN(raw.getTime())) return raw;
+			if (typeof raw === 'string') {
+				const d = new Date(raw);
+				if (!Number.isNaN(d.getTime())) return d;
+			}
+		} catch {
+			/* no EXIF block — fall through */
+		}
+		return file.lastModified ? new Date(file.lastModified) : null;
+	}
+
 	async function addFiles(files: FileList | File[]) {
 		const list = Array.from(files);
 		const images = list.filter((f) => f.type.startsWith('image/'));
@@ -322,30 +360,35 @@
 			);
 		}
 
-		const newStaged: StagedFile[] = images
-			.filter((f) => f.size <= MAX_FILE_BYTES)
-			.map((file) => ({
+		const newStaged: StagedFile[] = [];
+
+		// Photos: capture date comes out of EXIF right here so the year/collection
+		// inputs are pre-set to when the shot was actually taken.
+		for (const file of images.filter((f) => f.size <= MAX_FILE_BYTES)) {
+			newStaged.push({
 				...stagedDefaults(file),
+				...takenDefaults(await photoTakenDate(file)),
 				mediaType: 'photo' as PhotoMediaType,
 				preview: URL.createObjectURL(file)
-			}));
+			});
+		}
 
 		// Videos: the browser does the media work the server can't (no ffmpeg on
-		// Vercel) — poster frame, duration and GPS come out of the file right here.
+		// Vercel) — poster frame, duration, GPS and capture date come out of the
+		// file right here.
 		for (const file of videos.filter((f) => f.size <= MAX_VIDEO_BYTES)) {
 			try {
-				const [capture, gps] = await Promise.all([captureVideoPoster(file), extractVideoGps(file)]);
-				const takenYear = new Date(file.lastModified).getFullYear();
+				const [capture, meta] = await Promise.all([captureVideoPoster(file), extractVideoMeta(file)]);
+				const takenAt =
+					meta.createdAt ?? (file.lastModified ? new Date(file.lastModified) : null);
 				newStaged.push({
 					...stagedDefaults(file),
+					...takenDefaults(takenAt),
 					mediaType: 'video',
 					preview: URL.createObjectURL(capture.poster),
 					posterBlob: capture.poster,
 					duration: capture.duration,
-					gps,
-					collectionNumber: (PHOTO_COLLECTION_YEARS as readonly number[]).includes(takenYear)
-						? takenYear
-						: defaultCollectionNumber()
+					gps: meta.gps
 				});
 			} catch (e) {
 				setPopup(
@@ -551,7 +594,10 @@
 					formData.append('mediaType', 'video');
 					formData.append('videoUrl', videoUrl);
 					formData.append('duration', String(item.duration ?? 0));
-					formData.append('dateTaken', new Date(item.file.lastModified).toISOString());
+					formData.append(
+						'dateTaken',
+						item.takenAt ?? new Date(item.file.lastModified).toISOString()
+					);
 					if (item.gps) {
 						formData.append('lat', String(item.gps.lat));
 						formData.append('lng', String(item.gps.lng));

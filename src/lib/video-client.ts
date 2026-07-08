@@ -78,39 +78,90 @@ export function captureVideoPoster(file: File): Promise<VideoPosterCapture> {
 	});
 }
 
+export interface VideoMeta {
+	gps: { lat: number; lng: number } | null;
+	/** Capture date from the container's movie header (null when absent/bogus). */
+	createdAt: Date | null;
+}
+
 /**
- * Best-effort GPS extraction from an MP4/MOV file.
+ * Best-effort metadata extraction from an MP4/MOV file — one pass over the bytes,
+ * no dependencies (exifr, used server-side for photos, can't parse video containers).
  *
- * Phones write the capture location as an ISO 6709 string ("+53.9046+027.5615/")
- * into the QuickTime `©xyz` user-data box. exifr (used server-side for photos)
- * doesn't parse video containers, so we scan the raw bytes for the box here —
- * ~1 scan pass, no dependencies. Returns null when the file carries no location.
+ * - GPS: phones write the capture location as an ISO 6709 string
+ *   ("+53.9046+027.5615/") into the QuickTime `©xyz` user-data box.
+ * - Capture date: the `mvhd` movie header stores creation time as seconds since
+ *   1904-01-01 UTC (32- or 64-bit depending on box version).
  */
-export async function extractVideoGps(file: File): Promise<{ lat: number; lng: number } | null> {
+export async function extractVideoMeta(file: File): Promise<VideoMeta> {
+	const meta: VideoMeta = { gps: null, createdAt: null };
 	try {
 		const bytes = new Uint8Array(await file.arrayBuffer());
-		// Box name bytes: 0xA9 'x' 'y' 'z'
+
 		for (let i = 0; i < bytes.length - 4; i++) {
-			if (bytes[i] !== 0xa9 || bytes[i + 1] !== 0x78 || bytes[i + 2] !== 0x79 || bytes[i + 3] !== 0x7a) {
-				continue;
+			// `©xyz` box: 0xA9 'x' 'y' 'z'
+			if (
+				meta.gps === null &&
+				bytes[i] === 0xa9 &&
+				bytes[i + 1] === 0x78 &&
+				bytes[i + 2] === 0x79 &&
+				bytes[i + 3] === 0x7a
+			) {
+				// After the name: 2-byte big-endian string length + 2-byte language code.
+				const start = i + 4;
+				if (start + 4 <= bytes.length) {
+					const len = (bytes[start] << 8) | bytes[start + 1];
+					const strStart = start + 4;
+					if (len > 0 && len <= 64 && strStart + len <= bytes.length) {
+						const text = new TextDecoder('ascii').decode(bytes.subarray(strStart, strStart + len));
+						const match = text.match(/^([+-]\d+(?:\.\d+)?)([+-]\d+(?:\.\d+)?)/);
+						if (match) {
+							const lat = Number(match[1]);
+							const lng = Number(match[2]);
+							if (
+								Number.isFinite(lat) &&
+								Number.isFinite(lng) &&
+								Math.abs(lat) <= 90 &&
+								Math.abs(lng) <= 180
+							) {
+								meta.gps = { lat, lng };
+							}
+						}
+					}
+				}
 			}
-			// After the name: 2-byte big-endian string length + 2-byte language code.
-			const start = i + 4;
-			if (start + 4 > bytes.length) break;
-			const len = (bytes[start] << 8) | bytes[start + 1];
-			const strStart = start + 4;
-			if (len <= 0 || len > 64 || strStart + len > bytes.length) continue;
-			const text = new TextDecoder('ascii').decode(bytes.subarray(strStart, strStart + len));
-			const match = text.match(/^([+-]\d+(?:\.\d+)?)([+-]\d+(?:\.\d+)?)/);
-			if (!match) continue;
-			const lat = Number(match[1]);
-			const lng = Number(match[2]);
-			if (Number.isFinite(lat) && Number.isFinite(lng) && Math.abs(lat) <= 90 && Math.abs(lng) <= 180) {
-				return { lat, lng };
+
+			// `mvhd` movie header: 'm' 'v' 'h' 'd'
+			if (
+				meta.createdAt === null &&
+				bytes[i] === 0x6d &&
+				bytes[i + 1] === 0x76 &&
+				bytes[i + 2] === 0x68 &&
+				bytes[i + 3] === 0x64
+			) {
+				const version = bytes[i + 4];
+				// version 0 → 32-bit creation_time right after version+flags;
+				// version 1 → 64-bit (high word is 0 for any sane date).
+				const t = i + 8;
+				let seconds = 0;
+				if (version === 0 && t + 4 <= bytes.length) {
+					seconds = (bytes[t] * 0x1000000 + (bytes[t + 1] << 16) + (bytes[t + 2] << 8) + bytes[t + 3]) >>> 0;
+				} else if (version === 1 && t + 8 <= bytes.length) {
+					seconds =
+						bytes[t + 4] * 0x1000000 + (bytes[t + 5] << 16) + (bytes[t + 6] << 8) + bytes[t + 7];
+				}
+				// QuickTime epoch → Unix epoch (2082844800s between 1904 and 1970).
+				const ms = (seconds - 2082844800) * 1000;
+				const d = new Date(ms);
+				const year = d.getUTCFullYear();
+				// Cameras with an unset clock write 0 (= 1904) — treat as absent.
+				if (year >= 1990 && year <= 2100) meta.createdAt = d;
 			}
+
+			if (meta.gps !== null && meta.createdAt !== null) break;
 		}
-		return null;
 	} catch {
-		return null;
+		/* unreadable file — return whatever was found */
 	}
+	return meta;
 }
