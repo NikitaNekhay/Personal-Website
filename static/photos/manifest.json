@@ -574,9 +574,10 @@
     "slug": "summer-ushkova-pushkin",
     "title": "summer_ushkova_pushkin",
     "order": 26,
-    "collectionNumber": 2026,
+    "collectionNumber": 2023,
     "collectionKeys": [
-      "selection"
+      "selection",
+      2023
     ],
     "original": "/photos/originals/summer-ushkova-pushkin.webp",
     "thumb": "/photos/thumbs/summer-ushkova-pushkin.webp",
