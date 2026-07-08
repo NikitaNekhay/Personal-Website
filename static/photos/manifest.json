@@ -1186,9 +1186,10 @@
     "slug": "kids-play-in-the-woods",
     "title": "kids_play_in_the_woods",
     "order": 53,
-    "collectionNumber": 2026,
+    "collectionNumber": 2024,
     "collectionKeys": [
-      "selection"
+      "selection",
+      2024
     ],
     "original": "/photos/originals/kids-play-in-the-woods.webp",
     "thumb": "/photos/thumbs/kids-play-in-the-woods.webp",
