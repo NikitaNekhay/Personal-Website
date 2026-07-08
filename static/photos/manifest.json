@@ -552,9 +552,10 @@
     "slug": "put-the-red-cross-or-censored",
     "title": "put_the_red_cross_or_censored",
     "order": 25,
-    "collectionNumber": 2026,
+    "collectionNumber": 2024,
     "collectionKeys": [
-      "selection"
+      "selection",
+      2024
     ],
     "original": "/photos/originals/put-the-red-cross-or-censored.webp",
     "thumb": "/photos/thumbs/put-the-red-cross-or-censored.webp",
