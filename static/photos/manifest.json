@@ -618,9 +618,10 @@
     "slug": "summer-ushkova-gods-touch",
     "title": "summer_ushkova_gods_touch",
     "order": 28,
-    "collectionNumber": 2026,
+    "collectionNumber": 2024,
     "collectionKeys": [
-      "selection"
+      "selection",
+      2024
     ],
     "original": "/photos/originals/summer-ushkova-gods-touch.webp",
     "thumb": "/photos/thumbs/summer-ushkova-gods-touch.webp",
