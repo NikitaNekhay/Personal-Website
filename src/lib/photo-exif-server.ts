@@ -80,6 +80,36 @@ export async function reverseGeocode(lat: number, lng: number): Promise<GeocodeR
 }
 
 /**
+ * Same as resolvePhotoGeo but for coordinates already extracted elsewhere —
+ * used by video uploads, where GPS is read from the MP4 container in the
+ * browser (exifr can't parse video) and sent along with the poster.
+ */
+export async function resolveGeoFromCoords(
+	slug: string,
+	lat: number,
+	lng: number,
+	dateTaken: string | null
+): Promise<PhotoGeoEntry | null> {
+	if (!isValidLatLng(lat, lng)) return null;
+	const place = await reverseGeocode(lat, lng);
+	const geocoded =
+		place.countryCode || place.countryName || place.city || place.label
+			? new Date().toISOString()
+			: null;
+	return {
+		slug,
+		lat,
+		lng,
+		dateTaken,
+		countryCode: place.countryCode,
+		countryName: place.countryName,
+		city: place.city,
+		label: place.label,
+		geocodedAt: geocoded
+	};
+}
+
+/**
  * Full pipeline: extract GPS/date from a buffer and (if present) reverse-geocode it
  * into a cached PhotoGeoEntry. Returns null when the image has no usable GPS.
  */

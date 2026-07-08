@@ -5,6 +5,7 @@
 	import { base } from '$app/paths';
 	import { prefetchImages } from '../../services/imagePreload';
 	import type { PhotoManifestEntry } from '../../shared/types';
+	import type Plyr from 'plyr';
 
 	interface Props {
 		photos: PhotoManifestEntry[];
@@ -132,6 +133,87 @@
 		};
 	}
 
+	// ---- video playback (lazy Plyr) -----------------------------------------
+	// Nothing video-related is downloaded until the visitor clicks a poster:
+	// the <video> element and the Plyr bundle are both created on demand, so
+	// video entries cost the page exactly one webp poster until then.
+	let activeVideoSlugs = $state<Set<string>>(new Set());
+	const players = new Map<string, Plyr>();
+	let videoIO: IntersectionObserver | null = null;
+
+	async function activateVideo(photo: PhotoManifestEntry) {
+		if (!rootEl || !photo.videoUrl || players.has(photo.slug)) return;
+		const host = rootEl.querySelector<HTMLElement>(`[data-video-host="${photo.slug}"]`);
+		if (!host) return;
+
+		const next = new Set(activeVideoSlugs);
+		next.add(photo.slug);
+		activeVideoSlugs = next;
+
+		// Player library + styles load only now, on the first click site-wide.
+		const [{ default: PlyrCtor }] = await Promise.all([
+			import('plyr'),
+			import('plyr/dist/plyr.css')
+		]);
+
+		const video = document.createElement('video');
+		video.src = photo.videoUrl;
+		video.poster = imgUrl(photo.original);
+		video.playsInline = true;
+		video.preload = 'auto';
+		host.appendChild(video);
+
+		// Minimal editorial chrome: one centred play/stop control, click on the
+		// video toggles playback, nothing else.
+		const player = new PlyrCtor(video, {
+			controls: ['play-large'],
+			clickToPlay: true,
+			fullscreen: { enabled: false },
+			disableContextMenu: false,
+			resetOnEnd: true
+		});
+		players.set(photo.slug, player);
+
+		// Only one video plays at a time — starting one quiets the others.
+		player.on('play', () => {
+			for (const [slug, other] of players) {
+				if (slug !== photo.slug && other.playing) other.pause();
+			}
+		});
+
+		// Pause as soon as the block scrolls out of the viewport.
+		if (!videoIO) {
+			videoIO = new IntersectionObserver(
+				(entries) => {
+					for (const entry of entries) {
+						if (entry.isIntersecting) continue;
+						const slug = (entry.target as HTMLElement).dataset.slug;
+						const p = slug ? players.get(slug) : undefined;
+						if (p?.playing) p.pause();
+					}
+				},
+				{ threshold: 0.05 }
+			);
+		}
+		const block = host.closest<HTMLElement>('.photo-block');
+		if (block) videoIO.observe(block);
+
+		player.play();
+	}
+
+	function destroyPlayers() {
+		for (const player of players.values()) {
+			try {
+				player.destroy();
+			} catch {
+				/* already torn down */
+			}
+		}
+		players.clear();
+		videoIO?.disconnect();
+		videoIO = null;
+	}
+
 	// ---- scroll-driven parallax --------------------------------------------
 	let rafId = 0;
 	let rafQueued = false;
@@ -224,6 +306,7 @@
 
 		return () => {
 			io.disconnect();
+			destroyPlayers();
 			window.removeEventListener('scroll', scheduleParallax);
 			window.removeEventListener('resize', scheduleParallax);
 			if (rafId) cancelAnimationFrame(rafId);
@@ -276,6 +359,27 @@
 							draggable="false"
 							use:fadeInOnLoad={photo.slug}
 						/>
+						{#if photo.mediaType === 'video' && photo.videoUrl}
+							<!-- The player mounts in here on first click; until then the
+							     entry is just its poster + this button. -->
+							<div
+								class="video-host"
+								class:is-active={activeVideoSlugs.has(photo.slug)}
+								data-video-host={photo.slug}
+							></div>
+							{#if !activeVideoSlugs.has(photo.slug)}
+								<button
+									type="button"
+									class="video-play"
+									aria-label="Play video"
+									onclick={() => activateVideo(photo)}
+								>
+									<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+										<path d="M8 5.5v13l11-6.5z" />
+									</svg>
+								</button>
+							{/if}
+						{/if}
 					</figure>
 				</div>
 			</div>
@@ -414,6 +518,68 @@
 		background-size: 200% 100%;
 		animation: editorial-shimmer 1.8s ease-in-out infinite;
 		transition: opacity 300ms ease;
+	}
+
+	/* ── Video entries ──────────────────────────────────────────────────────
+	   The poster renders through the exact photo pipeline above; these two
+	   layers add playback. The host sits over the poster but stays inert until
+	   the player is mounted into it on first click. */
+	.video-host {
+		position: absolute;
+		inset: 0;
+		z-index: 3;
+		display: none;
+	}
+
+	.video-host.is-active {
+		display: block;
+	}
+
+	.video-host :global(.plyr) {
+		width: 100%;
+		height: 100%;
+		--plyr-color-main: #241e4e;
+	}
+
+	.video-host :global(video) {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+	}
+
+	/* Minimal editorial play affordance over the poster. */
+	.video-play {
+		position: absolute;
+		left: 50%;
+		top: 50%;
+		z-index: 4;
+		transform: translate(-50%, -50%);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 64px;
+		height: 64px;
+		padding: 0;
+		border: 1px solid rgba(255, 255, 255, 0.55);
+		border-radius: 50%;
+		background: rgba(13, 17, 23, 0.45);
+		color: #ffffff;
+		cursor: pointer;
+		backdrop-filter: blur(2px);
+		transition:
+			background 180ms ease,
+			transform 180ms ease;
+	}
+
+	.video-play svg {
+		width: 26px;
+		height: 26px;
+		margin-left: 3px; /* optical centring of the triangle */
+	}
+
+	.video-play:hover {
+		background: rgba(36, 30, 78, 0.72);
+		transform: translate(-50%, -50%) scale(1.06);
 	}
 
 	.photo-skeleton.is-loaded {

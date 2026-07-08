@@ -161,6 +161,9 @@ export const POST: RequestHandler = async ({ request }) => {
 			title,
 			order: maxOrder + 1,
 			collectionNumber,
+			// This single-shot route predates the dashboard's draft+publish flow and
+			// only ever handles images; video uploads go through upload-draft.
+			mediaType: 'photo',
 			original: `/photos/originals/${slug}.webp`,
 			thumb: `/photos/thumbs/${slug}.webp`,
 			width,

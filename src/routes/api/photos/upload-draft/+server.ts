@@ -4,7 +4,7 @@ import { randomBytes } from 'crypto';
 import { requireAdmin } from '$lib/auth-admin';
 import { ghCreateBlob } from '$lib/github';
 import { loadManifest } from '$lib/photos-server';
-import { resolvePhotoGeo } from '$lib/photo-exif-server';
+import { resolvePhotoGeo, resolveGeoFromCoords } from '$lib/photo-exif-server';
 import type { PhotoGeoEntry } from '../../../../shared/types';
 import {
 	defaultCollectionNumber,
@@ -50,8 +50,25 @@ export const POST: RequestHandler = async ({ request }) => {
 		const slug = String(formData.get('slug') ?? '').trim();
 		const title = String(formData.get('title') ?? '').trim();
 		const stripExif = formData.get('stripExif') !== 'false';
+		// Video uploads: the actual video file goes browser → Firebase Storage
+		// (Vercel's ~4.5MB request cap + no byte-range support rule out this pipeline
+		// for the file itself). Here `file` is the POSTER frame, plus the metadata the
+		// browser already extracted: the storage URL, duration and GPS coords.
+		const mediaType = formData.get('mediaType') === 'video' ? 'video' : 'photo';
+		const videoUrlRaw = String(formData.get('videoUrl') ?? '').trim();
+		const durationRaw = Number(formData.get('duration') ?? 0);
+		const videoLat = Number(formData.get('lat') ?? NaN);
+		const videoLng = Number(formData.get('lng') ?? NaN);
+		const dateTakenRaw = String(formData.get('dateTaken') ?? '').trim();
 		const collectionRaw = formData.get('collectionNumber');
 		const collectionKeysRaw = formData.get('collectionKeys');
+
+		if (mediaType === 'video') {
+			// Only accept files that actually live in this project's Firebase bucket.
+			if (!/^https:\/\/firebasestorage\.googleapis\.com\/v0\/b\/[^/]+\/o\/.+/.test(videoUrlRaw)) {
+				return json({ error: 'Invalid video URL' }, { status: 400 });
+			}
+		}
 		const objectPositionRaw = formData.get('objectPosition');
 		const positionXRaw = formData.get('positionX');
 		const positionYRaw = formData.get('positionY');
@@ -130,16 +147,32 @@ export const POST: RequestHandler = async ({ request }) => {
 
 		const buffer = Buffer.from(await file.arrayBuffer());
 
-		// Read GPS/date from the RAW buffer before sharp strips metadata below.
-		const geoEntry = await resolvePhotoGeo(slug, buffer);
+		// Capture date: for photos it comes out of EXIF below; for videos the browser
+		// sends the file's own timestamp (the canvas poster carries no metadata).
+		const dateTaken =
+			dateTakenRaw && !Number.isNaN(new Date(dateTakenRaw).getTime())
+				? new Date(dateTakenRaw).toISOString()
+				: null;
 
-		// Smart default: if the admin didn't pick a year explicitly, use the photo's own
-		// EXIF capture date instead of silently defaulting to "today" — this is the exact
+		// Geo: photos — GPS straight from the RAW buffer before sharp strips it;
+		// videos — coordinates the browser parsed from the MP4 container, reverse-
+		// geocoded here so Memories can pin them like any photo.
+		const geoEntry =
+			mediaType === 'video'
+				? Number.isFinite(videoLat) && Number.isFinite(videoLng)
+					? await resolveGeoFromCoords(slug, videoLat, videoLng, dateTaken)
+					: null
+				: await resolvePhotoGeo(slug, buffer);
+
+		// Smart default: if the admin didn't pick a year explicitly, use the media's own
+		// capture date instead of silently defaulting to "today" — this is the exact
 		// gap that previously left every uploaded photo tagged with the current year
 		// regardless of when it was actually taken.
 		if (collectionNumber === null) {
-			const exifYear = geoEntry?.dateTaken ? new Date(geoEntry.dateTaken).getUTCFullYear() : null;
-			collectionNumber = exifYear !== null && isPhotoCollectionYear(exifYear) ? exifYear : defaultCollectionNumber();
+			const takenIso = geoEntry?.dateTaken ?? dateTaken;
+			const takenYear = takenIso ? new Date(takenIso).getUTCFullYear() : null;
+			collectionNumber =
+				takenYear !== null && isPhotoCollectionYear(takenYear) ? takenYear : defaultCollectionNumber();
 		}
 		const collectionKeys = normalizePhotoCollectionKeys(collectionKeysParsed, collectionNumber);
 
@@ -167,6 +200,16 @@ export const POST: RequestHandler = async ({ request }) => {
 			title,
 			order: 0,
 			collectionNumber,
+			mediaType,
+			...(mediaType === 'video'
+				? {
+						videoUrl: videoUrlRaw,
+						duration:
+							Number.isFinite(durationRaw) && durationRaw > 0
+								? Math.round(durationRaw)
+								: undefined
+					}
+				: {}),
 			original: `/photos/originals/${slug}.webp`,
 			thumb: `/photos/thumbs/${slug}.webp`,
 			width: meta.width ?? 0,

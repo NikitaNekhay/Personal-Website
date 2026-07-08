@@ -220,6 +220,9 @@ export const PHOTO_OBJECT_POSITIONS = [
 ] as const;
 export type PhotoObjectPosition = (typeof PHOTO_OBJECT_POSITIONS)[number];
 
+export const PHOTO_MEDIA_TYPES = ['photo', 'video'] as const;
+export type PhotoMediaType = (typeof PHOTO_MEDIA_TYPES)[number];
+
 export interface PhotoManifestEntry {
     id: string;
     slug: string;
@@ -230,6 +233,16 @@ export interface PhotoManifestEntry {
     /** Home/dashboard buckets this photo belongs to (editorial Selection and/or one or more
      *  years). A photo can appear under several tabs at once — always at least one entry. */
     collectionKeys: PhotoCollectionKey[];
+    /** 'photo' (default) or 'video'. For videos, `original`/`thumb` hold the poster
+     *  frame (webp) so every gallery surface renders it like a photo; playback on the
+     *  home canvas streams from `videoUrl`. */
+    mediaType: PhotoMediaType;
+    /** Direct Firebase Storage download URL of the video file (video entries only).
+     *  Stored externally because the GitHub upload pipeline is capped at ~4MB/request
+     *  and can't serve byte-range requests, which video playback (iOS) requires. */
+    videoUrl?: string;
+    /** Video duration in whole seconds (video entries only, best-effort). */
+    duration?: number;
     original: string;
     thumb: string;
     width: number;
@@ -294,6 +307,13 @@ export function normalizePhotoEntry(
 
     const fallbackPosition = getPercentsFromObjectPosition(entry.objectPosition);
 
+    // Video entries must keep a playable source; anything malformed degrades to a
+    // plain photo entry (the poster still renders everywhere, nothing breaks).
+    const isVideo =
+        entry.mediaType === 'video' &&
+        typeof entry.videoUrl === 'string' &&
+        entry.videoUrl.startsWith('https://');
+
     return {
         id: entry.id,
         slug: entry.slug,
@@ -301,6 +321,16 @@ export function normalizePhotoEntry(
         order: entry.order ?? 0,
         collectionNumber,
         collectionKeys,
+        mediaType: isVideo ? 'video' : 'photo',
+        ...(isVideo
+            ? {
+                  videoUrl: entry.videoUrl,
+                  duration:
+                      typeof entry.duration === 'number' && entry.duration > 0
+                          ? Math.round(entry.duration)
+                          : undefined
+              }
+            : {}),
         original: entry.original ?? `/photos/originals/${entry.slug}.webp`,
         thumb: entry.thumb ?? `/photos/thumbs/${entry.slug}.webp`,
         width: entry.width ?? 0,

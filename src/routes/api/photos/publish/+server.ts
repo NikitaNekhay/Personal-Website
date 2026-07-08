@@ -27,8 +27,15 @@ function isValidPendingPhoto(value: unknown): value is PendingPhotoCommit {
 	if (!value || typeof value !== 'object') return false;
 	const item = value as PendingPhotoCommit;
 	const entry = item.entry as PhotoManifestEntry | undefined;
+	// Video entries must reference a file in this project's Firebase bucket; the
+	// GitHub commit below only carries their poster images.
+	const videoOk =
+		entry?.mediaType !== 'video' ||
+		(typeof entry.videoUrl === 'string' &&
+			/^https:\/\/firebasestorage\.googleapis\.com\/v0\/b\/[^/]+\/o\/.+/.test(entry.videoUrl));
 	return (
 		!!entry &&
+		videoOk &&
 		typeof entry.slug === 'string' &&
 		typeof entry.title === 'string' &&
 		typeof item.originalBlobSha === 'string' &&

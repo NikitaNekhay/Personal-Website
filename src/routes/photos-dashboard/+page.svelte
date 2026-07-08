@@ -1,7 +1,9 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { base } from '$app/paths';
-	import { auth } from '$lib/firebase/firebase';
+	import { auth, storage } from '$lib/firebase/firebase';
+	import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
+	import { captureVideoPoster, extractVideoGps } from '$lib/video-client';
 	import CommonPopUp from '../../components/Shared/CommonPopUp.svelte';
 	import ConfirmationPopUp from '../../components/Shared/ConfirmationPopUp.svelte';
 	import InfoGuide from '../../components/Shared/InfoGuide.svelte';
@@ -20,13 +22,20 @@
 		type PhotoCollectionKey,
 		type PhotoCollectionYear,
 		type PhotoGeoEntry,
-		type PhotoManifestEntry
+		type PhotoManifestEntry,
+		type PhotoMediaType
 	} from '../../shared/types';
 	import { smoothDetails } from '../../services/smoothDetails';
 	import { getFlagUrl, formatTakenDate, placeLabel, formatCoords } from '$lib/geo-display';
 
 	const SLUG_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 	const MAX_FILE_BYTES = 4 * 1024 * 1024;
+	// Videos skip the GitHub pipeline (Vercel ~4.5MB request cap) and go straight to
+	// Firebase Storage, so they may be larger — but the home page still has to load
+	// them, so keep a hard cap and nag above the soft one.
+	const MAX_VIDEO_BYTES = 100 * 1024 * 1024;
+	const WARN_VIDEO_BYTES = 25 * 1024 * 1024;
+	const VIDEO_MIME_RE = /^video\/(mp4|webm|quicktime)$/;
 
 	type UploadStatus = 'pending' | 'uploading' | 'done' | 'error';
 
@@ -43,6 +52,13 @@
 		preview: string;
 		slug: string;
 		title: string;
+		mediaType: PhotoMediaType;
+		/** Video only: poster frame captured in-browser, uploaded through the photo pipeline. */
+		posterBlob?: Blob;
+		/** Video only: duration in whole seconds (0 = unknown). */
+		duration?: number;
+		/** Video only: GPS parsed from the MP4 container (null = none found). */
+		gps?: { lat: number; lng: number } | null;
 		collectionNumber: number;
 		collectionKeys: PhotoCollectionKey[];
 		positionX: number;
@@ -256,21 +272,10 @@
 		auth.authStateReady().then(() => loadGeo());
 	});
 
-	function addFiles(files: FileList | File[]) {
-		const list = Array.from(files).filter((f) => f.type.startsWith('image/'));
-		const oversized = list.filter((f) => f.size > MAX_FILE_BYTES);
-		if (oversized.length > 0) {
-			setPopup(
-				'warning',
-				'Warning',
-				`${oversized.length} file(s) exceed 4MB and cannot be uploaded: ${oversized.map((f) => f.name).join(', ')}`
-			);
-		}
-		const valid = list.filter((f) => f.size <= MAX_FILE_BYTES);
-		const newStaged: StagedFile[] = valid.map((file) => ({
+	function stagedDefaults(file: File) {
+		return {
 			id: crypto.randomUUID(),
 			file,
-			preview: URL.createObjectURL(file),
 			slug: toSlug(file.name),
 			title: file.name.replace(/\.[^.]+$/, ''),
 			collectionNumber: defaultCollectionNumber(),
@@ -284,8 +289,74 @@
 			stripExif: true,
 			selected: true,
 			status: 'pending' as UploadStatus
-		}));
-		staged = [...staged, ...newStaged];
+		};
+	}
+
+	async function addFiles(files: FileList | File[]) {
+		const list = Array.from(files);
+		const images = list.filter((f) => f.type.startsWith('image/'));
+		const videos = list.filter((f) => VIDEO_MIME_RE.test(f.type));
+
+		const oversizedImages = images.filter((f) => f.size > MAX_FILE_BYTES);
+		if (oversizedImages.length > 0) {
+			setPopup(
+				'warning',
+				'Warning',
+				`${oversizedImages.length} image(s) exceed 4MB and cannot be uploaded: ${oversizedImages.map((f) => f.name).join(', ')}`
+			);
+		}
+		const oversizedVideos = videos.filter((f) => f.size > MAX_VIDEO_BYTES);
+		if (oversizedVideos.length > 0) {
+			setPopup(
+				'warning',
+				'Warning',
+				`${oversizedVideos.length} video(s) exceed 100MB and cannot be uploaded: ${oversizedVideos.map((f) => f.name).join(', ')}`
+			);
+		}
+		const heavyVideos = videos.filter((f) => f.size <= MAX_VIDEO_BYTES && f.size > WARN_VIDEO_BYTES);
+		if (heavyVideos.length > 0) {
+			setPopup(
+				'warning',
+				'Warning',
+				`${heavyVideos.length} video(s) are over 25MB — they will upload, but consider exporting a lighter cut for the public page: ${heavyVideos.map((f) => f.name).join(', ')}`
+			);
+		}
+
+		const newStaged: StagedFile[] = images
+			.filter((f) => f.size <= MAX_FILE_BYTES)
+			.map((file) => ({
+				...stagedDefaults(file),
+				mediaType: 'photo' as PhotoMediaType,
+				preview: URL.createObjectURL(file)
+			}));
+
+		// Videos: the browser does the media work the server can't (no ffmpeg on
+		// Vercel) — poster frame, duration and GPS come out of the file right here.
+		for (const file of videos.filter((f) => f.size <= MAX_VIDEO_BYTES)) {
+			try {
+				const [capture, gps] = await Promise.all([captureVideoPoster(file), extractVideoGps(file)]);
+				const takenYear = new Date(file.lastModified).getFullYear();
+				newStaged.push({
+					...stagedDefaults(file),
+					mediaType: 'video',
+					preview: URL.createObjectURL(capture.poster),
+					posterBlob: capture.poster,
+					duration: capture.duration,
+					gps,
+					collectionNumber: (PHOTO_COLLECTION_YEARS as readonly number[]).includes(takenYear)
+						? takenYear
+						: defaultCollectionNumber()
+				});
+			} catch (e) {
+				setPopup(
+					'error',
+					'Error',
+					`${file.name}: ${e instanceof Error ? e.message : 'Could not read this video'}`
+				);
+			}
+		}
+
+		if (newStaged.length > 0) staged = [...staged, ...newStaged];
 	}
 
 	function handleFileSelect(e: Event) {
@@ -466,7 +537,28 @@
 
 			try {
 				const formData = new FormData();
-				formData.append('file', item.file);
+				if (item.mediaType === 'video') {
+					if (!item.posterBlob) throw new Error('Poster frame missing — re-add the video');
+					// The video file itself goes straight to Firebase Storage (the API
+					// pipeline is capped at ~4.5MB/request and can't stream ranges);
+					// only its poster + metadata continue through the photo pipeline.
+					const ext = item.file.type === 'video/webm' ? 'webm' : 'mp4';
+					const videoRef = ref(storage, `photos-videos/${item.slug}-${item.id.slice(0, 8)}.${ext}`);
+					await uploadBytes(videoRef, item.file, { contentType: item.file.type });
+					const videoUrl = await getDownloadURL(videoRef);
+
+					formData.append('file', item.posterBlob, `${item.slug}-poster.jpg`);
+					formData.append('mediaType', 'video');
+					formData.append('videoUrl', videoUrl);
+					formData.append('duration', String(item.duration ?? 0));
+					formData.append('dateTaken', new Date(item.file.lastModified).toISOString());
+					if (item.gps) {
+						formData.append('lat', String(item.gps.lat));
+						formData.append('lng', String(item.gps.lng));
+					}
+				} else {
+					formData.append('file', item.file);
+				}
 				formData.append('slug', item.slug);
 				formData.append('title', item.title);
 				formData.append('stripExif', String(item.stripExif));
@@ -813,7 +905,7 @@
 
 	async function confirmDeletePhoto() {
 		if (!pendingDeletePhoto) return;
-		const { slug, title } = pendingDeletePhoto;
+		const { slug, title, mediaType, videoUrl } = pendingDeletePhoto;
 		savingAction = `delete-${slug}`;
 		try {
 			const headers = {
@@ -826,6 +918,16 @@
 				body: JSON.stringify({ slug })
 			});
 			if (!res.ok) throw new Error('Delete failed');
+			// Video files live in Firebase Storage (not GitHub), so remove them here.
+			// Best-effort: the manifest entry is already gone, an orphaned file only
+			// wastes storage and must never block the delete.
+			if (mediaType === 'video' && videoUrl) {
+				try {
+					await deleteObject(ref(storage, videoUrl));
+				} catch (e) {
+					console.warn('Could not delete video file from storage:', e);
+				}
+			}
 			manifest = await res.json();
 			displayOrder = [...manifest].sort((a, b) => a.order - b.order);
 			syncDrafts(displayOrder);
@@ -945,14 +1047,14 @@
 			tabindex="0"
 			onkeydown={(e) => e.key === 'Enter' && fileInput?.click()}
 		>
-			<p>Drag and drop images here, or click to browse</p>
+			<p>Drag and drop images or videos here, or click to browse</p>
 			<button type="button" class="fancy-btn" onclick={() => fileInput?.click()}>
 				Choose files
 			</button>
 			<input
 				bind:this={fileInput}
 				type="file"
-				accept="image/*"
+				accept="image/*,video/mp4,video/webm,video/quicktime"
 				multiple
 				hidden
 				onchange={handleFileSelect}
@@ -1119,6 +1221,11 @@
 							style={`--preview-x: ${item.positionX}%; --preview-y: ${item.positionY}%; --preview-offset-x: -${item.positionX}%; --preview-offset-y: -${item.positionY}%; --preview-size: ${photoSize(item.scalePercent)};`}
 						>
 							<img src={item.preview} alt="" class="stage-thumb" />
+							{#if item.mediaType === 'video'}
+								<span class="video-badge" title="Video — the poster frame is shown">
+									▶{item.duration ? ` ${item.duration}s` : ''}
+								</span>
+							{/if}
 						</div>
 						<div class="stage-fields">
 							<label>
@@ -1525,6 +1632,9 @@
 						<div class="card-body">
 							<div class="card-meta">
 								<span class="order-num">{activeSectionTitle} #{index + 1} / global #{photo.order}</span>
+								{#if photo.mediaType === 'video'}
+									<span class="meta-chip video-chip">▶ video{photo.duration ? ` · ${photo.duration}s` : ''}</span>
+								{/if}
 								<span class="meta-chip">{collectionKeysLabel(photo.collectionKeys)}</span>
 								<span class="meta-chip">taken {photo.collectionNumber}</span>
 								<span class="meta-chip">reveal: {photo.revealFrom}</span>
@@ -2229,6 +2339,26 @@
 		font-size: 0.72rem;
 		font-weight: 600;
 		white-space: nowrap;
+	}
+
+	.meta-chip.video-chip {
+		background: #241e4e;
+		color: #ffffff;
+	}
+
+	/* Small ▶ marker over a staged video's poster preview. */
+	.video-badge {
+		position: absolute;
+		left: 4px;
+		bottom: 4px;
+		z-index: 1;
+		padding: 1px 6px;
+		border-radius: 999px;
+		background: rgba(13, 17, 23, 0.75);
+		color: #fff;
+		font-size: 0.62rem;
+		line-height: 1.5;
+		pointer-events: none;
 	}
 
 	.existing-bulk {
