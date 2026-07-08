@@ -324,9 +324,10 @@
     "slug": "dili-neswizh-run",
     "title": "dili_neswizh_run",
     "order": 15,
-    "collectionNumber": 2026,
+    "collectionNumber": 2023,
     "collectionKeys": [
-      "selection"
+      "selection",
+      2023
     ],
     "original": "/photos/originals/dili-neswizh-run.webp",
     "thumb": "/photos/thumbs/dili-neswizh-run.webp",
