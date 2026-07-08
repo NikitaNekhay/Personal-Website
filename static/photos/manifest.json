@@ -845,9 +845,10 @@
     "slug": "guys-zaslavl",
     "title": "guys_Zaslavl",
     "order": 38,
-    "collectionNumber": 2026,
+    "collectionNumber": 2024,
     "collectionKeys": [
-      "selection"
+      "selection",
+      2024
     ],
     "original": "/photos/originals/guys-zaslavl.webp",
     "thumb": "/photos/thumbs/guys-zaslavl.webp",
