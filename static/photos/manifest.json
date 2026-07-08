@@ -96,9 +96,10 @@
     "slug": "cars-cross-petersburg",
     "title": "cars_cross_petersburg",
     "order": 5,
-    "collectionNumber": 2026,
+    "collectionNumber": 2023,
     "collectionKeys": [
-      "selection"
+      "selection",
+      2023
     ],
     "original": "/photos/originals/cars-cross-petersburg.webp",
     "thumb": "/photos/thumbs/cars-cross-petersburg.webp",
