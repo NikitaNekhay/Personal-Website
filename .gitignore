@@ -6,6 +6,8 @@ node_modules
 .vercel
 .claude
 CLAUDE.md
+AGENTS.md
+
 
 .env
 .env.*
