@@ -1026,9 +1026,10 @@
     "slug": "great-spain-organ",
     "title": "great_spain_organ",
     "order": 46,
-    "collectionNumber": 2026,
+    "collectionNumber": 2024,
     "collectionKeys": [
-      "selection"
+      "selection",
+      2024
     ],
     "original": "/photos/originals/great-spain-organ.webp",
     "thumb": "/photos/thumbs/great-spain-organ.webp",
