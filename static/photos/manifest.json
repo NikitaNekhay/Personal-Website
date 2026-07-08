@@ -889,9 +889,10 @@
     "slug": "guys-hill-zaslavl",
     "title": "guys_hill_Zaslavl",
     "order": 40,
-    "collectionNumber": 2026,
+    "collectionNumber": 2024,
     "collectionKeys": [
-      "selection"
+      "selection",
+      2024
     ],
     "original": "/photos/originals/guys-hill-zaslavl.webp",
     "thumb": "/photos/thumbs/guys-hill-zaslavl.webp",
