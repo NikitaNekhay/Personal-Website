@@ -823,9 +823,10 @@
     "slug": "beach-plus",
     "title": "beach_plus",
     "order": 37,
-    "collectionNumber": 2026,
+    "collectionNumber": 2023,
     "collectionKeys": [
-      "selection"
+      "selection",
+      2023
     ],
     "original": "/photos/originals/beach-plus.webp",
     "thumb": "/photos/thumbs/beach-plus.webp",
