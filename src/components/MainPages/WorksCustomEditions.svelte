@@ -194,7 +194,7 @@
             <a
               data-scrollmark data-scrollmark-level="2"
               class=" transition duration-300 delay-100 hover:text-yellow-0"
-              href="#">{$t("Borrelli polo with a perl pad")}</a
+              href="https://nekhaynikita.ru/posts/66wHBRhOuZJldIYccHFL">{$t("Borrelli polo with a perl pad")}</a
             >
           </div>
 
@@ -347,7 +347,7 @@
             <a
               class=" transition duration-300 delay-100 hover:text-yellow-0"
               data-scrollmark data-scrollmark-level="2"
-              href="#">{$t("Adidas shirt with a ribbed waistband")}</a
+              href="https://nekhaynikita.ru/posts/Ho7Mq63c5YKequeCYbQo">{$t("Adidas shirt with a ribbed waistband")}</a
             >
           </div>
         </div>
