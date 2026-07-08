@@ -302,9 +302,10 @@
     "slug": "dili-neswizh",
     "title": "dili_neswizh",
     "order": 14,
-    "collectionNumber": 2026,
+    "collectionNumber": 2023,
     "collectionKeys": [
-      "selection"
+      "selection",
+      2023
     ],
     "original": "/photos/originals/dili-neswizh.webp",
     "thumb": "/photos/thumbs/dili-neswizh.webp",
