@@ -732,9 +732,10 @@
     "slug": "road-from-the-pushkin",
     "title": "road_from_the_pushkin",
     "order": 33,
-    "collectionNumber": 2026,
+    "collectionNumber": 2023,
     "collectionKeys": [
-      "selection"
+      "selection",
+      2023
     ],
     "original": "/photos/originals/road-from-the-pushkin.webp",
     "thumb": "/photos/thumbs/road-from-the-pushkin.webp",
