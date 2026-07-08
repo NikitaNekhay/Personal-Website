@@ -2,7 +2,7 @@
 	import { onMount } from 'svelte';
 	import { base } from '$app/paths';
 	import { auth, storage } from '$lib/firebase/firebase';
-	import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
+	import { ref, uploadBytesResumable, getDownloadURL, deleteObject } from 'firebase/storage';
 	import { captureVideoPoster, extractVideoMeta } from '$lib/video-client';
 	import CommonPopUp from '../../components/Shared/CommonPopUp.svelte';
 	import ConfirmationPopUp from '../../components/Shared/ConfirmationPopUp.svelte';
@@ -31,9 +31,9 @@
 	const SLUG_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 	const MAX_FILE_BYTES = 4 * 1024 * 1024;
 	// Videos skip the GitHub pipeline (Vercel ~4.5MB request cap) and go straight to
-	// Firebase Storage, so they may be larger — but the home page still has to load
-	// them, so keep a hard cap and nag above the soft one.
-	const MAX_VIDEO_BYTES = 100 * 1024 * 1024;
+	// Firebase Storage, so they may be large — the hard cap is a storage-plan sanity
+	// bound (Spark tier = 5GB total), the soft one nudges toward page-friendly sizes.
+	const MAX_VIDEO_BYTES = 500 * 1024 * 1024;
 	const WARN_VIDEO_BYTES = 25 * 1024 * 1024;
 	const VIDEO_MIME_RE = /^video\/(mp4|webm|quicktime)$/;
 
@@ -61,6 +61,8 @@
 		gps?: { lat: number; lng: number } | null;
 		/** Capture date resolved from the file's own metadata (EXIF / mvhd), ISO string. */
 		takenAt?: string;
+		/** Video only: Firebase Storage upload progress, 0–100 (undefined until it starts). */
+		progress?: number;
 		collectionNumber: number;
 		collectionKeys: PhotoCollectionKey[];
 		positionX: number;
@@ -348,7 +350,7 @@
 			setPopup(
 				'warning',
 				'Warning',
-				`${oversizedVideos.length} video(s) exceed 100MB and cannot be uploaded: ${oversizedVideos.map((f) => f.name).join(', ')}`
+				`${oversizedVideos.length} video(s) exceed 500MB and cannot be uploaded — export a smaller version: ${oversizedVideos.map((f) => f.name).join(', ')}`
 			);
 		}
 		const heavyVideos = videos.filter((f) => f.size <= MAX_VIDEO_BYTES && f.size > WARN_VIDEO_BYTES);
@@ -356,7 +358,7 @@
 			setPopup(
 				'warning',
 				'Warning',
-				`${heavyVideos.length} video(s) are over 25MB — they will upload, but consider exporting a lighter cut for the public page: ${heavyVideos.map((f) => f.name).join(', ')}`
+				`${heavyVideos.length} video(s) over 25MB — they WILL upload (with a progress bar), just know visitors stream this file on the home page: ${heavyVideos.map((f) => f.name).join(', ')}`
 			);
 		}
 
@@ -585,9 +587,25 @@
 					// The video file itself goes straight to Firebase Storage (the API
 					// pipeline is capped at ~4.5MB/request and can't stream ranges);
 					// only its poster + metadata continue through the photo pipeline.
+					// Resumable upload: chunked with automatic retries — a big file on a
+					// flaky connection survives, and the row shows live progress.
 					const ext = item.file.type === 'video/webm' ? 'webm' : 'mp4';
 					const videoRef = ref(storage, `photos-videos/${item.slug}-${item.id.slice(0, 8)}.${ext}`);
-					await uploadBytes(videoRef, item.file, { contentType: item.file.type });
+					const task = uploadBytesResumable(videoRef, item.file, {
+						contentType: item.file.type
+					});
+					await new Promise<void>((resolve, reject) => {
+						task.on(
+							'state_changed',
+							(snap) => {
+								const pct = Math.round((snap.bytesTransferred / snap.totalBytes) * 100);
+								staged[i] = { ...staged[i], progress: pct };
+								staged = [...staged];
+							},
+							reject,
+							resolve
+						);
+					});
 					const videoUrl = await getDownloadURL(videoRef);
 
 					formData.append('file', item.posterBlob, `${item.slug}-poster.jpg`);
@@ -1365,7 +1383,11 @@
 							</label>
 						</div>
 						<div class="stage-actions">
-							<span class="status status-{item.status}">{item.status}</span>
+							<span class="status status-{item.status}">
+							{item.status === 'uploading' && item.progress !== undefined && item.progress < 100
+								? `uploading ${item.progress}%`
+								: item.status}
+						</span>
 							{#if item.error}
 								<span class="error-text">{item.error}</span>
 							{/if}
