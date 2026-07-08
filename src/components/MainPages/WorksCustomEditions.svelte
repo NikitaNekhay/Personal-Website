@@ -32,63 +32,49 @@
   // Just three photos on the right for this section.
   const editionPhotos = [
     {
-      src: "https://firebasestorage.googleapis.com/v0/b/personal-website-with-svelte.appspot.com/o/images%2F1IMGL9203s.jpg?alt=media&token=94cc9adb-c4b9-4e7c-896c-62dbbf279b5d",
+      src: "https://firebasestorage.googleapis.com/v0/b/personal-website-with-svelte.appspot.com/o/images%2FIMG_8858.jpeg?alt=media&token=60858796-6e39-4ef8-99ca-3820bd4a231a",
       alt: "custom edition 1",
     },
     {
-      src: "https://firebasestorage.googleapis.com/v0/b/personal-website-with-svelte.appspot.com/o/images%2F2IMGL9199s.jpg?alt=media&token=148ce209-950b-4439-ab70-e71ee476264c",
+      src: "https://firebasestorage.googleapis.com/v0/b/personal-website-with-svelte.appspot.com/o/images%2FIMG_8862.jpeg?alt=media&token=34793a68-6490-4712-91fc-1379ff802be7",
       alt: "custom edition 2",
     },
     {
-      src: "https://firebasestorage.googleapis.com/v0/b/personal-website-with-svelte.appspot.com/o/images%2F3IMGL9124s.jpg?alt=media&token=85ce8965-3ca9-4530-8027-101b2371c9fa",
+      src: "https://firebasestorage.googleapis.com/v0/b/personal-website-with-svelte.appspot.com/o/images%2FIMG_8859.jpeg?alt=media&token=cd474c3d-b232-4936-9f1b-c217b1e50d0f",
       alt: "custom edition 3",
     },
   ];
 
   const editionPhotos2 = [
     {
-      src: "https://firebasestorage.googleapis.com/v0/b/personal-website-with-svelte.appspot.com/o/images%2F1IMGL9203s.jpg?alt=media&token=94cc9adb-c4b9-4e7c-896c-62dbbf279b5d",
+      src: "https://firebasestorage.googleapis.com/v0/b/personal-website-with-svelte.appspot.com/o/images%2FIMG_8858.jpeg?alt=media&token=60858796-6e39-4ef8-99ca-3820bd4a231a",
       alt: "custom edition 1",
     },
     {
-      src: "https://firebasestorage.googleapis.com/v0/b/personal-website-with-svelte.appspot.com/o/images%2F2IMGL9199s.jpg?alt=media&token=148ce209-950b-4439-ab70-e71ee476264c",
+      src: "https://firebasestorage.googleapis.com/v0/b/personal-website-with-svelte.appspot.com/o/images%2FIMG_8862.jpeg?alt=media&token=34793a68-6490-4712-91fc-1379ff802be7",
       alt: "custom edition 2",
     },
     {
-      src: "https://firebasestorage.googleapis.com/v0/b/personal-website-with-svelte.appspot.com/o/images%2F3IMGL9124s.jpg?alt=media&token=85ce8965-3ca9-4530-8027-101b2371c9fa",
+      src: "https://firebasestorage.googleapis.com/v0/b/personal-website-with-svelte.appspot.com/o/images%2FIMG_8859.jpeg?alt=media&token=cd474c3d-b232-4936-9f1b-c217b1e50d0f",
       alt: "custom edition 3",
     },
   ];
 
   const editionPhotos3 = [
     {
-      src: "https://firebasestorage.googleapis.com/v0/b/personal-website-with-svelte.appspot.com/o/images%2F1IMGL9203s.jpg?alt=media&token=94cc9adb-c4b9-4e7c-896c-62dbbf279b5d",
+      src: "https://firebasestorage.googleapis.com/v0/b/personal-website-with-svelte.appspot.com/o/images%2FIMG_8866.png?alt=media&token=c4b3709c-7242-48e3-ba7b-19b8f7ec568c",
       alt: "custom edition 1",
     },
     {
-      src: "https://firebasestorage.googleapis.com/v0/b/personal-website-with-svelte.appspot.com/o/images%2F2IMGL9199s.jpg?alt=media&token=148ce209-950b-4439-ab70-e71ee476264c",
+      src: "https://firebasestorage.googleapis.com/v0/b/personal-website-with-svelte.appspot.com/o/images%2FIMG_8866.png?alt=media&token=c4b3709c-7242-48e3-ba7b-19b8f7ec568c",
       alt: "custom edition 2",
     },
     {
-      src: "https://firebasestorage.googleapis.com/v0/b/personal-website-with-svelte.appspot.com/o/images%2F3IMGL9124s.jpg?alt=media&token=85ce8965-3ca9-4530-8027-101b2371c9fa",
+      src: "https://firebasestorage.googleapis.com/v0/b/personal-website-with-svelte.appspot.com/o/images%2FIMG_8866.png?alt=media&token=c4b3709c-7242-48e3-ba7b-19b8f7ec568c",
       alt: "custom edition 3",
     },
   ];
 
-    const editionPhotos4 = [
-    {
-      src: "https://firebasestorage.googleapis.com/v0/b/personal-website-with-svelte.appspot.com/o/images%2F1IMGL9203s.jpg?alt=media&token=94cc9adb-c4b9-4e7c-896c-62dbbf279b5d",
-      alt: "custom edition 1",
-    },
-    {
-      src: "https://firebasestorage.googleapis.com/v0/b/personal-website-with-svelte.appspot.com/o/images%2F2IMGL9199s.jpg?alt=media&token=148ce209-950b-4439-ab70-e71ee476264c",
-      alt: "custom edition 2",
-    },
-    {
-      src: "https://firebasestorage.googleapis.com/v0/b/personal-website-with-svelte.appspot.com/o/images%2F3IMGL9124s.jpg?alt=media&token=85ce8965-3ca9-4530-8027-101b2371c9fa",
-      alt: "custom edition 3",
-    },
-  ];
 
   /** @type {HTMLDivElement} */
   let root; // обёртка страницы — через неё находим все <img> для fade-in
