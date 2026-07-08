@@ -484,9 +484,10 @@
     "slug": "we-at-the-gulf-hill",
     "title": "we_at_the_gulf_hill",
     "order": 22,
-    "collectionNumber": 2026,
+    "collectionNumber": 2023,
     "collectionKeys": [
-      "selection"
+      "selection",
+      2023
     ],
     "original": "/photos/originals/we-at-the-gulf-hill.webp",
     "thumb": "/photos/thumbs/we-at-the-gulf-hill.webp",
