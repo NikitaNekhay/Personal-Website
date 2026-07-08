@@ -62,15 +62,15 @@
 
   const editionPhotos3 = [
     {
-      src: "https://firebasestorage.googleapis.com/v0/b/personal-website-with-svelte.appspot.com/o/images%2FIMG_8866.png?alt=media&token=c4b3709c-7242-48e3-ba7b-19b8f7ec568c",
+      src: "https://firebasestorage.googleapis.com/v0/b/personal-website-with-svelte.appspot.com/o/images%2FIMG_6832.jpeg?alt=media&token=1ee90fbb-aa46-408e-a4db-565e3a2de03d",
       alt: "custom edition 1",
     },
     {
-      src: "https://firebasestorage.googleapis.com/v0/b/personal-website-with-svelte.appspot.com/o/images%2FIMG_8866.png?alt=media&token=c4b3709c-7242-48e3-ba7b-19b8f7ec568c",
+      src: "https://firebasestorage.googleapis.com/v0/b/personal-website-with-svelte.appspot.com/o/images%2FIMG_6833.jpeg?alt=media&token=0f629d7e-b84f-4aa0-8f5d-b158c002bf15",
       alt: "custom edition 2",
     },
     {
-      src: "https://firebasestorage.googleapis.com/v0/b/personal-website-with-svelte.appspot.com/o/images%2FIMG_8866.png?alt=media&token=c4b3709c-7242-48e3-ba7b-19b8f7ec568c",
+      src: "https://firebasestorage.googleapis.com/v0/b/personal-website-with-svelte.appspot.com/o/images%2FIMG_6834.jpeg?alt=media&token=f5a2326e-e73a-43c7-acb1-a5abda4c1430",
       alt: "custom edition 3",
     },
   ];
@@ -271,7 +271,7 @@
             <a
               class=" transition duration-300 delay-100 hover:text-yellow-0"
               data-scrollmark data-scrollmark-level="2"
-              href="#">{$t("Vintage Brioni in the sashiko technique")}</a
+              href="https://nekhaynikita.ru/posts/q2TNLSgH5flUxH4DhTXo">{$t("Vintage Brioni in the sashiko technique")}</a
             >
           </div>
         </div>
