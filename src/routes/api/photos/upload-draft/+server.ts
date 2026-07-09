@@ -155,14 +155,15 @@ export const POST: RequestHandler = async ({ request }) => {
 				: null;
 
 		// Geo: photos — GPS straight from the RAW buffer before sharp strips it;
-		// videos — coordinates the browser parsed from the MP4 container, reverse-
-		// geocoded here so Memories can pin them like any photo.
-		const geoEntry =
-			mediaType === 'video'
-				? Number.isFinite(videoLat) && Number.isFinite(videoLng)
-					? await resolveGeoFromCoords(slug, videoLat, videoLng, dateTaken)
-					: null
-				: await resolvePhotoGeo(slug, buffer);
+		// videos — coordinates the browser parsed from the MP4 container. Photos
+		// that were re-encoded in-browser (auto-compression) arrive without EXIF,
+		// so form coordinates serve as the fallback for them too.
+		const formCoords = Number.isFinite(videoLat) && Number.isFinite(videoLng);
+		let geoEntry =
+			mediaType === 'video' ? null : await resolvePhotoGeo(slug, buffer);
+		if (!geoEntry && formCoords) {
+			geoEntry = await resolveGeoFromCoords(slug, videoLat, videoLng, dateTaken);
+		}
 
 		// Smart default: if the admin didn't pick a year explicitly, use the media's own
 		// capture date instead of silently defaulting to "today" — this is the exact

@@ -4,6 +4,7 @@
 	import { auth, storage } from '$lib/firebase/firebase';
 	import { ref, uploadBytesResumable, getDownloadURL, deleteObject } from 'firebase/storage';
 	import { captureVideoPoster, extractVideoMeta } from '$lib/video-client';
+	import { compressImageToLimit, extractImageMeta } from '$lib/image-client';
 	import CommonPopUp from '../../components/Shared/CommonPopUp.svelte';
 	import ConfirmationPopUp from '../../components/Shared/ConfirmationPopUp.svelte';
 	import InfoGuide from '../../components/Shared/InfoGuide.svelte';
@@ -57,7 +58,8 @@
 		posterBlob?: Blob;
 		/** Video only: duration in whole seconds (0 = unknown). */
 		duration?: number;
-		/** Video only: GPS parsed from the MP4 container (null = none found). */
+		/** GPS from the file's own metadata: mp4 `©xyz` box for videos, EXIF for
+		 *  photos that were re-encoded in-browser (re-encoding strips EXIF). */
 		gps?: { lat: number; lng: number } | null;
 		/** Capture date resolved from the file's own metadata (EXIF / mvhd), ISO string. */
 		takenAt?: string;
@@ -337,14 +339,6 @@
 		const images = list.filter((f) => f.type.startsWith('image/'));
 		const videos = list.filter((f) => VIDEO_MIME_RE.test(f.type));
 
-		const oversizedImages = images.filter((f) => f.size > MAX_FILE_BYTES);
-		if (oversizedImages.length > 0) {
-			setPopup(
-				'warning',
-				'Warning',
-				`${oversizedImages.length} image(s) exceed 4MB and cannot be uploaded: ${oversizedImages.map((f) => f.name).join(', ')}`
-			);
-		}
 		const oversizedVideos = videos.filter((f) => f.size > MAX_VIDEO_BYTES);
 		if (oversizedVideos.length > 0) {
 			setPopup(
@@ -363,24 +357,50 @@
 		}
 
 		const newStaged: StagedFile[] = [];
+		let autoCompressed = 0;
 
-		// Photos: capture date comes out of EXIF right here so the year/collection
-		// inputs are pre-set to when the shot was actually taken.
-		for (const file of images.filter((f) => f.size <= MAX_FILE_BYTES)) {
-			newStaged.push({
-				...stagedDefaults(file),
-				...takenDefaults(await photoTakenDate(file)),
-				mediaType: 'photo' as PhotoMediaType,
-				preview: URL.createObjectURL(file)
-			});
+		// Photos: capture date + GPS come out of the ORIGINAL file's EXIF right
+		// here (pre-setting the year/collection inputs). Anything over the 4MB
+		// pipeline cap is transparently re-encoded in-browser — no manual
+		// resizing; the server converts everything to 1920px WebP anyway, so the
+		// pre-shrink costs nothing visible.
+		for (const file of images) {
+			try {
+				// Meta first, from the original — a canvas re-encode strips EXIF.
+				const [takenAt, meta] = await Promise.all([photoTakenDate(file), extractImageMeta(file)]);
+				const { file: uploadFile, compressed } = await compressImageToLimit(file, MAX_FILE_BYTES);
+				if (compressed) autoCompressed++;
+				newStaged.push({
+					...stagedDefaults(file),
+					file: uploadFile,
+					...takenDefaults(takenAt),
+					mediaType: 'photo' as PhotoMediaType,
+					preview: URL.createObjectURL(uploadFile),
+					// The compressed copy has no EXIF — carry the original's GPS along
+					// so Memories still gets its pin (harmless for uncompressed files:
+					// the server prefers the buffer's own EXIF when present).
+					gps: meta.gps
+				});
+			} catch (e) {
+				setPopup('error', 'Error', e instanceof Error ? e.message : `${file.name}: unreadable image`);
+			}
+		}
+		if (autoCompressed > 0) {
+			setPopup(
+				'success',
+				'Auto-compressed',
+				`${autoCompressed} photo(s) were over 4MB and were automatically compressed for upload — no quality loss on the public page.`
+			);
 		}
 
 		// Videos: the browser does the media work the server can't (no ffmpeg on
-		// Vercel) — poster frame, duration, GPS and capture date come out of the
-		// file right here.
+		// Vercel) — poster frame first, then the metadata scan (sequentially: the
+		// scan competes for the main thread, and running it alongside the decoder
+		// is what used to starve poster capture into a timeout).
 		for (const file of videos.filter((f) => f.size <= MAX_VIDEO_BYTES)) {
 			try {
-				const [capture, meta] = await Promise.all([captureVideoPoster(file), extractVideoMeta(file)]);
+				const capture = await captureVideoPoster(file);
+				const meta = await extractVideoMeta(file);
 				const takenAt =
 					meta.createdAt ?? (file.lastModified ? new Date(file.lastModified) : null);
 				newStaged.push({
@@ -612,16 +632,19 @@
 					formData.append('mediaType', 'video');
 					formData.append('videoUrl', videoUrl);
 					formData.append('duration', String(item.duration ?? 0));
-					formData.append(
-						'dateTaken',
-						item.takenAt ?? new Date(item.file.lastModified).toISOString()
-					);
-					if (item.gps) {
-						formData.append('lat', String(item.gps.lat));
-						formData.append('lng', String(item.gps.lng));
-					}
 				} else {
 					formData.append('file', item.file);
+				}
+				// Capture date + GPS travel for both media kinds: videos never carry
+				// EXIF the server can read, and photos re-encoded in-browser lost
+				// theirs — the server prefers the buffer's own EXIF when present.
+				formData.append(
+					'dateTaken',
+					item.takenAt ?? new Date(item.file.lastModified).toISOString()
+				);
+				if (item.gps) {
+					formData.append('lat', String(item.gps.lat));
+					formData.append('lng', String(item.gps.lng));
 				}
 				formData.append('slug', item.slug);
 				formData.append('title', item.title);

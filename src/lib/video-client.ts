@@ -31,12 +31,15 @@ export function captureVideoPoster(file: File): Promise<VideoPosterCapture> {
 		video.preload = 'auto';
 		video.src = url;
 
+		let settled = false;
+		let metadataSeen = false;
+
 		const fail = (message: string) => {
+			if (settled) return;
+			settled = true;
 			cleanup();
 			reject(new Error(message));
 		};
-		// Hard stop so a corrupt/unsupported file can never hang the upload UI.
-		const timeout = setTimeout(() => fail('Poster capture timed out'), 15000);
 
 		function cleanup() {
 			clearTimeout(timeout);
@@ -45,28 +48,21 @@ export function captureVideoPoster(file: File): Promise<VideoPosterCapture> {
 			URL.revokeObjectURL(url);
 		}
 
-		video.onerror = () => fail('Browser could not decode this video');
-
-		video.onloadedmetadata = () => {
-			// A frame at t=0 is often black; grab one slightly in, but stay within
-			// very short clips.
-			const t = Math.min(0.5, (video.duration || 1) / 10);
-			video.currentTime = t;
-		};
-
-		video.onseeked = () => {
+		function grabFrame(): boolean {
 			const width = video.videoWidth;
 			const height = video.videoHeight;
-			if (!width || !height) return fail('Video has no visual track');
+			if (!width || !height) return false;
 			const canvas = document.createElement('canvas');
 			canvas.width = width;
 			canvas.height = height;
 			const ctx = canvas.getContext('2d');
-			if (!ctx) return fail('Canvas unavailable');
+			if (!ctx) return false;
 			ctx.drawImage(video, 0, 0, width, height);
 			const duration = Number.isFinite(video.duration) ? Math.round(video.duration) : 0;
 			canvas.toBlob(
 				(blob) => {
+					if (settled) return;
+					settled = true;
 					cleanup();
 					if (!blob) return reject(new Error('Poster encoding failed'));
 					resolve({ poster: blob, duration, width, height });
@@ -74,6 +70,37 @@ export function captureVideoPoster(file: File): Promise<VideoPosterCapture> {
 				'image/jpeg',
 				0.85
 			);
+			return true;
+		}
+
+		// Hard stop so a corrupt/unsupported file can never hang the upload UI.
+		// Before giving up, try grabbing whatever frame is currently decoded —
+		// and when metadata loaded but no frame ever decoded, the codec is the
+		// culprit (typically HEVC/H.265 iPhone exports, which Chrome/Edge on
+		// Windows can't decode — and neither could visitors' browsers).
+		const timeout = setTimeout(() => {
+			if (settled) return;
+			if (metadataSeen && grabFrame()) return;
+			fail(
+				metadataSeen
+					? 'Browser cannot decode this codec (HEVC/H.265?) — visitors could not play it either. Re-export as H.264 MP4.'
+					: 'Poster capture timed out — the file may be unsupported or corrupt'
+			);
+		}, 20000);
+
+		video.onerror = () =>
+			fail('Browser could not decode this video — re-export as H.264 MP4 and try again');
+
+		video.onloadedmetadata = () => {
+			metadataSeen = true;
+			// A frame at t=0 is often black; grab one slightly in, but stay within
+			// very short clips.
+			const t = Math.min(0.5, (video.duration || 1) / 10);
+			video.currentTime = t;
+		};
+
+		video.onseeked = () => {
+			if (!grabFrame()) fail('Video has no visual track');
 		};
 	});
 }
@@ -96,7 +123,24 @@ export interface VideoMeta {
 export async function extractVideoMeta(file: File): Promise<VideoMeta> {
 	const meta: VideoMeta = { gps: null, createdAt: null };
 	try {
-		const bytes = new Uint8Array(await file.arrayBuffer());
+		// NEVER read the whole file: a synchronous scan of a 100MB+ buffer blocks
+		// the main thread for seconds (which starved the <video> events of the
+		// poster capture and made it "time out"). The moov/udta metadata boxes sit
+		// at the head (faststart exports) or the tail (straight camera files), so
+		// scanning 8MB from each end covers both layouts in milliseconds.
+		const SLICE = 8 * 1024 * 1024;
+		let bytes: Uint8Array;
+		if (file.size <= SLICE * 2) {
+			bytes = new Uint8Array(await file.arrayBuffer());
+		} else {
+			const [head, tail] = await Promise.all([
+				file.slice(0, SLICE).arrayBuffer(),
+				file.slice(file.size - SLICE).arrayBuffer()
+			]);
+			bytes = new Uint8Array(head.byteLength + tail.byteLength);
+			bytes.set(new Uint8Array(head), 0);
+			bytes.set(new Uint8Array(tail), head.byteLength);
+		}
 
 		for (let i = 0; i < bytes.length - 4; i++) {
 			// `©xyz` box: 0xA9 'x' 'y' 'z'
