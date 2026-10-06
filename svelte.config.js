@@ -45,7 +45,7 @@ const config = {
 	kit: {
 		// Vercel adapter only on Vercel, auto adapter locally (no symlinks, no EPERM on Windows)
 		adapter: onVercel
-			? adapterVercel({ runtime: 'nodejs22.x' })
+			? adapterVercel({ runtime: 'nodejs24.x' })
 			: adapterAuto(),
 		env: {
 			dir: '.',
