@@ -1740,10 +1740,6 @@
     @apply mb-6;
   }
 
-  .purchase-heading3 {
-    @apply text-xl font-anonymous;
-  }
-
   .purchase-heading2 {
     @apply text-3xl font-anonymous mb-4;
   }
@@ -1755,10 +1751,6 @@
 
   .purchase-item {
     @apply mb-6;
-  }
-
-  .purchase-heading3 {
-    @apply text-xl font-anonymous;
   }
 
   .purchase-heading2 {

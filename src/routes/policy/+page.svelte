@@ -1,6 +1,6 @@
 <script>
-    import { t } from "svelte-i18n";
-
+  import { t } from "svelte-i18n";
+  import Cookies from "../../components/MainPages/About/Cookies.svelte";
 </script>
 
 <svelte:head>
@@ -22,17 +22,16 @@
 
   <meta property="og:type" content="article" />
 
-  <meta
-    property="og:image"
-    content=""
-  />
+  <meta property="og:image" content="" />
 
   <meta property="og:url" content="https://nekhaynikita.ru/policy" />
 </svelte:head>
 
-<div class="grid h-screen px-4 bg-white place-content-center">
+<!-- <div class="grid h-screen px-4 bg-white place-content-center">
   <h1 class="tracking-widest text-center text-black-1 uppercase font-abril text-3xl">
     404 | {$t("Currently this page is under the maintenance!")}<br>
     
   </h1>
-</div>
+</div> -->
+
+<Cookies />

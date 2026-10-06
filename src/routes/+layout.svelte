@@ -3,6 +3,7 @@
     import ContentEditor from "../components/Shared/ContentEditor.svelte";
     import { contentEditorOpen } from "../store/contentEditor";
     import { resetPageKeys } from "$lib/i18n-tracker";
+    import CookieBanner from '../components/Shared/CookieBanner.svelte';
     import EmptyPage from "../components/Shared/EmptyPage.svelte";
     import CustomScrollbar from "../components/Shared/CustomScrollbar.svelte";
     import RouteLoadingOverlay from "../components/Shared/RouteLoadingOverlay.svelte";
@@ -191,5 +192,9 @@
     <EmptyPage />
 {:else}
     <slot />
+    
 {/if}
 <Footer />
+
+<!-- Cookie consent banner, outside the error branch so it shows on every page -->
+<CookieBanner />

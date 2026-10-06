@@ -1,0 +1,222 @@
+/*
+ * Cookie banner
+ */
+
+.cookieConsentWrapper {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+
+    z-index: 99990;
+
+    background-color: #fbf7f4;
+
+    padding: 24px 32px;
+
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
+    box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.08);
+}
+
+.cookieConsent {
+    max-width: 1200px;
+    margin: 0 auto;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 40px;
+}
+
+
+/*
+ * H1
+ *
+ * Your existing:
+ *
+ * font-abril text-4xl text-blue-0
+ *
+ * We use @apply so the actual Tailwind definitions are reused
+ * rather than guessing the font/color values.
+ */
+
+.cookieConsent__Title {
+    margin: 0;
+
+    @apply text-3xl sm:text-lg select-none;
+}
+
+
+/*
+ * Description
+ */
+
+.cookieConsent__Description {
+    margin-top: 12px;
+
+    @apply font-anonymous;
+
+    font-size: 14px;
+    line-height: 1.6;
+
+    color: #111111;
+}
+
+
+/*
+ * Buttons wrapper
+ */
+
+.cookieConsent__Right {
+    display: flex;
+    align-items: center;
+
+    flex-shrink: 0;
+}
+
+
+/*
+ * Hide the package's Cookie Settings button completely.
+ *
+ * The package renders:
+ *
+ * part="button button--settings"
+ *
+ * even when we don't need settings.
+ */
+
+.cookieConsent__Button[part~="button--settings"] {
+    display: none;
+}
+
+
+.cookieConsent__Button--Accept {
+    position: relative;
+
+    display: flex;
+    width: 12rem;
+
+    align-items: center;
+    justify-content: center;
+
+    overflow: hidden;
+
+    border: 1px solid #000000;
+    border-radius: 0.375rem;
+
+    padding: 0.75rem 2rem;
+
+    background: transparent;
+    color: #000000;
+
+    font-family: inherit;
+    font-size: 0.875rem;
+    font-weight: 500;
+
+    cursor: pointer;
+
+    outline: none;
+
+    z-index: 0;
+}
+
+.cookieConsent__Button--Accept::before {
+    content: "";
+
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+
+    height: 2px;
+
+    background-color: #000000;
+
+    transition: height 300ms ease;
+
+    z-index: -1;
+}
+
+.cookieConsent__Button--Accept:hover::before {
+    height: 100%;
+}
+
+.cookieConsent__Button--Accept:hover {
+    color: #ffffff;
+}
+
+.cookieConsent__Button--Accept:focus {
+    outline: none;
+}
+
+.cookieConsent__Button--Accept:focus-visible {
+    outline: 2px solid #000000;
+    outline-offset: 2px;
+}
+
+@media only screen and (max-width: 900px) {
+    .cookieConsent__Button--Accept {
+        width: 9rem;
+    }
+}
+
+@media only screen and (max-width: 520px) {
+    .cookieConsent__Button--Accept {
+        width: 100%;
+    }
+}
+
+/*
+ * Settings modal should never be displayed because
+ * settings are intentionally disabled.
+ */
+
+.cookieConsentOperations {
+    display: none !important;
+}
+
+
+/*
+ * Mobile
+ */
+
+@media only screen and (max-width: 900px) {
+    .cookieConsentWrapper {
+        padding: 20px;
+    }
+
+    .cookieConsent {
+        display: block;
+    }
+
+    .cookieConsent__Right {
+        margin-top: 18px;
+    }
+
+    .cookieConsent__Button--Accept {
+        width: 9rem;
+    }
+}
+
+
+@media only screen and (max-width: 520px) {
+    .cookieConsentWrapper {
+        padding: 16px;
+    }
+
+    .cookieConsent__Title {
+        font-size: 2.25rem;
+    }
+
+    .cookieConsent__Description {
+        font-size: 13px;
+    }
+
+    .cookieConsent__Button--Accept {
+        width: 100%;
+    }
+
+    .cookieConsent__Right {
+        width: 100%;
+    }
+}

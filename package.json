@@ -11,6 +11,7 @@
     "lint": "eslint ."
   },
   "devDependencies": {
+    "@beyonk/gdpr-cookie-consent-banner": "^16.0.2",
     "@eslint/js": "^9.18.0",
     "@sveltech/routify": "^1.9.10",
     "@sveltejs/adapter-auto": "^7.0.0",
